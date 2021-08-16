@@ -1,0 +1,42 @@
+﻿<Window x:Class="TPWAPI.Frontend.MainWindow"
+        xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+        xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+        xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
+        xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
+        xmlns:local="clr-namespace:TPWAPI.Frontend" xmlns:threed="clr-namespace:TPWAPI.Frontend.Controls.ThreeD" xmlns:pages="clr-namespace:TPWAPI.Frontend.Pages"
+        mc:Ignorable="d"
+        Title="MainWindow" Height="768" Width="1024">
+    <Grid>
+        <Grid.Background>
+            <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+                <GradientStop Color="#FF00E8FF"/>
+                <GradientStop Color="#FF7CBEFF" Offset="1"/>
+            </LinearGradientBrush>
+        </Grid.Background>
+        <threed:ThreeDWorldView/>
+        <Frame Name="WindowContent" NavigationUIVisibility="Hidden">
+            <Frame.Content>
+                <pages:StartupOptionsPage/>
+            </Frame.Content>
+        </Frame>
+        <Menu VerticalAlignment="Top" VerticalContentAlignment="Center">
+            <MenuItem Header="File">
+                <MenuItem Header="New"></MenuItem>
+                <Separator/>
+                <MenuItem Header="Import">
+                    <MenuItem Name="PacketMenuItem" Click="PacketMenuItem_Click" Header="Theme Park World Packet"/>
+                    <MenuItem Header="Server Profile"/>
+                </MenuItem>
+                <MenuItem Header="Export">
+                    <MenuItem IsEnabled="False" Header="Theme Park World Packet"/>
+                    <MenuItem IsEnabled="False" Header="Server Profile"/>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="Quit"/>
+            </MenuItem>
+            <MenuItem Header="About">
+                
+            </MenuItem>
+        </Menu>
+    </Grid>
+</Window>
