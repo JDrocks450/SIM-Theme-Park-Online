@@ -48,5 +48,10 @@ namespace TPWAPI.Frontend.Pages
         {
             ShowInformationWindow(ApplicationResources.Management.LoginServer);
         }
+
+        private void NewsInfoButton_Click(object sender, RoutedEventArgs e)
+        {
+            ShowInformationWindow(ApplicationResources.Management.NewsServer);
+        }
     }
 }

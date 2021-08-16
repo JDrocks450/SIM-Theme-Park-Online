@@ -89,21 +89,21 @@ namespace QuazarAPI.Networking.Standard
         {
             if (dataBuffer.Where(x => x == 0).Count() == dataBuffer.Length)
             {
-                QConsole.WriteLine("Error Detected on Client: " + ID);
+                QConsole.WriteLine($"[{Name}] Error Detected on Client: " + ID);
                 Disconnect(ID);
                 return false;
             }
-            try
+            int amount = 0;
+
+            byte[] readBuffer = new byte[dataBuffer.Length];
+            dataBuffer.CopyTo(readBuffer, 0);
+            var packets = TPWPacket.ParseAll(readBuffer);
+            foreach (var packet in packets)
             {
-                var packet = TPWPacket.Parse(dataBuffer);
-                QConsole.WriteLine("Incoming packet was successfully parsed.");
+                QConsole.WriteLine($"[{Name}] Incoming packet was successfully parsed.");
                 IncomingTrans.Add(packet);
-                return true;
             }
-            catch (Exception ParseException)
-            {
-                QConsole.WriteLine("Couldn't parse incoming TPWPacket! " + ParseException.Message);
-            }
+            QConsole.WriteLine($"[{Name}] Found {packets.Count()} Packets...");
             return true;
         }
 

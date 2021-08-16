@@ -50,8 +50,9 @@ namespace TPWAPI.Frontend
                 }
                 try
                 {
-                    SimTheme_Park_Online.TPWPacket packet = SimTheme_Park_Online.TPWPacket.Parse(fileBuffer);
-                    ApplicationResources.ShowPropertiesWindow(packet);
+                    var packets = SimTheme_Park_Online.TPWPacket.ParseAll(fileBuffer);
+                    foreach(var packet in packets)
+                        ApplicationResources.ShowPropertiesWindow(packet);
                 }
                 catch(Exception ex)
                 {

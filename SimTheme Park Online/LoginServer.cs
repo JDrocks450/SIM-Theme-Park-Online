@@ -4,6 +4,7 @@ using QuazarAPI.Networking.Data;
 using QuazarAPI.Networking.Standard;
 using SimTheme_Park_Online.Data;
 using System;
+using System.IO;
 using System.Linq;
 using System.Net.Sockets;
 
@@ -15,7 +16,11 @@ namespace SimTheme_Park_Online
 
         public LoginServer(int port) : base("LoginServer", port, SIMThemeParkWaypoints.LoginServer, 8)
         {
-            
+            var Packet = GenerateLoginSuccessPacket();
+
+            //export to file
+            using (FileStream stream = File.Create("login.dat"))
+                Packet.Write(stream);
         }
 
         protected override void OnIncomingPacket(Socket Sender, uint ID, TPWPacket Data)
@@ -32,10 +37,8 @@ namespace SimTheme_Park_Online
             BeginListening();
         }
 
-        protected override bool OnReceive(uint ID, byte[] dataBuffer)
+        protected TPWPacket GenerateLoginSuccessPacket()
         {
-            if (!base.OnReceive(ID, dataBuffer)) return false;
-
             //Create a new response packet in TPW format
             TPWPacket Packet = new TPWPacket()
             {
@@ -53,9 +56,18 @@ namespace SimTheme_Park_Online
             // allocate a body buffer
             byte[] body = new byte[50];
             EndianBitConverter converter = EndianBitConverter.Big;
-            converter.CopyBytes((uint)0x01234, body, 18); // emplace Player and Customer ID
-            converter.CopyBytes((uint)0x05678, body, 22);
-            Packet.Body = body;
+            converter.CopyBytes((uint)0x01234, body, 0); // emplace Player and Customer ID
+            converter.CopyBytes((uint)0x05678, body, 4);
+            Packet.Body = body;            
+
+            return Packet;
+        }
+
+        protected override bool OnReceive(uint ID, byte[] dataBuffer)
+        {
+            if (!base.OnReceive(ID, dataBuffer)) return false;
+
+            var Packet = GenerateLoginSuccessPacket();
 
             // Send the packet to this client
             Send(ID, Packet);

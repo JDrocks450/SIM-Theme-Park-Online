@@ -45,7 +45,7 @@
             <Button x:Name="LoginInfoButton" Click="LoginInfoButton_Click" Background="{x:Null}">
                 <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19">Login Server</TextBlock>
             </Button>
-            <Button x:Name="NewsInfoButton" Background="{x:Null}">
+            <Button x:Name="NewsInfoButton" Background="{x:Null}" Click="NewsInfoButton_Click">
                 <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19">News Server</TextBlock>
             </Button>
         </StackPanel>

@@ -1,8 +1,11 @@
 ﻿using MiscUtil.Conversion;
+using QuazarAPI;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Text;
+using System.Threading.Tasks;
 
 namespace SimTheme_Park_Online
 {
@@ -99,7 +102,7 @@ namespace SimTheme_Park_Online
             return buffer;
         }
 
-        public static TPWPacket Parse(byte[] buffer)
+        public static TPWPacket Parse(byte[] buffer, out int EndIndex)
         {
             if (buffer.Length < 20) throw new ArgumentException("The submitted buffer was not at least 20 bytes long.");
             EndianBitConverter converter = EndianBitConverter.Big;
@@ -114,6 +117,8 @@ namespace SimTheme_Park_Online
                 PacketQueue = EndianBitConverter.Little.ToUInt32(buffer, offset + 14),
                 Body = new byte[converter.ToUInt32(buffer, offset + 6)]
             };
+            if (packet.ResponseCode[0] == 0 && packet.ResponseCode[1] == 0)
+                throw new FormatException("ResponseCode was not recognized: 00 00");
             int dataEnd = 0, index = 0;
             foreach (var entry in buffer)
             {
@@ -122,11 +127,48 @@ namespace SimTheme_Park_Online
                 index++;
             }
             dataEnd -= 20; // header auto correct
-            if (dataEnd > packet.BodyLength) throw new FormatException($"Packet size discrepency detected. " +
-                $"Body size has data that extends to {dataEnd} when we expected {packet.BodyLength} by BodyLength parameter value.");
             offset = 20;
-            buffer.Skip(20).Take((int)packet.BodyLength).ToArray().CopyTo(packet.Body, 0);
+            buffer.Skip(offset).Take((int)packet.BodyLength).ToArray().CopyTo(packet.Body, 0);
+            EndIndex = (int)(offset + packet.BodyLength);
+
             return packet;
+        }
+
+        public static IEnumerable<TPWPacket> ParseAll(byte[] readBuffer)
+        {
+            int amount = 0;
+            List<TPWPacket> packets = new List<TPWPacket>();
+            while (readBuffer.Length > 0)
+            {
+                int endIndex = 0;
+                try
+                {
+                    packets.Add(Parse(readBuffer, out endIndex));                    
+                }
+                catch (Exception ParseException)
+                {
+                    QConsole.WriteLine($"[TPWPacket] Couldn't parse incoming TPWPacket! " + ParseException.Message);
+                    break;
+                }
+
+                if (endIndex < readBuffer.Length)
+                {
+                    int nLength = readBuffer.Length - endIndex;
+                    if (nLength == 0)
+                        break;
+                    readBuffer = readBuffer.Skip(endIndex).ToArray();
+                }
+                else break;
+                amount++;
+            }
+            return packets;
+        }
+
+        public int Write(in Stream Buffer)
+        {
+            byte[] buffer = GetBytes();
+            Buffer.Write(buffer);
+            return buffer.Length;
         }
     }
 }
