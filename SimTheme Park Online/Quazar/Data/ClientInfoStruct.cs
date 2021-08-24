@@ -11,6 +11,10 @@ namespace QuazarAPI.Networking.Data
     /// </summary>
     public class ClientInfo
     {
+        public DateTime ConnectTime
+        {
+            get; set;
+        }
         public SIMThemeParkWaypoints Me
         {
             get; set;

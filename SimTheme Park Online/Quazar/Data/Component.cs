@@ -3,6 +3,7 @@ using SimTheme_Park_Online;
 using System;
 using System.Collections.Generic;
 using System.Collections.ObjectModel;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Net.Sockets;
@@ -35,12 +36,21 @@ namespace QuazarAPI.Networking.Standard
             get;set;
         }
 
+        /// <summary>
+        /// All packets sent through <see cref="Send"/> functions will be ignored except when sent from  
+        /// </summary>
+        public bool ManualMode
+        {
+            get; set;
+        } = false;
+
         private TcpListener listener;
         private Dictionary<uint, TcpClient> _clients = new Dictionary<uint, TcpClient>();
         private Dictionary<uint, ClientInfo> _clientInfo = new Dictionary<uint, ClientInfo>();
 
         public ObservableCollection<TPWPacket> IncomingTrans = new ObservableCollection<TPWPacket>(),
                                             OutgoingTrans = new ObservableCollection<TPWPacket>();
+        public ObservableCollection<ClientInfo> ConnectionHistory = new ObservableCollection<ClientInfo>();
 
         public event EventHandler<ClientInfo> OnConnectionsUpdated;
 
@@ -89,7 +99,7 @@ namespace QuazarAPI.Networking.Standard
         {
             if (dataBuffer.Where(x => x == 0).Count() == dataBuffer.Length)
             {
-                QConsole.WriteLine($"[{Name}] Error Detected on Client: " + ID);
+                QConsole.WriteLine(Name, $"Error Detected on Client: " + ID);
                 Disconnect(ID);
                 return false;
             }
@@ -97,18 +107,19 @@ namespace QuazarAPI.Networking.Standard
 
             byte[] readBuffer = new byte[dataBuffer.Length];
             dataBuffer.CopyTo(readBuffer, 0);
-            var packets = TPWPacket.ParseAll(readBuffer);
+            var packets = TPWPacket.ParseAll(ref readBuffer);
             foreach (var packet in packets)
             {
-                QConsole.WriteLine($"[{Name}] Incoming packet was successfully parsed.");
+                QConsole.WriteLine(Name, $"Incoming packet was successfully parsed.");
                 IncomingTrans.Add(packet);
+                OnIncomingPacket(0, packet);
             }
-            QConsole.WriteLine($"[{Name}] Found {packets.Count()} Packets...");
+            QConsole.WriteLine(Name, $"Found {packets.Count()} Packets...");
             return true;
         }
 
         private void BeginReceive(TcpClient connection, uint ID)
-        {
+        {            
             byte[] dataBuffer = null;
             void OnRecieve(object state)
             {
@@ -116,6 +127,14 @@ namespace QuazarAPI.Networking.Standard
                     Ready();
                 else return;
             }
+
+            if (connection.Client.Available != 0)
+            {
+                dataBuffer = new byte[connection.Client.Available];
+                connection.Client.Receive(dataBuffer);
+                OnRecieve(null);
+                return;
+            }            
             void Ready()
             {
                 dataBuffer = new byte[ReceiveAmount];
@@ -123,7 +142,7 @@ namespace QuazarAPI.Networking.Standard
                 {                    
                     //This will handle the client forcibly closing connection by raising an exception the moment connection is lost.
                     //Therefore, this condition is handled here
-                    connection.Client.BeginReceive(dataBuffer, 0, ReceiveAmount, SocketFlags.None, OnRecieve, null);
+                    connection?.Client.BeginReceive(dataBuffer, 0, ReceiveAmount, SocketFlags.None, OnRecieve, null);
                 }
                 catch(Exception e)
                 {
@@ -140,7 +159,7 @@ namespace QuazarAPI.Networking.Standard
         {
             var newConnection = listener.EndAcceptTcpClient(ar);            
             uint id = (uint)_clients.Count;
-            _clients.Add(id, newConnection);
+            _clients.Add(id, newConnection);            
             OnClientConnect(newConnection, id);
             Ready();
         }
@@ -161,7 +180,7 @@ namespace QuazarAPI.Networking.Standard
             client.Close();
             _clients.Remove(id);
             OnConnectionsUpdated?.Invoke(this, null);
-            QConsole.WriteLine($"[{Name}] Disconnected Client {id}");
+            QConsole.WriteLine(Name, $"Disconnected Client {id}");
         }
 
         protected void StopListening()
@@ -185,29 +204,38 @@ namespace QuazarAPI.Networking.Standard
         protected void BeginListening()
         {            
             listener.Start();
-            QConsole.WriteLine($"[{Name}] Listening\nIP: {listener.LocalEndpoint}\nPORT: {PORT}");
+            QConsole.WriteLine(Name, $"Listening\nIP: {listener.LocalEndpoint}\nPORT: {PORT}");
             Ready();
         }      
 
         protected virtual void OnClientConnect(TcpClient Connection, uint ID)
         {
-            QConsole.WriteLine($"\n[{Name}] Client Connected\nIP: {Connection.Client.RemoteEndPoint}\nID: {ID}");
-            //GetAllInformation(Connection);
+            QConsole.WriteLine(Name, $"\nClient Connected\nIP: {Connection.Client.RemoteEndPoint}\nID: {ID}");
+            //GetAllInformation(Connection);   
+            ClientInfo info = new ClientInfo()
+            {
+                ID = ID,
+                Me = SIMThemeParkWaypoints.External,
+                Name = "CLIENT",
+                ConnectTime = DateTime.Now
+            };
+            ConnectionHistory.Add(info);
+            OnConnectionsUpdated?.Invoke(this, info);
             BeginReceive(Connection, ID);
         }
 
         protected virtual void OnConnected(TcpClient Connection, uint ID)
         {
-            QConsole.WriteLine($"\n[{Name}] Connected to Server\nIP: {Connection.Client.RemoteEndPoint}\nID: {ID}");
+            QConsole.WriteLine(Name, $"\nConnected to Server\nIP: {Connection.Client.RemoteEndPoint}\nID: {ID}");
             BeginReceive(Connection, ID);
         }
 
-        protected abstract void OnIncomingPacket(Socket Sender, uint ID, TPWPacket Data);
+        protected abstract void OnIncomingPacket(uint ID, TPWPacket Data);
 
         protected virtual void OnForceClose(TcpClient socket, uint ID)
         {
             OnConnectionsUpdated?.Invoke(this, null);
-            QConsole.WriteLine($"[{Name}] Client forcefully disconnected: {ID}");
+            QConsole.WriteLine(Name, $"Client forcefully disconnected: {ID}");
         }
 
         /// <summary>
@@ -240,34 +268,56 @@ namespace QuazarAPI.Networking.Standard
             return ID;
         }
 
-        /// <summary>
-        /// Sends data to a connected client by ID
-        /// </summary>
-        /// <param name="ID"></param>
-        /// <param name="Data"></param>
-        public void Send(uint ID, string Data) => Send(ID, Encoding.ASCII.GetBytes(Data));
-
-        protected void Send(uint ID, byte[] s_buffer)
+        public void Send(uint ID, params TPWPacket[] Packets)
         {
+            foreach(var packet in Packets)            
+                Send(ID, packet);            
+        }
+
+        protected void Send(uint ID, byte[] s_buffer, bool ManualModeOverride = false)
+        {
+            if (ManualMode && !ManualModeOverride)
+            {
+                QConsole.WriteLine(Name, "ManualMode is Enabled. Use Manual Controls to send the required data.");
+                return;
+            }
             try
             {
                 var cxInfo = _clientInfo[ID];
-                QConsole.WriteLine($"[{Name}] SENDING {s_buffer.Length} bytes TO {cxInfo.Me}");
+                QConsole.WriteLine(Name, $"SENDING {s_buffer.Length} bytes TO {cxInfo.Me}");
             }
             catch
             {
-                QConsole.WriteLine($"[{Name}] SENDING {s_buffer.Length} bytes TO {ID}: \n" +
+                QConsole.WriteLine(Name, $"SENDING {s_buffer.Length} bytes TO {ID}: \n" +
                     $"{string.Join(' ', s_buffer)}\n" +
                     $"TRANSLATION: \n" +
                     $"{Encoding.ASCII.GetString(s_buffer)}");
-            }            
-            Connections[ID].GetStream().Write(s_buffer,0,s_buffer.Length);
+            }
+            if (Connections.ContainsKey(ID))
+                try {
+                    Connections[ID].GetStream().Write(s_buffer, 0, s_buffer.Length);
+                }
+                catch(IOException exc)
+                {
+                    QConsole.WriteLine(Name, $"ERROR: {exc.Message}");
+                }
+            else QConsole.WriteLine(Name, $"Tried to send data to a disposed connection.");
         }
 
-        protected void Send(uint ID, TPWPacket Data)
+        protected void Send(uint ID, TPWPacket Data, bool ManualModeOverride = false)
         {
             OutgoingTrans.Add(Data);
-            Send(ID, Data.GetBytes());
+            Send(ID, Data.GetBytes(), ManualModeOverride);
+        }
+
+        public void ManualSend(uint ID, TPWPacket Data)
+        {
+            Send(ID, Data, true);
+        }
+        public void ManualSend(uint ID, params TPWPacket[] Packets)
+        {
+            foreach(var packet in Packets)            
+                ManualSend(ID, packet); 
         }
     }
 }

@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TPWAPI.Frontend.Pages"
         mc:Ignorable="d"
-        Title="Disconnected..." Height="350" Width="600" WindowStyle="ToolWindow">
+        Title="Disconnected..." Height="500" Width="800" WindowStyle="ToolWindow">
     <Grid>
         <Grid.ColumnDefinitions>
             <ColumnDefinition Width="175"/>
@@ -27,8 +27,26 @@
 
                 </DataGrid>
             </TabItem>
+            <TabItem Header="Connection History">
+                <DataGrid Name="ConnectionsGrid"/>
+            </TabItem>
             <TabItem Header="Admin">
-
+                <GroupBox Header="Server Options" Margin="10" VerticalAlignment="Top" HorizontalAlignment="Left">
+                    <DockPanel>
+                        <StackPanel>
+                            <Button x:Name="ManualModeButton" Margin="10" Padding="10,5" Width="150" Click="ManualModeButton_Click">Enable Manual Mode</Button>
+                            <TextBlock Margin="10,20,10,5">Library Packet Name:</TextBlock>
+                            <TextBox x:Name="LibraryFileBox" Margin="10,0,10,10"></TextBox>
+                            <Button x:Name="SendPacketButton" Margin="10,0,10,10" Padding="10,5" Click="SendPacketButton_Click">Send Packet</Button>
+                        </StackPanel>
+                        <Border Margin="2,10,0,0" BorderThickness="1,0,0,0" BorderBrush="#FF5D5D5D">
+                            <StackPanel Margin="10,0,0,0">
+                                <TextBlock TextWrapping="Wrap" Width="200" FontStyle="Italic" VerticalAlignment="Top">Manual Mode prevents the server from sending any data except through the Send Packet Button.</TextBlock>
+                                <TextBlock Margin="0,10,0,0" Width="200" TextWrapping="Wrap">Library Packets are in the Library\ Folder, you can send them immediately by typing their name in the text box and pressing Send Packet.</TextBlock>
+                            </StackPanel>
+                        </Border>
+                    </DockPanel>
+                </GroupBox>
             </TabItem>
         </TabControl>
     </Grid>

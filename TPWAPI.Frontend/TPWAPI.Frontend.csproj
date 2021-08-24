@@ -4,12 +4,38 @@
     <OutputType>WinExe</OutputType>
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
+    <StartupObject>TPWAPI.Frontend.App</StartupObject>
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Pages\Packet Properties\ExportPage.xaml.cs" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Remove="C:\Users\xXJDr\.nuget\packages\wpfhexaeditor\2.1.7\contentFiles\any\net5.0-windows7.0\Resources\EBCDIC-NoSpecialChar.tbl" />
+    <Content Remove="C:\Users\xXJDr\.nuget\packages\wpfhexaeditor\2.1.7\contentFiles\any\net5.0-windows7.0\Resources\EBCDIC.tbl" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Remove="Resources\Textures\Buzzy.png" />
     <None Remove="Resources\Textures\earthmap1k.jpg" />
     <None Remove="Resources\Textures\fbackground.png" />
     <None Remove="Resources\Textures\frame.png" />
+    <None Remove="Resources\Textures\Logo.pdn" />
+    <None Remove="Resources\Textures\Logo.png" />
+    <None Remove="Resources\Textures\PushButtonBW.png" />
+    <None Remove="Resources\Textures\PushButtonColor.png" />
+    <None Remove="Resources\Textures\Snow.png" />
+    <None Remove="Resources\Textures\wingLogo.png" />
+    <None Remove="Resources\Textures\wingLogo_full.png" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Page Remove="Pages\Packet Properties\ExportPage.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <PackageReference Include="WPFHexaEditor" Version="2.1.7" />
   </ItemGroup>
 
   <ItemGroup>
@@ -17,6 +43,9 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Resource Include="Resources\Textures\Buzzy.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
     <Resource Include="Resources\Textures\earthmap1k.jpg">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
@@ -26,6 +55,33 @@
     <Resource Include="Resources\Textures\frame.png">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </Resource>
+    <Resource Include="Resources\Textures\Logo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Textures\PushButtonBW.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Textures\PushButtonColor.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Textures\Snow.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Textures\wingLogo.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+    <Resource Include="Resources\Textures\wingLogo_full.png">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </Resource>
+  </ItemGroup>
+
+  <ItemGroup>
+    <None Update="readme.txt">
+      <CopyToOutputDirectory>Always</CopyToOutputDirectory>
+    </None>
+    <None Update="Resources\profile.tpwprofile">
+      <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
+    </None>
   </ItemGroup>
 
 </Project>

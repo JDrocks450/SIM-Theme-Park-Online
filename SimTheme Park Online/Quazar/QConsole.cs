@@ -8,24 +8,49 @@ namespace QuazarAPI
 {
     public class QConsole
     {
-        public static HashSet<string> Log { get; } = new HashSet<string>();
-        public static event EventHandler<(string original, string formatted)> OnLogUpdated;
+        public static List<string> TotalLog { get; } = new List<string>();
+        public delegate void OnOutputHandler(string Channel, string Unformatted, string Formatted);
+        public static event OnOutputHandler OnLogUpdated;
         public static ushort CONSOLE_WIDTH = 50;
-        public static void WriteLine(string message)
+
+        private static Dictionary<string, List<string>> Channels = new Dictionary<string, List<string>>();
+
+        public static void WriteLine(string Channel, string message)
         {
+            List<string> Log = GetLogByChannel(Channel);
             var header = $"--- {DateTime.Now} ";
             var nmessage = (message.Contains('\n')) ?
                 $"{header}{new string('-', CONSOLE_WIDTH - header.Length)} \n" +
-                $"{message}\n" +
+                $"[{Channel}]: {message}\n" +
                 $"{new string('-', CONSOLE_WIDTH)} \n" 
                 :
-                $"[{DateTime.Now}] {message}";
+                $"[{DateTime.Now}] - [{Channel}]: {message}";
             Console.WriteLine(nmessage);
             lock (Log)
             {
                 Log.Add(nmessage);
             }
-            OnLogUpdated?.Invoke(null, (message, nmessage));
+            TotalLog.Add(nmessage);
+            OnLogUpdated?.Invoke(Channel, message, nmessage);            
+        }
+
+        public IEnumerable<string> GetAllOutput()
+        {
+            return TotalLog;
+        }
+
+        private static List<string> GetLogByChannel(string channel)
+        {
+            lock (Channels)
+            {
+                if (Channels.TryGetValue(channel, out var Log))
+                    return Log;
+                else
+                {
+                    Channels.Add(channel, new List<string>());
+                    return Channels[channel];
+                }
+            }
         }
     }
 }

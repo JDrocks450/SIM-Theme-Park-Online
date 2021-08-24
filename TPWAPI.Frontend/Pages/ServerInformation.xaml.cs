@@ -1,8 +1,10 @@
-﻿using QuazarAPI.Networking.Standard;
+﻿using Microsoft.Win32;
+using QuazarAPI.Networking.Standard;
 using SimTheme_Park_Online;
 using System;
 using System.Collections.Generic;
 using System.Collections.Specialized;
+using System.IO;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
@@ -44,6 +46,14 @@ namespace TPWAPI.Frontend.Pages
             Dispatcher.Invoke(() =>
                 IncomingData.ItemsSource = serverComponent.IncomingTrans.ToArray());
             PopulateConnections();
+            PopulateAdminPanel();
+        }
+
+        private void PopulateAdminPanel()
+        {
+            if (serverComponent.ManualMode)
+                ManualModeButton.Content = "Disable Manual Mode";
+            else ManualModeButton.Content = "Enable Manual Mode";
         }
 
         private void PopulateConnections()
@@ -61,8 +71,9 @@ namespace TPWAPI.Frontend.Pages
                 };
                 ConnectionsListBox.Items.Add(listBox);
             }
+            ConnectionsGrid.ItemsSource = serverComponent.ConnectionHistory.ToList();
             ConnectionsLabel.Text = $"Connections: {clients.Count()}";
-            Title = $"STPOnline\\{serverComponent.Name} - {serverComponent.GetAllConnectedClients().Count()}/{serverComponent.BACKLOG} Connections";
+            Title = $"STPOnline\\{serverComponent.Name} - {clients.Count()}/{serverComponent.BACKLOG} Connections";
         }
 
         private void ConnectionsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
@@ -92,6 +103,43 @@ namespace TPWAPI.Frontend.Pages
         private void OutgoingData_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
             ShowPropertiesWindow(OutgoingData.SelectedItem as TPWPacket);
+        }
+
+        private void ManualModeButton_Click(object sender, RoutedEventArgs e)
+        {
+            serverComponent.ManualMode = !serverComponent.ManualMode;
+            PopulateAdminPanel();
+        }
+
+        private void SendPacketButton_Click(object sender, RoutedEventArgs e)
+        {
+            void SendPacket(string path)
+            {
+                try
+                {
+                    var fs = File.ReadAllBytes(path);
+                    var packets = TPWPacket.ParseAll(ref fs);
+                    serverComponent.ManualSend(0, packets.ToArray());
+                    MessageBox.Show($"Manually Sent {packets.Count()} Packets to Client: 0");
+                }
+                catch (Exception e)
+                {
+                    MessageBox.Show(e.Message);
+                }
+            }
+            if (string.IsNullOrEmpty(LibraryFileBox.Text))
+            {
+                OpenFileDialog dialog = new OpenFileDialog()
+                {
+                    Title = "Select a TPWPacket File"
+                };
+                if (dialog.ShowDialog() ?? false)
+                {
+                    SendPacket(dialog.FileName);
+                }
+                return;
+            }
+            else SendPacket(System.IO.Path.Combine("Library", LibraryFileBox.Text));
         }
     }
 }

@@ -1,0 +1,87 @@
+﻿<UserControl x:Class="TPWAPI.Frontend.Controls.UX.TemplaterControl"
+             xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+             xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+             xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+             xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+             xmlns:local="clr-namespace:TPWAPI.Frontend.Controls.UX"
+             mc:Ignorable="d" 
+             Width="320" Background="White" MinHeight="190">
+    <UserControl.Resources>
+        <Style TargetType="StackPanel">
+            <Setter Property="Margin" Value="0,0,5,5"/>
+        </Style>
+        <Style TargetType="TextBlock">
+            <Setter Property="FontWeight" Value="Bold"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+        </Style>
+        <Style TargetType="TextBox">
+            <Setter Property="Width" Value="80"/>
+            <Setter Property="FontFamily" Value="Consolas"/>
+        </Style>
+    </UserControl.Resources>
+    <DockPanel>
+        <StackPanel Orientation="Horizontal" DockPanel.Dock="Bottom" HorizontalAlignment="Right" Margin="5,10">
+            <Button x:Name="DeleteButton" Padding="15,3" Click="DeleteButton_Click" Content="Delete"/>
+            <Button x:Name="TemplateButton" DockPanel.Dock="Bottom" Margin="5,0,0,0" Padding="15,3" Click="TemplateButton_Click" Content="Apply" Width="72"/>
+        </StackPanel>
+        <StackPanel Margin="10" HorizontalAlignment="Center">
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock>Start Index:</TextBlock>
+                    <TextBox x:Name="Startindex">0</TextBox>
+                </StackPanel>
+                <StackPanel Grid.Column="1">
+                    <TextBlock>End Index:</TextBlock>
+                    <TextBox x:Name="Endindex">0</TextBox>
+                </StackPanel>
+                <StackPanel Grid.Column="2">
+                    <TextBlock>Length:</TextBlock>
+                    <TextBox x:Name="lengthBox" IsReadOnly="True">0</TextBox>
+                </StackPanel>
+            </Grid>
+            <Grid>
+                <Grid.ColumnDefinitions>
+                    <ColumnDefinition/>
+                    <ColumnDefinition/>
+                </Grid.ColumnDefinitions>
+                <StackPanel>
+                    <TextBlock>Data Type:</TextBlock>
+                    <ComboBox x:Name="TypeSwitch" SelectionChanged="TypeSwitch_SelectionChanged"/>
+                </StackPanel>
+                <DockPanel Grid.Column="1">
+                    <TextBlock DockPanel.Dock="Top">Highlight Color:</TextBlock>
+                    <TextBox Name="ColorBox" Background="White" IsReadOnly="False" TextChanged="ColorBox_TextChanged" HorizontalAlignment="Stretch" Width="Auto" Margin="0,0,0,5" VerticalContentAlignment="Center">#FF3CC1FF</TextBox>
+                </DockPanel>
+            </Grid>
+            <WrapPanel>
+                <WrapPanel.Resources>
+                    <Style TargetType="Border">
+                        <Setter Property="Width" Value="25"/>
+                        <Setter Property="Height" Value="25"/>
+                        <Setter Property="Margin" Value="0,0,5,5"/>
+                    </Style>
+                </WrapPanel.Resources>
+                <Border Background="Blue" MouseLeftButtonUp="Border_MouseLeftButtonUp"/>
+                <Border Background="Green" MouseLeftButtonUp="Border_MouseLeftButtonUp"/>
+                <Border Background="Orange" MouseLeftButtonUp="Border_MouseLeftButtonUp"/>
+                <Border Background="Yellow" MouseLeftButtonUp="Border_MouseLeftButtonUp"/>
+                <Border Background="Purple" MouseLeftButtonUp="Border_MouseLeftButtonUp"/>
+                <Border Background="HotPink" MouseLeftButtonUp="Border_MouseLeftButtonUp"/>
+                <Border Background="DarkViolet" MouseLeftButtonUp="Border_MouseLeftButtonUp"/>
+            </WrapPanel>
+            <StackPanel>
+                <TextBlock>Name:</TextBlock>
+                <TextBox x:Name="NameBox" Width="Auto"/>
+            </StackPanel>
+            <StackPanel>
+                <TextBlock>Description:</TextBlock>
+                <TextBox x:Name="DescBox" Width="Auto" TextWrapping="Wrap"/>
+            </StackPanel>
+        </StackPanel>
+    </DockPanel>
+</UserControl>

@@ -1,0 +1,85 @@
+﻿<Page x:Class="TPWAPI.Frontend.Pages.Packet_Properties.HeaderPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TPWAPI.Frontend.Pages.Packet_Properties"
+      mc:Ignorable="d" 
+      Title="HeaderPage" Width="240" Background="White">
+    <StackPanel HorizontalAlignment="Stretch">
+        <GroupBox Header="Response Code" VerticalAlignment="Top" Margin="5,0" Padding="5">
+            <StackPanel>
+                <TextBox x:Name="ResponseCodeField" IsReadOnly="True" TextAlignment="Center"/>
+                <TextBlock Margin="0,5,0,0" FontFamily="Courier New">
+                        <Run FontWeight="Bold">Encoded: </Run>
+                        <Run Name="ResponseCodeEncode"/>
+                </TextBlock>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Data Formatting" Margin="0,0,5,0">
+            <StackPanel Orientation="Horizontal" Margin="0,5" HorizontalAlignment="Center">
+                <RadioButton x:Name="HexRadio" Margin="10,0">HEX</RadioButton>
+                <RadioButton x:Name="DECRadio" Margin="0,0,10,0" IsChecked="True">DEC</RadioButton>
+            </StackPanel>
+        </GroupBox>
+        <WrapPanel Margin="5">
+            <WrapPanel.Resources>
+                <Style TargetType="GroupBox">
+                    <Setter Property="Width" Value="109"/>
+                    <Setter Property="Margin" Value="0,0,0,5"/>
+                </Style>
+            </WrapPanel.Resources>
+            <GroupBox Header="Message Code" Margin="0,0,5,5">
+                <TextBox x:Name="MsgCodeField" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
+            </GroupBox>
+            <GroupBox Header="Parameter 1">
+                <TextBox x:Name="Param1Field" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
+            </GroupBox>
+            <GroupBox Header="Parameter 2" Margin="0,0,5,5">
+                <TextBox x:Name="Param2Field" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
+            </GroupBox>
+            <GroupBox Header="Body Length">
+                <TextBox x:Name="BodyLenField" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
+            </GroupBox>
+            <GroupBox Header="Parameter 3" Margin="0,0,5,5">
+                <TextBox x:Name="Param3Field" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
+            </GroupBox>
+            <GroupBox Header="Packet Queue">
+                <TextBox x:Name="PacketPriorityField" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
+            </GroupBox>
+        </WrapPanel>
+        <TextBlock Margin="5,0,5,10" HorizontalAlignment="Stretch" FontFamily="Consolas">
+                        <Run>Packet Header Size (Bytes): </Run>
+                        <Run Name="PacketHeaderSizeRun"></Run>
+        </TextBlock>
+        <Border Padding="10" BorderBrush="Black" BorderThickness="0,1,0,0">
+            <Grid>
+                <TextBlock FontFamily="Consolas">
+                <Run FontWeight="Bold" Text="System Information"/>
+                <LineBreak/>
+                <LineBreak/>
+                <Run FontWeight="Bold">
+                    Netcode =
+                </Run>
+                <Run>TPW,BOSS</Run>
+                <LineBreak/>
+                <Run FontWeight="Bold">
+                    TPWUX Version =
+                </Run>
+                <Run Name="TPWUX_VER">v0.3</Run>
+                <LineBreak/>
+                <Run FontWeight="Bold">
+                    TPWAPI Version =
+                </Run>
+                <Run>v0.3C</Run>
+                <LineBreak/>
+                <Run FontWeight="Bold">
+                    TPWAPI Server =
+                </Run>
+                <Run>Quazar.TPW-SE</Run>
+                </TextBlock>
+                <Image Source="/Resources/Textures/wingLogo_full.png" Width="55" HorizontalAlignment="Right" VerticalAlignment="Top" RenderOptions.BitmapScalingMode="Fant"/>
+            </Grid>
+        </Border>
+    </StackPanel>
+</Page>

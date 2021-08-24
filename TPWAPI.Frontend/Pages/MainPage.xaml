@@ -9,29 +9,19 @@
       Title="MainPage">
 
     <Grid>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="145"/>
-            <ColumnDefinition Width="1*"/>
-        </Grid.ColumnDefinitions>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="150"/>
         </Grid.RowDefinitions>
-        <ux:TPWMessageBox Margin="-650,10,0,0" RenderTransformOrigin="0.5,0.5" HorizontalAlignment="Right" VerticalAlignment="Top">
-            <ux:TPWMessageBox.RenderTransform>
-                <TransformGroup>
-                    <ScaleTransform ScaleX="-1"/>
-                    <SkewTransform/>
-                    <RotateTransform/>
-                    <TranslateTransform/>
-                </TransformGroup>
-            </ux:TPWMessageBox.RenderTransform>
-        </ux:TPWMessageBox>
-        <StackPanel Orientation="Vertical" VerticalAlignment="Top" Margin="0,70,40,0">
-            <StackPanel.Resources>
+        <Grid Margin="0,70,40,0" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <Grid.Resources>
                 <Style TargetType="Button">
                     <Setter Property="FontFamily" Value="Comic Sans MS"/>
-                    <Setter Property="Background" Value="#FF003C49"/>
+                    <Setter Property="Background">
+                        <Setter.Value>
+                            <ImageBrush Opacity=".75" ImageSource="/Resources/Textures/PushButtonColor.png" Stretch="Fill" TileMode="Tile"/>
+                        </Setter.Value>
+                    </Setter>
                     <Setter Property="BorderThickness" Value="0"/>
                     <Setter Property="FontSize" Value="18"/>
                     <Setter Property="Foreground" Value="White"/>
@@ -39,17 +29,34 @@
                     <Setter Property="HorizontalAlignment" Value="Stretch"/>
                     <Setter Property="Padding" Value="20,10"/>
                     <Setter Property="Margin" Value="0,10"/>
+                    <Setter Property="Cursor" Value="Hand"/>
                 </Style>
-            </StackPanel.Resources>
-            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" HorizontalAlignment="Center" FontSize="16" Text="~Views~"/>
-            <Button x:Name="LoginInfoButton" Click="LoginInfoButton_Click" Background="{x:Null}">
-                <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19">Login Server</TextBlock>
-            </Button>
-            <Button x:Name="NewsInfoButton" Background="{x:Null}" Click="NewsInfoButton_Click">
-                <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19">News Server</TextBlock>
-            </Button>
-        </StackPanel>
-        <TabControl Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
+            </Grid.Resources>
+            <ux:TPWMessageBox x:Name="NavBox" Width="600"/>
+            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" HorizontalAlignment="Left" FontSize="18" Text="Where Would You Like to Go?" VerticalAlignment="Top" Margin="138,30,0,0"/>
+            <Grid Margin="40,70,100,40">
+                <StackPanel>
+                    <UniformGrid Margin="50,20,50,0">
+                        <Button x:Name="LoginInfoButton" Click="LoginInfoButton_Click">
+                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19"><Run Text="Login Server"/></TextBlock>
+                        </Button>
+                        <Button x:Name="NewsInfoButton" Click="NewsInfoButton_Click">
+                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19"><Run Text="News Server"/></TextBlock>
+                        </Button>
+                        <Button x:Name="CityServerInfoButton" Click="CityServerInfoButton_Click">
+                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19"><Run Text="City Server"/></TextBlock>
+                        </Button>
+                        <Button x:Name="ChatServerInfoButton" Click="ChatServerInfoButton_Click">
+                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19"><Run Text="Chat Server"/></TextBlock>
+                        </Button>
+                    </UniformGrid>
+                    <Button x:Name="WorldViewButton" Margin="50,10" Click="WorldViewButton_Click">
+                        <TextBlock Style="{StaticResource TPWUX_TitleStyle}">Go to the Online World ></TextBlock>
+                    </Button>
+                </StackPanel>
+            </Grid>
+        </Grid>
+        <TabControl x:Name="ConsoleTabs" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
             <TabItem Header="Console">
                 <Border Style="{StaticResource TPWUX_BorderFlyoutStyle}">
                     <ScrollViewer MinHeight="120">
@@ -60,8 +67,32 @@
                 </Border>
             </TabItem>
             <TabItem Header="Hide">
-                
+
             </TabItem>
         </TabControl>
+        <Menu VerticalAlignment="Top" VerticalContentAlignment="Center">
+            <MenuItem Header="File">
+                <MenuItem Header="New"/>
+                <Separator/>
+                <MenuItem Header="Import">
+                    <MenuItem x:Name="PacketMenuItem" Click="PacketMenuItem_Click" Header="Theme Park World Packet"/>
+                    <MenuItem Header="Server Profile"/>
+                </MenuItem>
+                <MenuItem Header="Export">
+                    <MenuItem IsEnabled="False" Header="Theme Park World Packet"/>
+                    <MenuItem IsEnabled="False" Header="Server Profile"/>
+                </MenuItem>
+                <Separator/>
+                <MenuItem Header="Quit"/>
+            </MenuItem>
+            <MenuItem Header="Login">
+
+            </MenuItem>
+            <MenuItem Header="News">
+                <MenuItem x:Name="GameNewsEdit" Click="GameNewsEdit_Click" Header="Update Game News..."/>
+                <MenuItem x:Name="SystemNewsEdit" Click="SystemNewsEdit_Click" Header="Update System News..."/>
+            </MenuItem>
+            <MenuItem x:Name="AboutBox" Header="About"/>
+        </Menu>
     </Grid>
 </Page>

@@ -5,6 +5,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using System.Text;
+using System.Text.Json.Serialization;
 using System.Threading.Tasks;
 
 namespace SimTheme_Park_Online
@@ -41,9 +42,9 @@ namespace SimTheme_Park_Online
         /// </summary>
         public ushort MsgType { get; set; }
         /// <summary>
-        /// WORD
+        /// WORD - Language ID, 0409 [US]
         /// </summary>
-        public ushort Param1 { get; set; }
+        public ushort Language { get; set; } = 0409;
         /// <summary>
         /// WORD
         /// </summary>
@@ -65,6 +66,8 @@ namespace SimTheme_Park_Online
         public byte[] Header => GetHeader();
         public byte[] Body { get; set; }
         public byte[] Footer { get; set; }
+        //[JsonIgnore]
+        public string FileName { get; set; }
 
         public TPWPacket()
         {
@@ -73,7 +76,7 @@ namespace SimTheme_Park_Online
         public TPWPacket(ushort MsgType, ushort Param1, ushort Param2, UInt32 Param3, UInt32 PacketPriority)
         {
             this.MsgType = MsgType;
-            this.Param1 = Param1;
+            this.Language = Param1;
             this.Param2 = Param2;
             this.Param3 = Param3;
             PacketQueue = PacketPriority;
@@ -85,7 +88,7 @@ namespace SimTheme_Park_Online
             ResponseCode.CopyTo(buffer, 0);
             EndianBitConverter converter = EndianBitConverter.Big;
             converter.CopyBytes(MsgType, buffer, 2);
-            converter.CopyBytes(Param1, buffer, 4);
+            converter.CopyBytes(Language, buffer, 4);
             converter.CopyBytes(Param2, buffer, 6);
             converter.CopyBytes(BodyLength, buffer, 8);
             converter.CopyBytes(Param3, buffer, 12);
@@ -102,7 +105,7 @@ namespace SimTheme_Park_Online
             return buffer;
         }
 
-        public static TPWPacket Parse(byte[] buffer, out int EndIndex)
+        public static TPWPacket Parse(in byte[] buffer, out int EndIndex)
         {
             if (buffer.Length < 20) throw new ArgumentException("The submitted buffer was not at least 20 bytes long.");
             EndianBitConverter converter = EndianBitConverter.Big;
@@ -111,7 +114,7 @@ namespace SimTheme_Park_Online
             {
                 ResponseCode = new byte[2] { buffer[0], buffer[1] },
                 MsgType = converter.ToUInt16(buffer, offset + 0),
-                Param1 = converter.ToUInt16(buffer, offset + 2),
+                Language = converter.ToUInt16(buffer, offset + 2),
                 Param2 = converter.ToUInt16(buffer, offset + 4),
                 Param3 = converter.ToUInt32(buffer, offset + 10),
                 PacketQueue = EndianBitConverter.Little.ToUInt32(buffer, offset + 14),
@@ -134,7 +137,17 @@ namespace SimTheme_Park_Online
             return packet;
         }
 
-        public static IEnumerable<TPWPacket> ParseAll(byte[] readBuffer)
+        public static IEnumerable<TPWPacket> ParseAll(params string[] Files)
+        {
+            foreach(var file in Files)
+            {
+                byte[] buffer = File.ReadAllBytes(file);
+                foreach (var packet in ParseAll(ref buffer))
+                    yield return packet;
+            }
+        }
+
+        public static IEnumerable<TPWPacket> ParseAll(ref byte[] readBuffer)
         {
             int amount = 0;
             List<TPWPacket> packets = new List<TPWPacket>();
@@ -147,7 +160,7 @@ namespace SimTheme_Park_Online
                 }
                 catch (Exception ParseException)
                 {
-                    QConsole.WriteLine($"[TPWPacket] Couldn't parse incoming TPWPacket! " + ParseException.Message);
+                    QConsole.WriteLine("System", $"Couldn't parse incoming TPWPacket! " + ParseException.Message);
                     break;
                 }
 
@@ -162,6 +175,19 @@ namespace SimTheme_Park_Online
                 amount++;
             }
             return packets;
+        }
+
+        public void MergeBody(TPWPacket packet, int index)
+        {
+            MergeBody(packet.Body, index);
+        }
+        public void MergeBody(byte[] source, int index = 0)
+        {
+            byte[] buffer = Body;
+            int inputLeng = buffer.Length;
+            Array.Resize(ref buffer, Body.Length + (source.Length - index));
+            source.Skip(index).ToArray().CopyTo(buffer, inputLeng);
+            Body = buffer;
         }
 
         public int Write(in Stream Buffer)

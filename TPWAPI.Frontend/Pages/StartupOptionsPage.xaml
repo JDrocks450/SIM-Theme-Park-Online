@@ -13,29 +13,49 @@
             <Setter Property="FontFamily" Value="Comic Sans MS"/>
         </Style>
     </Page.Resources>
-    <Grid>
+    <StackPanel VerticalAlignment="Center" HorizontalAlignment="Center">
         <UserControl Style="{StaticResource TPWUX_InGameFlyoutTemplate}" HorizontalAlignment="Center" VerticalAlignment="Center" Padding="10" Width="500">
             <StackPanel Width="300">
                 <TextBlock Style="{StaticResource TPWUX_TitleStyle}" HorizontalAlignment="Center">
                     SIM Theme Park Online</TextBlock>
-                <Border Margin="0,10" CornerRadius="3" Background="#FF192C52" Padding="10,10" BorderThickness="5">
-                    <Border.BorderBrush>
-                        <LinearGradientBrush EndPoint="0,2" StartPoint="1,0">
-                            <GradientStop Color="#FF001D57" Offset="1"/>
-                            <GradientStop Offset="0" Color="White"/>
-                            <GradientStop Color="#FF192C52" Offset="0.018"/>
-                        </LinearGradientBrush>
-                    </Border.BorderBrush>
-                    <StackPanel >
-                        <TextBlock>Server IP Address:</TextBlock>
-                        <TextBox Name="IPAddrField" Style="{StaticResource TPWUX_TextboxStyle}" Background="Black" Foreground="White" BorderThickness="2" BorderBrush="#FF031859" Height="35" FontFamily="Comic Sans MS" FontWeight="Normal">localhost</TextBox>
-                        <TextBlock Margin="0,10,0,0" TextAlignment="Center">Additional Options:</TextBlock>
-                        <CheckBox x:Name="LoginCheck" IsChecked="True" Foreground="{Binding Foreground, ElementName=Host}">Login Server</CheckBox>
-                        <CheckBox x:Name="NewsCheck" IsChecked="True" Foreground="{Binding Foreground, ElementName=Host}">News Server</CheckBox>
-                    </StackPanel>
+                <Border Margin="0,10" CornerRadius="3" Background="#FF192C52" Padding="10,10">
+                    <Grid>
+                        <StackPanel >
+                            <TextBlock>Server IP Address:</TextBlock>
+                            <TextBox Name="IPAddrField" Style="{StaticResource TPWUX_TextboxStyle}" Background="Black" Foreground="White" BorderThickness="2" BorderBrush="#FF031859" Height="35" FontFamily="Comic Sans MS" FontWeight="Normal">localhost</TextBox>
+                            <TextBlock Margin="0,10,0,0" TextAlignment="Center">Additional Options:</TextBlock>
+                            <CheckBox x:Name="LoginCheck" IsChecked="True" Foreground="{Binding Foreground, ElementName=Host}">Login Server</CheckBox>
+                            <CheckBox x:Name="NewsCheck" IsChecked="True" Foreground="{Binding Foreground, ElementName=Host}">News Server</CheckBox>
+                            <CheckBox x:Name="CityCheck" IsChecked="True" Foreground="{Binding Foreground, ElementName=Host}">City Server</CheckBox>
+                            <CheckBox x:Name="ChatCheck" IsChecked="True" Foreground="{Binding Foreground, ElementName=Host}">Chat Server</CheckBox>
+                        </StackPanel>
+                        <Button x:Name="PortButton" Background="#FF076C9B" BorderThickness="0" Foreground="#FF74CCFF" FontFamily="Comic Sans MS" Click="PortButton_Click" Padding="20,1,20,1" Content="Change Ports" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="24" Margin="0,0,31,10"/>
+
+                    </Grid>
                 </Border>
                 <Button x:Name="StartButton" Height="25" Background="#FF095F03" BorderThickness="0" Foreground="#FFCAFFC1" FontFamily="Comic Sans MS" Click="StartButton_Click" HorizontalAlignment="Right" Padding="20,1,20,1">Begin Server</Button>
             </StackPanel>
         </UserControl>
-    </Grid>
+        <UserControl Panel.ZIndex="-1" x:Name="PortWindow" Style="{StaticResource TPWUX_InGameFlyoutTemplate}" VerticalAlignment="Center" HorizontalAlignment="Center" Width="400" Margin="0,-37,0,0">
+            <Grid>
+                <TextBlock Style="{StaticResource TPWUX_TitleStyle}" HorizontalAlignment="Center" VerticalAlignment="Top" FontSize="18" FontWeight="Bold" Margin="0,-10,0,0">Server Port Selection</TextBlock>
+                <WrapPanel Orientation="Vertical" Margin="0,10,0,0" HorizontalAlignment="Stretch" MaxHeight="120">
+                    <WrapPanel.Resources>
+                        <Style TargetType="TextBox">
+                            <Setter Property="Width" Value="105"/>
+                        </Style>
+                    </WrapPanel.Resources>
+                    <TextBlock Style="{StaticResource TPWUX_TitleStyle}" FontSize="14" FontWeight="Normal" Text="Login Server"/>
+                    <TextBox x:Name="Loginport"></TextBox>
+                    <TextBlock Style="{StaticResource TPWUX_TitleStyle}" FontSize="14" FontWeight="Normal" Text="News Server"/>
+                    <TextBox x:Name="NewsPort"></TextBox>
+                    <TextBlock Style="{StaticResource TPWUX_TitleStyle}" FontSize="14" FontWeight="Normal" Text="City Server"/>
+                    <TextBox x:Name="CityPort"></TextBox>
+                    <TextBlock Style="{StaticResource TPWUX_TitleStyle}" FontSize="14" FontWeight="Normal" Text="Chat Server" Margin="10,0,0,0"/>
+                    <TextBox x:Name="ChatPort" Margin="10,0,0,0"></TextBox>
+                </WrapPanel>
+                <Button x:Name="PortOKButton" Background="#FF076C9B" BorderThickness="0" Foreground="#FF74CCFF" FontFamily="Comic Sans MS" Click="PortOKButton_Click" Padding="20,1,20,1" Content="OK" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="25" Margin="121,0,0,0" Width="80"/>
+            </Grid>
+        </UserControl>
+    </StackPanel>
 </Page>

@@ -3,90 +3,165 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TPWAPI.Frontend.Pages"
+        xmlns:local="clr-namespace:TPWAPI.Frontend.Pages" 
+        xmlns:ux="clr-namespace:TPWAPI.Frontend.Controls.UX" 
+        xmlns:wpfhexaeditor="clr-namespace:WpfHexaEditor;assembly=WPFHexaEditor" xmlns:packet_properties="clr-namespace:TPWAPI.Frontend.Pages.Packet_Properties"
         mc:Ignorable="d"
-        Title="SIM Theme Park Packet Properties" Height="410" Width="255" WindowStyle="ToolWindow">
+        Title="SIM Theme Park Packet Properties" MinHeight="600" MinWidth="800" WindowStyle="SingleBorderWindow">
+    <Window.Resources>
+        <Page x:Key="SmallRawTabPage">
+            <Grid>
+                <Grid.RowDefinitions>
+                    <RowDefinition Height="1*"/>
+                    <RowDefinition Height="1*"/>
+                </Grid.RowDefinitions>
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" Margin="10,5,10,0" Foreground="#FF068B00" FontWeight="Bold">Templates can be Applied / Saved in the Templates tab.</TextBlock>
+                    <ContentControl Content="{StaticResource DataControl}"/>
+                </DockPanel>
+                <GroupBox Header="Buffer View" Grid.Row="1">
+                    <TextBox x:Name="ByteView" Margin="5,5,5,5" TextWrapping="Wrap">
+
+                    </TextBox>
+                </GroupBox>
+            </Grid>
+        </Page>
+    </Window.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="35"/>
         </Grid.RowDefinitions>
-        <TabControl x:Name="TabSwitch" Margin="5,10,5,5">
-            <TabItem Header="Header">
-                <WrapPanel>
-                    <GroupBox Header="Response Code" VerticalAlignment="Top" Margin="5,0" Padding="5">
-                        <StackPanel>
-                            <TextBox x:Name="ResponseCodeField" IsReadOnly="True" TextAlignment="Center"/>
-                            <TextBlock Margin="0,5,0,0">
-                        <Run FontWeight="Bold">Encoded: </Run>
-                        <Run Name="ResponseCodeEncode"/>
-                            </TextBlock>
-                        </StackPanel>
-                    </GroupBox>
-                    <GroupBox Header="Data Formatting" Margin="0,0,5,0">
-                        <StackPanel Orientation="Horizontal" Margin="0,5">
-                            <RadioButton x:Name="HexRadio" Margin="10,0">HEX</RadioButton>
-                            <RadioButton x:Name="DECRadio" Margin="0,0,10,0">DEC</RadioButton>
-                        </StackPanel>
-                    </GroupBox>
-                    <WrapPanel Margin="5">
-                        <WrapPanel.Resources>
-                            <Style TargetType="GroupBox">
-                                <Setter Property="Width" Value="109"/>
-                                <Setter Property="Margin" Value="0,0,0,5"/>
-                            </Style>
-                        </WrapPanel.Resources>
-                        <GroupBox Header="Message Code" Margin="0,0,5,5">
-                            <TextBox x:Name="MsgCodeField" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
-                        </GroupBox>
-                        <GroupBox Header="Parameter 1">
-                            <TextBox x:Name="Param1Field" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
-                        </GroupBox>
-                        <GroupBox Header="Parameter 2" Margin="0,0,5,5">
-                            <TextBox x:Name="Param2Field" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
-                        </GroupBox>
-                        <GroupBox Header="Body Length">
-                            <TextBox x:Name="BodyLenField" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
-                        </GroupBox>
-                        <GroupBox Header="Parameter 3" Margin="0,0,5,5">
-                            <TextBox x:Name="Param3Field" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
-                        </GroupBox>
-                        <GroupBox Header="Packet Priority">
-                            <TextBox x:Name="PacketPriorityField" IsReadOnly="True" Foreground="#FF6A0000" FontFamily="Consolas"/>
-                        </GroupBox>
-                    </WrapPanel>
-                    <TextBlock Margin="5" HorizontalAlignment="Stretch">
-                        <Run>Packet Header Size (Bytes): </Run>
-                        <Run Name="PacketHeaderSizeRun"></Run>
-                    </TextBlock>
-                    <Button x:Name="PacketBodyButton" Margin="5,0" Width="150" Click="PacketBodyButton_Click" HorizontalAlignment="Stretch">View Packet Body >></Button>
-                </WrapPanel>
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="245"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <TabControl x:Name="TabSwitch" Margin="5,10,0,5" HorizontalAlignment="Stretch">
+            <TabItem Header="Header Data">
+                <Frame>
+                    <Frame.Content>
+                        <packet_properties:HeaderPage x:Name="HeaderPage" Width="Auto"/>
+                    </Frame.Content>
+                </Frame>
             </TabItem>
-            <TabItem x:Name="BodyTab" Header="Body">
+            <TabItem x:Name="BodyTab" Header="Body Data">
 
             </TabItem>
-            <TabItem Header="Footer">
+            <TabItem Header="Footer Data" IsEnabled="False">
 
             </TabItem>
-            <TabItem Header="Raw">
+            <TabItem Header="Import/Export">
                 <Grid>
-                    <Grid.RowDefinitions>
-                        <RowDefinition Height="1*"/>
-                        <RowDefinition Height="1*"/>
-                    </Grid.RowDefinitions>
-                    <TextBox x:Name="TextView" Margin="5" TextWrapping="Wrap">
-                        
-                    </TextBox>
-                    <TextBox x:Name="ByteView" Grid.Row="1" Margin="5,0,5,5" TextWrapping="Wrap">
-
-                    </TextBox>
+                    <StackPanel HorizontalAlignment="Left" Width="200">
+                        <GroupBox Header="Template">
+                            <StackPanel>
+                                <TextBlock Margin="5">
+                                    <Run FontWeight="Bold">
+                                        Loaded Template:
+                                    </Run>
+                                    <LineBreak/>
+                                    <Run x:Name="TOpenBlock">
+                                        None
+                                    </Run>
+                                </TextBlock>
+                                <Button x:Name="TemplateSave" Margin="5" Click="TemplateSave_Click">Save</Button>
+                                <Button x:Name="TSaveAs" Margin="5,0" Click="TSaveAs_Click">Save As...</Button>
+                                <Button x:Name="TLoad" Margin="5" Click="TLoad_Click">Load Template</Button>
+                                <Button x:Name="TUnload" Margin="5,0" Click="TUnload_Click">Unload Template</Button>
+                                <Button IsEnabled="False" Margin="5">Set as Default for File</Button>
+                            </StackPanel>
+                        </GroupBox>
+                        <GroupBox Header="Packet Data">
+                            <StackPanel>
+                                <Button x:Name="PacketExportDAT" Margin="5" Click="PacketExportDAT_Click">Export *.dat</Button>
+                                <Button x:Name="PacketExportTPWP" Margin="5,0,5,5">Export *.tpwpacket</Button>
+                            </StackPanel>
+                        </GroupBox>
+                    </StackPanel>
                 </Grid>
             </TabItem>
-            <TabItem Header="Export">
+        </TabControl>
+        <TabControl Grid.Column="1" Margin="5,5,5,5">
+            <TabItem Header="Hex Editor">
+                <Grid>
+                    <Grid.ColumnDefinitions>
+                        <ColumnDefinition/>
+                        <ColumnDefinition Width="250"/>
+                    </Grid.ColumnDefinitions>
+                    <wpfhexaeditor:HexEditor Name="HexEditorControl" 
+                                             AllowDrop="False" 
+                                             DataStringVisual="Hexadecimal"
+                                             StringDataVisibility="Visible"
+                                             PreloadByteInEditorMode="MaxScreenVisibleLineAtDataLoad"
+                                             SelectionLengthChanged="HexEditor_SelectionLengthChanged"
+                                             SelectionStartChanged="HexEditor_SelectionStartChanged"
+                                             SelectionStopChanged="HexEditor_SelectionStopChanged" />
+                    <GroupBox Grid.Column="1" Header="Data Preview" Margin="5,0,0,0" Padding="0,0,0,-5">
+                        <TabControl Margin="5,5,5,0">
+                            <TabItem Header="Template View">
+                                <DockPanel>
+                                    <GroupBox DockPanel.Dock="Top" Header="Data Format">
+                                        <WrapPanel Margin="5">
+                                            <RadioButton x:Name="ASCIIRadio" IsChecked="True" Checked="ASCIIRadio_Checked">ASCII</RadioButton>
+                                            <RadioButton x:Name="UNICODERadio" Checked="ASCIIRadio_Checked" Margin="10,0,0,0" HorizontalAlignment="Stretch">UNICODE</RadioButton>
+                                            <RadioButton x:Name="ByteRawRadio" Checked="ASCIIRadio_Checked">RAW BYTE DEC</RadioButton>
+                                            <RadioButton x:Name="RawHexRadio" Checked="ASCIIRadio_Checked">RAW BYTE HEX</RadioButton>
+                                        </WrapPanel>
+                                    </GroupBox>
+                                    <Rectangle DockPanel.Dock="Top" Margin="5,10" Height="1" Fill="#FFD5DFE5"/>
+                                    <GroupBox Header="Templater" Padding="0,5" DockPanel.Dock="Bottom">
+                                        <ux:TemplaterControl x:Name="TemplaterControl" Height="Auto" Width="Auto"/>
+                                    </GroupBox>
+                                    <Rectangle DockPanel.Dock="Bottom" Margin="5,10" Height="1" Fill="#FFD5DFE5"/>
+                                    <ScrollViewer>
+                                        <WrapPanel x:Name="TemplateWrapView" Margin="5">
+                                            <WrapPanel.Resources>
+                                                <Style TargetType="TextBlock">
+                                                    <Setter Property="FontFamily" Value="Consolas"/>
+                                                    <Setter Property="FontWeight" Value="Bold"/>
+                                                    <Setter Property="Foreground" Value="Black"/>
+                                                    <Setter Property="TextWrapping" Value="Wrap"/>
+                                                    <Setter Property="Margin" Value="2"/>
+                                                </Style>
+                                                <Style TargetType="UserControl" BasedOn="{StaticResource TPWUX_TemplateObjectBorderStyle}">
 
+                                                </Style>
+                                            </WrapPanel.Resources>
+                                            <UserControl Style="{StaticResource TPWUX_TemplateObjectBorderStyle}" Background="Green">
+                                                <TextBlock>TEST</TextBlock>
+                                            </UserControl>
+                                        </WrapPanel>
+                                    </ScrollViewer>
+                                </DockPanel>
+                            </TabItem>
+                            <TabItem Header="Labels">
+                                <ScrollViewer>
+                                    <StackPanel x:Name="LabelDisplay" Margin="10">
+                                        <StackPanel.Resources>
+                                            <Style TargetType="UserControl" BasedOn="{StaticResource TPWUX_TemplateObjectBorderStyle}"/>
+                                        </StackPanel.Resources>
+                                        <UserControl Background="DarkCyan">
+                                            <StackPanel>
+                                                <TextBlock>TITLE</TextBlock>
+                                                <TextBlock>DESCRIPTION</TextBlock>
+                                                <TextBlock>
+                                                <Run x:Name="StartOffsetBlock">00</Run> -> <Run x:Name="EndOffsetBlock">00</Run></TextBlock>
+                                            </StackPanel>
+                                        </UserControl>
+                                    </StackPanel>
+                                </ScrollViewer>
+                            </TabItem>
+                            <TabItem Header="Help">
+                                <ScrollViewer Margin="5">
+                                    <TextBlock TextWrapping="Wrap" Margin="0,0,5,0"><Run FontWeight="Bold" Text="Templating Data"/><LineBreak/><Run Text="Open the Template View tab, and make a selection in the Hex Editor. From there, the Templater dialog will enable, giving you options about the data you wish to template."/><LineBreak/><LineBreak/><Run FontWeight="Bold" Text="Templater Dialog"/><LineBreak/><Run Text="The Templater dialog will utilize"/><Run Text=" "/><Run FontWeight="Bold" Foreground="Blue" Text="TPWPacket"/><Run Text="'s built-in templating interface that comes with many advantages. For example, the system is now well-aware of data types that TPW uses to create the Online-Experience: WORD, DWORD, etc. "/><Run FontWeight="Bold" Text="TPWPacket"/><Run Text=" automatically finds which common data types are compatible with the the data you selected. So explore a bit!"/></TextBlock>
+                                </ScrollViewer>
+                            </TabItem>
+                        </TabControl>
+                    </GroupBox>
+                </Grid>
             </TabItem>
         </TabControl>
-        <Button x:Name="OKButton" Grid.Row="1" Margin="0,0,10,0" VerticalAlignment="Center" IsDefault="True" Click="OKButton_Click" HorizontalAlignment="Right" Width="87">OK</Button>
-        <Button x:Name="CancelButton" Grid.Row="1" Margin="66,0,0,0" VerticalAlignment="Center" Content="Cancel" IsCancel="True" Click="CancelButton_Click" HorizontalAlignment="Left" Width="87"/>
+        <Button x:Name="OKButton" Grid.Row="1" Grid.Column="1" Margin="0,2,10,0" VerticalAlignment="Top" Click="OKButton_Click" HorizontalAlignment="Right" Width="87" Height="25">OK</Button>
+        <Button x:Name="CancelButton" Grid.Row="1" Grid.Column="1" VerticalAlignment="Top" Content="Cancel" IsCancel="True" Click="CancelButton_Click" HorizontalAlignment="Right" Width="87" Margin="0,2,104,0" Height="25"/>
     </Grid>
 </Window>

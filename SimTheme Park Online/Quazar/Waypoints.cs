@@ -8,6 +8,8 @@ namespace QuazarAPI.Networking.Standard
     {
         External = 1,
         LoginServer = 1000,
-        NewsServer = 1001
+        NewsServer = 1001,
+        CityServer = 1002,
+        ChatServer = 1003
     }
 }

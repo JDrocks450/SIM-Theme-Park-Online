@@ -1,0 +1,7 @@
+Send in the following order if using 2.0:
+getserverdetails.dat
+getgamenews.dat
+getservernews.dat
+
+Or send as one big packet:
+NewsPacket.dat

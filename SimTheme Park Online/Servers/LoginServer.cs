@@ -23,7 +23,7 @@ namespace SimTheme_Park_Online
                 Packet.Write(stream);
         }
 
-        protected override void OnIncomingPacket(Socket Sender, uint ID, TPWPacket Data)
+        protected override void OnIncomingPacket(uint ID, TPWPacket Data)
         {
             if (!HandleCommand(ID, Data))
             {
@@ -33,7 +33,7 @@ namespace SimTheme_Park_Online
 
         public override void Start()
         {
-            QConsole.WriteLine("[LoginServer] Starting...");
+            QConsole.WriteLine(Name, "Starting...");
             BeginListening();
         }
 
@@ -46,7 +46,7 @@ namespace SimTheme_Park_Online
                 ResponseCode = TPWConstants.Bs_Header,
                 //The type of message is response 9
                 MsgType = 0009,                
-                Param1 = 0x0809,
+                Language = 0x0809,
                 Param2 = 0x0000,
                 Param3 = 0x0000,
                 //Set a footer for this packet of <DWORD>.MaxValue
@@ -96,7 +96,7 @@ namespace SimTheme_Park_Online
 
         public override void Stop()
         {
-            QConsole.WriteLine("[LoginServer] Stopping...");
+            QConsole.WriteLine(Name, "Stopping...");
             StopListening();
         }
     }

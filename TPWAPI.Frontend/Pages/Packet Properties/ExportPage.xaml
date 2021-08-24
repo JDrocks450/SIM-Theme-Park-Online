@@ -1,0 +1,35 @@
+﻿<Page x:Class="TPWAPI.Frontend.Pages.Packet_Properties.ExportPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TPWAPI.Frontend.Pages.Packet_Properties"
+      mc:Ignorable="d" 
+      Title="ExportPage">
+    <StackPanel HorizontalAlignment="Left" Width="200">
+        <GroupBox Header="Template">
+            <StackPanel>
+                <TextBlock Margin="5">
+                                    <Run FontWeight="Bold">
+                                        Loaded Template:
+                                    </Run>
+                                    <LineBreak/>
+                                    <Run x:Name="TOpenBlock">
+                                        None
+                                    </Run>
+                </TextBlock>
+                <Button x:Name="TemplateSave" Margin="5" Click="TemplateSave_Click">Save</Button>
+                <Button x:Name="TSaveAs" Margin="5,0" Click="TSaveAs_Click">Save As...</Button>
+                <Button x:Name="TLoad" Margin="5" Click="TLoad_Click">Load Template</Button>
+                <Button x:Name="TUnload" Margin="5,0" Click="TUnload_Click">Unload Template</Button>
+                <Button IsEnabled="False" Margin="5">Set as Default for File</Button>
+            </StackPanel>
+        </GroupBox>
+        <GroupBox Header="Packet Data">
+            <StackPanel>
+                <Button x:Name="PacketExportDAT" Margin="5" Click="PacketExportDAT_Click">Export *.dat</Button>
+                <Button x:Name="PacketExportTPWP" Margin="5,0,5,5">Export *.tpwpacket</Button>
+            </StackPanel>
+        </GroupBox>
+    </StackPanel>
+</Page>

@@ -8,5 +8,40 @@ namespace SimTheme_Park_Online.Data
     {
         public static readonly byte[] Bc_Header = new byte[2] { (byte)'B', (byte)'c' };
         public static readonly byte[] Bs_Header = new byte[2] { (byte)'B', (byte)'s' };
+
+        public struct TPWServerListConstants
+        {
+            public const string I4 = "i4",
+                                UZ = "uz",
+                                SZ = "sz",
+                                F4 = "f4",
+                                BG = "bg",
+                                DT = "dt",
+                                XX = "xx";
+            public static string GetDataTypeByType<T>(T Data)
+            {
+                if (Data is uint)
+                    return I4;
+                if (Data is float)
+                    return F4;
+                if (Data is string)
+                    return UZ;
+                if (Data is byte[])
+                    return BG;
+                if (Data is long)
+                    return SZ;
+                if (Data is DateTime)
+                    return DT;
+                return XX;
+            }
+        }
+
+        public enum TPWServerListType : uint
+        {
+            LOGICAL_SERVERS = 0x07,
+            THEME_INFO = 0x08,
+            CHAT_INFO = 0x02,
+            CITY_INFO = 0x01
+        }
     }
 }

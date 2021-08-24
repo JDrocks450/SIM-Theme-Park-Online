@@ -25,40 +25,13 @@ namespace TPWAPI.Frontend
     {
         public MainWindow()
         {
-            InitializeComponent();            
+            InitializeComponent();
+            SnowFallPanel.Visibility = Visibility.Visible;            
         }
 
         public void SwitchScreen(Page page)
         {
             WindowContent.Content = page;
-        }
-
-        private void PacketMenuItem_Click(object sender, RoutedEventArgs e)
-        {
-            FileDialog dialog = new OpenFileDialog()
-            {
-                CheckFileExists = true,
-                Multiselect = false
-            };
-            if (dialog.ShowDialog() ?? false)
-            {
-                byte[] fileBuffer = null;
-                using (var fs = File.OpenRead(dialog.FileName))
-                {
-                    fileBuffer = new byte[fs.Length];
-                    fs.Read(fileBuffer, 0, (int)fs.Length);
-                }
-                try
-                {
-                    var packets = SimTheme_Park_Online.TPWPacket.ParseAll(fileBuffer);
-                    foreach(var packet in packets)
-                        ApplicationResources.ShowPropertiesWindow(packet);
-                }
-                catch(Exception ex)
-                {
-                    MessageBox.Show(ex.Message);
-                }
-            }
-        }
+        }        
     }
 }

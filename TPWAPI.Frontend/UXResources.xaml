@@ -75,4 +75,25 @@
             </Setter.Value>
         </Setter>
     </Style>
+    <Style x:Key="TPWUX_TemplateObjectBorderStyle" TargetType="ContentControl">
+        <Setter Property="Template">
+            <Setter.Value>
+                <ControlTemplate TargetType="ContentControl">
+                    <Border BorderBrush="Black" BorderThickness="0,0,1,1" Background="{TemplateBinding Background}">
+                        <Border BorderBrush="#7FFFFFFF" BorderThickness="1,1,0,0">
+                            <ContentPresenter Margin="{TemplateBinding Padding}"/>
+                        </Border>
+                    </Border>
+                </ControlTemplate>
+            </Setter.Value>
+        </Setter>
+        <Style.Resources>
+            <Style TargetType="TextBlock">
+                <Setter Property="FontFamily" Value="Consolas"/>
+                <Setter Property="FontWeight" Value="Bold"/>
+                <Setter Property="Foreground" Value="White"/>
+                <Setter Property="Margin" Value="6,1"/>
+            </Style>
+        </Style.Resources>
+    </Style>
 </ResourceDictionary>
