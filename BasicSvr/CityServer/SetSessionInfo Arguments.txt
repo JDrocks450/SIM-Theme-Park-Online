@@ -1,4 +1,0 @@
-Arg4 = Password entered at login screen (SECURITY RISK)
-Arg3 = 053A (Customer ID)
-Arg2 = 0539 (Player ID)
-Arg1 = 0809 (Language Value in Hex - 2057 English UK)

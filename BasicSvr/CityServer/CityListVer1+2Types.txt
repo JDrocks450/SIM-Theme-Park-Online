@@ -1,5 +1,0 @@
-City Data = 01
-Theme List = 08
-Server List = 07
-Ride List = 09
-Chat Park Data = 05
