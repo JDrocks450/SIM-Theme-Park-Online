@@ -14,7 +14,11 @@
             </LinearGradientBrush>
         </Grid.Background>
         <controls:SnowFallPanel Opacity=".5" x:Name="SnowFallPanel" Visibility="Collapsed"/>
-        <threed:ThreeDWorldView x:Name="WorldView"/>
+        <Frame>
+            <Frame.Content>
+                <pages:OnlineWorldPage/>
+            </Frame.Content>
+        </Frame>
         <Image Opacity=".5" Source="/Resources/Textures/Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Width="100" Margin="20"/>
         <Frame Name="WindowContent" NavigationUIVisibility="Hidden">
             <Frame.Content>

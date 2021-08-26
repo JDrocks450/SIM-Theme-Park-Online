@@ -1,4 +1,5 @@
 ﻿using MiscUtil.Conversion;
+using SimTheme_Park_Online.Data.Primitive;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -70,7 +71,7 @@ namespace SimTheme_Park_Online.Data
                     case I4: return EndianBitConverter.Big.GetBytes((uint)Data);
                     case UZ:
                         {
-                            var str = (string)Data;                                                    
+                            var str = Data.ToString();                                                    
                             var strBuffer = Encoding.Unicode.GetBytes(str);
                             byte[] buffer = new byte[strBuffer.Length + 2];    
                             EndianBitConverter.Big.CopyBytes((ushort)strBuffer.Length, buffer, 0);
@@ -78,9 +79,25 @@ namespace SimTheme_Park_Online.Data
                             return buffer;
                         }
                     case F4: return EndianBitConverter.Big.GetBytes((float)Data);
-                    case SZ: 
-                    case DT: return new byte[] { 00, 00, 00, 00 };
-                    case BG: return (byte[])Data;
+                    case SZ:
+                        {
+                            var text = Encoding.ASCII.GetBytes(Data.ToString());
+                            byte[] buffer = new byte[text.Length + 1];
+                            text.CopyTo(buffer, 0);
+                            return buffer;
+                        }
+                    case DT:
+                        {
+                            return ((TPWDTStruct)Data).GetBytes();
+                        }
+                    case BG:
+                        {
+                            byte[] source = (byte[])Data;
+                            byte[] buffer = new byte[source.Length + 2];
+                            EndianBitConverter.Big.CopyBytes((ushort)source.Length, buffer, 0);
+                            source.CopyTo(buffer, 2);
+                            return buffer;
+                        }
                     default:
                         throw new NotImplementedException("This data type hasn't been implemented yet.");
                 }
@@ -125,6 +142,8 @@ namespace SimTheme_Park_Online.Data
             var encoder = EndianBitConverter.Big;
             _template.Definitions.Clear();
             Dictionary<int, (string format, byte[] data)> formattedDataMap = new Dictionary<int, (string format, byte[] data)>();
+            Queue<Templating.TPWTemplateDefinition> definitions = new Queue<Templating.TPWTemplateDefinition>();
+            int formatStrLeng = 0;
             while (Definitions.Skip(offset).Any())
             {
                 using (MemoryStream definitionBuffer = new MemoryStream())
@@ -138,13 +157,14 @@ namespace SimTheme_Park_Online.Data
                             offset++;
                             break;
                         }
-                        formatStr.Append(def.DataType + ',');
+                        formatStr.Append(def.DataType + ',');                        
                         int written = def.Write(definitionBuffer);
-                        _template.Add(
-                                new Templating.TPWTemplateDefinition(
-                                    templateOffsetEnd, (uint)written, def.DataType + " Value", "A formatted value.", def.GetClosestSystemType()));                        
+                        definitions.Enqueue(new Templating.TPWTemplateDefinition(
+                                    templateOffsetEnd, (uint)written, def.DataType + " Value", "A formatted value.", def.GetClosestSystemType()));
+                        templateOffsetEnd += (uint)written;
                         offset++;
                     }
+                    formatStrLeng = formatStr.Length;
                     totalSize += (uint)(definitionBuffer.Length);
                     formattedDataMap.Add(group - 1, (formatStr.ToString().TrimEnd(','), definitionBuffer.ToArray()));
                 }
@@ -162,16 +182,20 @@ namespace SimTheme_Park_Online.Data
                     {
                         Param = prevDataLeng = (uint)(mapItem.data.Length + mapItem.format.Length + 1);
                         stream.Write(encoder.GetBytes(Param));
-                        stream.Write(Encoding.ASCII.GetBytes(mapItem.format));
-                        stream.WriteByte(00);
-                        templateOffsetEnd = _TemplateHeader(mapItem.format.Length, templateOffsetEnd);
-                    }
-                    //else Param += (uint)prevDataLeng;                                                                                 
-                    stream.Write(mapItem.data);
-                    templateOffsetEnd += (uint)(mapItem.data.Length + mapItem.format.Length + 1);                    
+                        stream.Write(Encoding.ASCII.GetBytes(mapItem.format)); 
+                        stream.WriteByte(00);                         
+                        _TemplateHeader(mapItem.format.Length);
+                    }                                                                                                 
+                    stream.Write(mapItem.data);               
                     group++;
                 }
-                //stream.Write(new byte[90]); // add a bit incase too short
+                while (definitions.TryDequeue(out var def))
+                {
+                    uint width = def.Length;
+                    def.StartOffset += (uint)(formatStrLeng + 16);
+                    def.EndOffset = def.StartOffset + width;
+                    _template.Add(def);
+                }
                 return stream.ToArray();
             }
         }        

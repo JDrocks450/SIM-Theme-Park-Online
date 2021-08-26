@@ -38,56 +38,46 @@ namespace SimTheme_Park_Online.Factory
             };
         }
 
-        public static TPWPacket GenerateThemeInfoPacket(string Theme1, string Theme2, string Theme3, out TPWServersideList List)
+        public static TPWPacket GenerateThemeInfoPacket(params TPWThemeInfoStructure[] Themes)
         {
             var packet = CreateServerResponse(0x044C, 00, 00, 0x0A);
-            List = Create(0x08,
-                new TPWServersideListDefinition(
-                    (uint)0x00), // i4
-                new TPWServersideListDefinition(
-                    Theme1), //uz
-                new TPWServersideListDefinition(
-                    Theme2), //uz
-                new TPWServersideListDefinition(
-                    Theme3) //uz
-            );            
-            packet.Body = List.GetBytes();
+            GenerateGeneric(ref packet, Themes);
             ExportToDisk(Path.Combine("Library\\City\\G_ThemeInfo.dat"), packet);
             return packet;
         }
 
-        public static void GenerateGeneric(ref TPWPacket Packet, out Data.Templating.TPWDataTemplate Template, params TPWListStructure[] Lists)
+        public static void GenerateGeneric(ref TPWPacket Packet, params TPWListStructure[] Lists)
         {
             var definitions = MergeAll(Lists.Select(x => x.List).ToArray());
-            Template = definitions.GetTemplate();
+            Packet.SetTemplate(definitions.GetTemplate());
             Packet.Body = definitions.GetBytes();
         }
 
-        internal static TPWPacket GenerateCityInfoPacket(out Data.Templating.TPWDataTemplate Template, params TPWCityInfoStructure[] CityInfoLists)
+        internal static TPWPacket GenerateRideInfoPacket(params TPWRideInfoPacketStructure[] Rides)
+        {
+            var packet = CreateServerResponse(0x044C, 00, 00, 0x0C);
+            GenerateGeneric(ref packet, Rides);
+            return packet;
+        }
+
+        internal static TPWPacket GenerateCityInfoPacket(params TPWCityInfoStructure[] CityInfoLists)
         {
             var packet = CreateServerResponse(0x044C, 00, 00, 0x0E);
-            GenerateGeneric(ref packet, out Template, CityInfoLists);
+            GenerateGeneric(ref packet, CityInfoLists);
             return packet;
         }
 
-        public static TPWPacket GenerateLogicalServerPacket(uint Param1, string Str1, uint Param2, string Str2, 
-            uint Param3, uint Param4, string Str3, string Str4, uint Param5, string Str5)
+        public static TPWPacket GenerateLogicalServerPacket(params TPWLogicalServerStructure[] LogicalServers)
         {
             var packet = CreateServerResponse(0x044C, 00, 00, 0x0B);
-            var definitions = Create(
-                0x07,
-                Param1, Str1, Param2, Str2,
-                Param3, Param4, Str3, Str4, 
-                Param5, Str5
-            );            
-            packet.Body = definitions.GetBytes();
+            GenerateGeneric(ref packet, LogicalServers);
             return packet;
         }
 
-        public static TPWPacket GenerateChatParkInfoPacket(params TPWChatParkInfoStructure[] ChatParks)
+        public static TPWPacket GenerateCityResponsePacket(params TPWCityResponseStructure[] ChatParks)
         {
             var packet = CreateServerResponse(0x044C, 00, 00, 0x0D);
-            GenerateGeneric(ref packet, out _, ChatParks);
+            GenerateGeneric(ref packet, ChatParks);
             return packet;
         }
     }

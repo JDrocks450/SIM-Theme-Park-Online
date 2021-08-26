@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Pages\Cities\AddNewCityDialog.xaml.cs" />
     <Compile Remove="Pages\Packet Properties\ExportPage.xaml.cs" />
   </ItemGroup>
 
@@ -31,6 +32,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Remove="Pages\Cities\AddNewCityDialog.xaml" />
     <Page Remove="Pages\Packet Properties\ExportPage.xaml" />
   </ItemGroup>
 
@@ -82,6 +84,10 @@
     <None Update="Resources\profile.tpwprofile">
       <CopyToOutputDirectory>PreserveNewest</CopyToOutputDirectory>
     </None>
+  </ItemGroup>
+
+  <ItemGroup>
+    <Folder Include="Pages\Cities\" />
   </ItemGroup>
 
 </Project>

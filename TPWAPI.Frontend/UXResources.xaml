@@ -14,6 +14,31 @@
         <GradientStop Color="White" Offset="0.338"/>
     </LinearGradientBrush>
 
+    <Style x:Key="TPWUX_TextboxStyle" TargetType="TextBox">
+        <Setter Property="Height" Value="25"/>
+        <Setter Property="VerticalContentAlignment" Value="Center"/>
+        <Setter Property="Padding" Value="5,0,0,0"/>
+        <Setter Property="Background" Value="Black"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="BorderThickness" Value="2"/>
+        <Setter Property="BorderBrush" Value="#FF031859"/>
+        <Setter Property="Height" Value="35"/>
+        <Setter Property="FontFamily" Value="Comic Sans MS"/>
+        <Setter Property="FontWeight" Value="Normal"/>
+    </Style>
+
+    <Style x:Key="TPWUX_TitleStyle" TargetType="TextBlock">
+        <Setter Property="Foreground" Value="#FFFFFF6B"/>
+        <Setter Property="FontFamily" Value="Comic Sans MS"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="Effect">
+            <Setter.Value>
+                <DropShadowEffect BlurRadius="0" ShadowDepth="2" Color="#FFB0B000" />
+            </Setter.Value>
+        </Setter>
+    </Style>
+    
     <Style TargetType="Border" x:Key="TPWUX_BorderFlyoutStyle">
         <Setter Property="Background" Value="{DynamicResource TPWUX_GradientBackgroundBrush}"/>
         <Setter Property="BorderBrush" Value="Gray"/>
@@ -40,6 +65,14 @@
     </Style>
 
     <Style x:Key="TPWUX_InGameFlyoutTemplate" TargetType="ContentControl">
+        <Style.Resources>
+            <Style TargetType="TextBlock" BasedOn="{StaticResource TPWUX_TitleStyle}">
+
+            </Style>
+            <Style TargetType="TextBox" BasedOn="{StaticResource TPWUX_TextboxStyle}">
+
+            </Style>
+        </Style.Resources>
         <Setter Property="Background" Value="{DynamicResource TPWUX_FrameBackgroundBrush}"/>
         <Setter Property="Template">
             <Setter.Value>
@@ -57,24 +90,7 @@
             </Setter.Value>
         </Setter>
     </Style>
-
-    <Style x:Key="TPWUX_TextboxStyle" TargetType="TextBox">
-        <Setter Property="Height" Value="25"/>
-        <Setter Property="VerticalContentAlignment" Value="Center"/>
-        <Setter Property="Padding" Value="5,0,0,0"/>
-    </Style>
-
-    <Style x:Key="TPWUX_TitleStyle" TargetType="TextBlock">
-        <Setter Property="Foreground" Value="#FFFFFF6B"/>
-        <Setter Property="FontFamily" Value="Comic Sans MS"/>
-        <Setter Property="FontSize" Value="18"/>
-        <Setter Property="FontWeight" Value="Bold"/>
-        <Setter Property="Effect">
-            <Setter.Value>
-                <DropShadowEffect BlurRadius="0" ShadowDepth="2" Color="#FFB0B000" />
-            </Setter.Value>
-        </Setter>
-    </Style>
+    
     <Style x:Key="TPWUX_TemplateObjectBorderStyle" TargetType="ContentControl">
         <Setter Property="Template">
             <Setter.Value>
@@ -95,5 +111,25 @@
                 <Setter Property="Margin" Value="6,1"/>
             </Style>
         </Style.Resources>
+    </Style>
+    <Style TargetType="Button" x:Key="TPWUX_InGameButton">
+        <Style.Resources>
+            <Style TargetType="TextBlock" BasedOn="{StaticResource TPWUX_TitleStyle}">
+                
+            </Style>
+        </Style.Resources>
+        <Setter Property="FontFamily" Value="Comic Sans MS"/>
+        <Setter Property="Background">
+            <Setter.Value>
+                <ImageBrush Opacity=".75" ImageSource="/Resources/Textures/PushButtonColor.png" Stretch="Fill" TileMode="Tile"/>
+            </Setter.Value>
+        </Setter>
+        <Setter Property="BorderThickness" Value="0"/>
+        <Setter Property="FontSize" Value="18"/>
+        <Setter Property="Foreground" Value="White"/>
+        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="HorizontalAlignment" Value="Stretch"/>
+        <Setter Property="Padding" Value="20,10"/>
+        <Setter Property="Cursor" Value="Hand"/>
     </Style>
 </ResourceDictionary>

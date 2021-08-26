@@ -15,21 +15,8 @@
         </Grid.RowDefinitions>
         <Grid Margin="0,70,40,0" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Grid.Resources>
-                <Style TargetType="Button">
-                    <Setter Property="FontFamily" Value="Comic Sans MS"/>
-                    <Setter Property="Background">
-                        <Setter.Value>
-                            <ImageBrush Opacity=".75" ImageSource="/Resources/Textures/PushButtonColor.png" Stretch="Fill" TileMode="Tile"/>
-                        </Setter.Value>
-                    </Setter>
-                    <Setter Property="BorderThickness" Value="0"/>
-                    <Setter Property="FontSize" Value="18"/>
-                    <Setter Property="Foreground" Value="White"/>
-                    <Setter Property="FontWeight" Value="Bold"/>
-                    <Setter Property="HorizontalAlignment" Value="Stretch"/>
-                    <Setter Property="Padding" Value="20,10"/>
+                <Style TargetType="Button" BasedOn="{StaticResource TPWUX_InGameButton}">
                     <Setter Property="Margin" Value="0,10"/>
-                    <Setter Property="Cursor" Value="Hand"/>
                 </Style>
             </Grid.Resources>
             <ux:TPWMessageBox x:Name="NavBox" Width="600"/>

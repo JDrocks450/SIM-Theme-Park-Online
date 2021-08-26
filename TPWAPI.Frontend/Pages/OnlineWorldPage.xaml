@@ -1,0 +1,29 @@
+﻿<Page x:Class="TPWAPI.Frontend.Pages.OnlineWorldPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TPWAPI.Frontend.Pages" xmlns:threed="clr-namespace:TPWAPI.Frontend.Controls.ThreeD"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="OnlineWorldPage">
+    <Page.Resources>
+        <Style TargetType="Button" BasedOn="{StaticResource TPWUX_InGameButton}"/>
+    </Page.Resources>
+    <Grid>
+        <threed:ThreeDWorldView x:Name="WorldView" Visibility="Collapsed"/>
+        <Button Margin="10" Style="{StaticResource TPWUX_InGameButton}" VerticalAlignment="Top" HorizontalAlignment="Left">
+            <TextBlock>Go Back</TextBlock>
+        </Button>
+        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" MinHeight="300" Width="200">
+            <Button x:Name="NewCityButton" Margin="10">
+                <TextBlock>
+                    Add New City
+                </TextBlock>
+            </Button>
+            <Button Margin="10,0">
+                <TextBlock><Run Text="View Cities"/></TextBlock>
+            </Button>
+        </StackPanel>
+    </Grid>
+</Page>

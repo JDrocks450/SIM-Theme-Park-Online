@@ -1,5 +1,6 @@
 ﻿using MiscUtil.Conversion;
 using QuazarAPI;
+using SimTheme_Park_Online.Data.Templating;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -12,20 +13,21 @@ namespace SimTheme_Park_Online
 {
     public class TPWPacket
     {
-           /* PACKET FORMAT FOUND:
-            * REMEMBER THESE ARE INDICES OF BYTES IN ARRAY!
-            * 42'B' 73's' [1 0 WORD] [2] [3] [5 4 WORD ESI + 1E]
-            * [6..9 DWORD ESI+20] [10..13 DWORD ESI+24]
-            * [14..17 DWORD ESI+28] 
-            * BODY:
-            * [0] PlayerID [1] CustomerID
-            */
-           /*
-           * 1 0 WORD: 0x012E, 9 SUCCESS, 2 SERV ERROR, 1 AUTH ERROR
-           */
+        /* PACKET FORMAT FOUND:
+         * REMEMBER THESE ARE INDICES OF BYTES IN ARRAY!
+         * 42'B' 73's' [1 0 WORD] [2] [3] [5 4 WORD ESI + 1E]
+         * [6..9 DWORD ESI+20] [10..13 DWORD ESI+24]
+         * [14..17 DWORD ESI+28] 
+         * BODY:
+         * [0] PlayerID [1] CustomerID
+         */
+        /*
+        * 1 0 WORD: 0x012E, 9 SUCCESS, 2 SERV ERROR, 1 AUTH ERROR
+        */
 
-        public DateTime Received { get; set; } 
-        public DateTime Sent { get; set; }
+        public DateTime Received, Sent;
+        public string ReceivedTime => Received == default ? "Not Received" : Received.ToString();
+        public string SentTime => Sent == default ? "Not Sent" : Sent.ToString();
 
         /// <summary>
         /// The header of the packet, two bytes, ASCII
@@ -67,7 +69,21 @@ namespace SimTheme_Park_Online
         public byte[] Body { get; set; }
         public byte[] Footer { get; set; }
         //[JsonIgnore]
+        /// <summary>
+        /// The file this packet is stored in on the computer, if one exists.
+        /// </summary>
         public string FileName { get; set; }
+        
+        private TPWDataTemplate _dataTemplate;
+        /// <summary>
+        /// Represents whether a <see cref="TPWDataTemplate"/> is added to this packet or not.
+        /// </summary>
+        public bool HasDataTemplate => _dataTemplate != null;
+        /// <summary>
+        /// Gets the current <see cref="TPWDataTemplate"/> that represents the data contained in this packet.
+        /// </summary>
+        public TPWDataTemplate GetTemplate() => _dataTemplate;
+        public TPWDataTemplate SetTemplate(TPWDataTemplate value) => _dataTemplate = value;
 
         public TPWPacket()
         {
@@ -100,8 +116,13 @@ namespace SimTheme_Park_Online
         {
             byte[] buffer = new byte[DataLength];
             Header.CopyTo(buffer,0);
-            Body?.CopyTo(buffer, HeaderLength);
-            Footer?.CopyTo(buffer, Body.Length + HeaderLength - Footer.Length);
+            if (Body != default)
+            {
+                byte[] fooBody = Body;
+                Array.Resize(ref fooBody, Body.Length + Footer?.Length ?? 0);
+                Footer?.CopyTo(Body, Body.Length - Footer?.Length ?? 0);
+                Body?.CopyTo(buffer, HeaderLength);
+            }
             return buffer;
         }
 

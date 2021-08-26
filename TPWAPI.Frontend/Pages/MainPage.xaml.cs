@@ -36,9 +36,6 @@ namespace TPWAPI.Frontend.Pages
             };
             foreach (var entry in QConsole.TotalLog)
                 ConsoleOutput.Text += entry + "\n";
-
-            var packet = SimTheme_Park_Online.CityServer.GetCityInfoPacket(out var List);
-            ApplicationResources.ShowPropertiesWindow(packet, List);
         }
 
         private void PacketMenuItem_Click(object sender, RoutedEventArgs e)

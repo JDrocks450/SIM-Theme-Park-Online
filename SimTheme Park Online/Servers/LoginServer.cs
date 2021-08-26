@@ -54,7 +54,7 @@ namespace SimTheme_Park_Online
             };
 
             // allocate a body buffer
-            byte[] body = new byte[50];
+            byte[] body = new byte[150];
             EndianBitConverter converter = EndianBitConverter.Big;
             converter.CopyBytes((uint)0x01234, body, 0); // emplace Player and Customer ID
             converter.CopyBytes((uint)0x05678, body, 4);

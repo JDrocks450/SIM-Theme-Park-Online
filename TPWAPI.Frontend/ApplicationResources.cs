@@ -20,14 +20,17 @@ namespace TPWAPI.Frontend
                 { TPWSystemTypes.WORD, Brushes.DarkTurquoise },
                 { TPWSystemTypes.DWORD, Brushes.DarkCyan },
                 { TPWSystemTypes.UNI_STR, Brushes.Green },
-                { TPWSystemTypes.ASCII_STR, Brushes.Violet }
+                { TPWSystemTypes.ASCII_STR, Brushes.Violet },
+                { TPWSystemTypes.BYTE_ARR, Brushes.DarkBlue }
         };
 
         internal static void ShowPropertiesWindow(TPWPacket packet, TPWDataTemplate Template = default)
         {
             PacketProperties properties = new PacketProperties(packet);
-            if(Template != null)
+            if (Template != null)
                 properties.SetTemplater(Template);
+            else if (packet.HasDataTemplate)
+                properties.SetTemplater(packet.GetTemplate());
             properties.Owner = Application.Current.MainWindow;
             properties.Show();
         }

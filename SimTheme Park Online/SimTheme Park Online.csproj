@@ -11,6 +11,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <None Remove="SimTheme Park Online %282%29.zip" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Library\AuthSuccess.dat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>

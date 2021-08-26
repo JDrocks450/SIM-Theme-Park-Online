@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SimTheme_Park_Online.Data.Primitive;
+using System;
 using System.Collections.Generic;
 using System.Text;
 
@@ -24,13 +25,13 @@ namespace SimTheme_Park_Online.Data
                     return I4;
                 if (Data is float)
                     return F4;
-                if (Data is string)
+                if (Data is TPWUnicodeString)
                     return UZ;
                 if (Data is byte[])
                     return BG;
-                if (Data is long)
+                if (Data is TPWZeroTerminatedString)
                     return SZ;
-                if (Data is DateTime)
+                if (Data is TPWDTStruct)
                     return DT;
                 return XX;
             }
@@ -40,8 +41,11 @@ namespace SimTheme_Park_Online.Data
         {
             LOGICAL_SERVERS = 0x07,
             THEME_INFO = 0x08,
-            CHAT_INFO = 0x02,
-            CITY_INFO = 0x01
+            PARKS_INFO = 0x02,
+            CITY_INFO = 0x01,
+            RIDE_INFO = 0x09,
+            SEARCH_RESULT = 0x06,
+            TOP10_RESULT = 0x03
         }
     }
 }
