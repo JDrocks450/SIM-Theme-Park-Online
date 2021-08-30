@@ -44,6 +44,11 @@ namespace QuazarAPI.Networking.Standard
             get; set;
         } = false;
 
+        public uint PacketQueue
+        {
+            get; protected set;
+        } = 0x0A;
+
         private TcpListener listener;
         private Dictionary<uint, TcpClient> _clients = new Dictionary<uint, TcpClient>();
         private Dictionary<uint, ClientInfo> _clientInfo = new Dictionary<uint, ClientInfo>();
@@ -73,8 +78,7 @@ namespace QuazarAPI.Networking.Standard
 
         private void Init()
         {
-            listener = new TcpListener(IPAddress.Loopback, PORT);
-            
+            listener = new TcpListener(IPAddress.Loopback, PORT);            
         }
 
         private void Ready() => listener.BeginAcceptTcpClient(AcceptConnection, listener);
@@ -111,6 +115,7 @@ namespace QuazarAPI.Networking.Standard
             foreach (var packet in packets)
             {
                 QConsole.WriteLine(Name, $"Incoming packet was successfully parsed.");
+                packet.Received = DateTime.Now;
                 IncomingTrans.Add(packet);
                 OnIncomingPacket(0, packet);
             }
@@ -166,10 +171,10 @@ namespace QuazarAPI.Networking.Standard
 
         public abstract void Start();
         public abstract void Stop();
-        public IEnumerable<ClientInfo> GetAllConnectedClients()
+        public IEnumerable<(uint ID, TcpClient Client)> GetAllConnectedClients()
         {
-            foreach (var connection in _clientInfo)
-                yield return connection.Value;
+            foreach (var connection in _clients)
+                yield return (connection.Key, connection.Value);
         }
         public IEnumerable<uint> GetAllWaypointClients(SIMThemeParkWaypoints wayPoint) => _clientInfo.Where(x => x.Value.Me == wayPoint).Select(x => x.Key);
         public ClientInfo GetClientInfoByID(uint ID) => _clientInfo[ID];
@@ -231,6 +236,7 @@ namespace QuazarAPI.Networking.Standard
         }
 
         protected abstract void OnIncomingPacket(uint ID, TPWPacket Data);
+        protected abstract void OnOutgoingPacket(uint ID, TPWPacket Data);   
 
         protected virtual void OnForceClose(TcpClient socket, uint ID)
         {
@@ -245,7 +251,6 @@ namespace QuazarAPI.Networking.Standard
         {
             var newConnection = ConnectionHelper.Connect(address, port);
             uint id = (uint)_clients.Count;
-            _clients.Add(id, newConnection);
             OnConnected(newConnection, id);
             Ready();
             return id;
@@ -306,13 +311,20 @@ namespace QuazarAPI.Networking.Standard
 
         protected void Send(uint ID, TPWPacket Data, bool ManualModeOverride = false)
         {
-            OutgoingTrans.Add(Data);
+            Data.Sent = DateTime.Now;
+            OnOutgoingPacket(ID, Data);
+            PacketQueue++;
+            OutgoingTrans.Add(Data);            
             Send(ID, Data.GetBytes(), ManualModeOverride);
         }
+        protected virtual void OnManualSend(uint ID, ref TPWPacket Data)
+        {
 
+        }
         public void ManualSend(uint ID, TPWPacket Data)
         {
-            Send(ID, Data, true);
+            OnManualSend(ID, ref Data);
+            Send(ID, Data, true);            
         }
         public void ManualSend(uint ID, params TPWPacket[] Packets)
         {

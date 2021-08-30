@@ -6,6 +6,7 @@ using System.Collections.Generic;
 using System.Collections.Specialized;
 using System.IO;
 using System.Linq;
+using System.Net.Sockets;
 using System.Text;
 using System.Threading.Tasks;
 using System.Windows;
@@ -64,10 +65,10 @@ namespace TPWAPI.Frontend.Pages
             {
                 var listBox = new ListViewItem()
                 {
-                    Content = cx.Name,
+                    Content = cx.Client.Client.RemoteEndPoint.ToString(),
                     Background = Brushes.Turquoise,
                     Foreground = Brushes.White,
-                    Tag = cx
+                    Tag = cx.ID
                 };
                 ConnectionsListBox.Items.Add(listBox);
             }
@@ -78,7 +79,7 @@ namespace TPWAPI.Frontend.Pages
 
         private void ConnectionsListBox_SelectionChanged(object sender, SelectionChangedEventArgs e)
         {
-            
+            DisconnectButton.IsEnabled = true;
         }
 
         private void OutgoingTrans_CollectionChanged(object sender, NotifyCollectionChangedEventArgs e)
@@ -140,6 +141,18 @@ namespace TPWAPI.Frontend.Pages
                 return;
             }
             else SendPacket(System.IO.Path.Combine("Library", LibraryFileBox.Text));
+        }
+
+        private void Button_Click(object sender, RoutedEventArgs e)
+        {
+            if(ConnectionsListBox.SelectedItem == default)
+            {
+                MessageBox.Show("There is no selected client to disconnect.");
+                return;
+            }
+            ListBoxItem item = (ConnectionsListBox.SelectedItem as ListBoxItem);
+            uint client = (uint)item.Tag;
+            serverComponent.Disconnect(client);
         }
     }
 }

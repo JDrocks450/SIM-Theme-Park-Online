@@ -1,5 +1,6 @@
 ﻿using MiscUtil.Conversion;
 using QuazarAPI;
+using SimTheme_Park_Online.Data.Primitive;
 using SimTheme_Park_Online.Data.Templating;
 using System;
 using System.Collections.Generic;
@@ -11,6 +12,7 @@ using System.Threading.Tasks;
 
 namespace SimTheme_Park_Online
 {
+    [Serializable]
     public class TPWPacket
     {
         /* PACKET FORMAT FOUND:
@@ -46,7 +48,7 @@ namespace SimTheme_Park_Online
         /// <summary>
         /// WORD - Language ID, 0409 [US]
         /// </summary>
-        public ushort Language { get; set; } = 0409;
+        public ushort Language { get; set; } = 0x0809;
         /// <summary>
         /// WORD
         /// </summary>
@@ -66,7 +68,16 @@ namespace SimTheme_Park_Online
         public UInt32 PacketQueue { get; set; } = 0x000A;
 
         public byte[] Header => GetHeader();
-        public byte[] Body { get; set; }
+        private MemoryStream _bodyBuffer = new MemoryStream();
+        public byte[] Body
+        {
+            get => _bodyBuffer.ToArray();
+            set
+            {
+                AllocateBody((uint)value.Length);
+                EmplaceBody(value);
+            }
+        }
         public byte[] Footer { get; set; }
         //[JsonIgnore]
         /// <summary>
@@ -89,10 +100,10 @@ namespace SimTheme_Park_Online
         {
 
         }
-        public TPWPacket(ushort MsgType, ushort Param1, ushort Param2, UInt32 Param3, UInt32 PacketPriority)
+        public TPWPacket(ushort MsgType, ushort LanguageCode, ushort Param2, UInt32 Param3, UInt32 PacketPriority)
         {
             this.MsgType = MsgType;
-            this.Language = Param1;
+            this.Language = LanguageCode;
             this.Param2 = Param2;
             this.Param3 = Param3;
             PacketQueue = PacketPriority;
@@ -119,9 +130,9 @@ namespace SimTheme_Park_Online
             if (Body != default)
             {
                 byte[] fooBody = Body;
-                Array.Resize(ref fooBody, Body.Length + Footer?.Length ?? 0);
-                Footer?.CopyTo(Body, Body.Length - Footer?.Length ?? 0);
-                Body?.CopyTo(buffer, HeaderLength);
+                //Array.Resize(ref fooBody, Body.Length + Footer?.Length ?? 0);
+                //Footer?.CopyTo(fooBody, Body.Length - (Footer?.Length ?? 0));
+                fooBody?.CopyTo(buffer, HeaderLength);
             }
             return buffer;
         }
@@ -152,10 +163,42 @@ namespace SimTheme_Park_Online
             }
             dataEnd -= 20; // header auto correct
             offset = 20;
-            buffer.Skip(offset).Take((int)packet.BodyLength).ToArray().CopyTo(packet.Body, 0);
+            packet.Body = buffer.Skip(offset).Take((int)packet.BodyLength).ToArray();
             EndIndex = (int)(offset + packet.BodyLength);
 
             return packet;
+        }
+
+        public void AllocateBody(uint BodySize) { 
+            _bodyBuffer = new MemoryStream(new byte[BodySize]);
+            SetPosition(0);
+        }
+        public void SetPosition(int Position) => _bodyBuffer.Position = Position;
+        public void EmplaceBody(params byte[] Bytes) => _bodyBuffer.Write(Bytes);        
+        public void EmplaceBody(uint DWORD, Endianness Endian = Endianness.BigEndian) {
+            if (Endian == Endianness.BigEndian)
+                EmplaceBody(EndianBitConverter.Big.GetBytes(DWORD));
+            else EmplaceBody(EndianBitConverter.Little.GetBytes(DWORD));
+        }
+        public void EmplaceBody(ITPWBOSSSerializable Serializable, bool FullFormat = true) => EmplaceBody(Serializable.GetBytes(FullFormat));
+        public void EmplaceBodyAt(int Position, byte[] Buffer)
+        {
+            SetPosition(Position);
+            EmplaceBody(Buffer);
+        }
+        public void EmplaceBodyAt(int Position, uint DWORD, Endianness Endian = Endianness.BigEndian)
+        {
+            SetPosition(Position);
+            EmplaceBody(DWORD, Endian);
+        }      
+        public void EmplaceBodyAt(int Position, byte Byte)
+        {
+            SetPosition(Position);
+            EmplaceBody(Byte);
+        }      
+        public void EmplaceBodyAt(int Position, ITPWBOSSSerializable Byte)
+        {
+
         }
 
         public static IEnumerable<TPWPacket> ParseAll(params string[] Files)

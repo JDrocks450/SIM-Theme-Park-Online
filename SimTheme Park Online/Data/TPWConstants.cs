@@ -47,5 +47,16 @@ namespace SimTheme_Park_Online.Data
             SEARCH_RESULT = 0x06,
             TOP10_RESULT = 0x03
         }
+
+        public enum TPWChatServerChannel : uint
+        {
+            CHAT = 0x012D,
+            GLOBAL = 0x012E
+        }
+
+        public enum TPWChatServerResponseCode : uint
+        {
+            RoomInfo = 07
+        }
     }
 }

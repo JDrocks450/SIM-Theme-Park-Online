@@ -7,6 +7,7 @@ using System.Threading.Tasks;
 
 namespace SimTheme_Park_Online.Data.Primitive
 {
+    [Serializable]
     public class TPWDTStruct
     {
         public ushort A { get; set; }

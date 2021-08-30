@@ -39,6 +39,10 @@ namespace SimTheme_Park_Online
 
         protected TPWPacket GenerateLoginSuccessPacket()
         {
+            return new Data.Structures.TPWLoginAuthPacket(
+                Data.Structures.TPWLoginAuthPacket.TPWLoginMsgCodes.SUCCESS, 1456, 0789,
+                "Bisquick", "admin@bullfrog.com", 0xFFFFFFFF);
+#if false
             //Create a new response packet in TPW format
             TPWPacket Packet = new TPWPacket()
             {
@@ -61,6 +65,7 @@ namespace SimTheme_Park_Online
             Packet.Body = body;            
 
             return Packet;
+#endif
         }
 
         protected override bool OnReceive(uint ID, byte[] dataBuffer)
@@ -98,6 +103,11 @@ namespace SimTheme_Park_Online
         {
             QConsole.WriteLine(Name, "Stopping...");
             StopListening();
+        }
+
+        protected override void OnOutgoingPacket(uint ID, TPWPacket Data)
+        {
+            
         }
     }
 }

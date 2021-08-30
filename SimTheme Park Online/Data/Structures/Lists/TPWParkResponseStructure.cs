@@ -10,7 +10,7 @@ namespace SimTheme_Park_Online.Data.Structures
     /// <summary>
     /// The structure for a ChatInfo packet
     /// </summary>
-    public class TPWCityResponseStructure : TPWListStructure
+    public class TPWParkResponseStructure : TPWListStructure
     {
         /// <summary>
         /// Creates a ChatParkInfo list
@@ -32,8 +32,8 @@ namespace SimTheme_Park_Online.Data.Structures
         /// <param name="PARAM4"></param>
         /// <param name="ChartPosition"></param>
         /// <param name="PARAM6"></param>
-        /// <param name="PARAM7"></param>
-        public TPWCityResponseStructure(TPWConstants.TPWServerListType ListType,
+        /// <param name="InstantAction"></param>
+        public TPWParkResponseStructure(TPWConstants.TPWServerListType ListType,
                                         TPWUnicodeString CreatedBy,
                                         TPWUnicodeString Email,
                                         uint ParkID,
@@ -51,7 +51,7 @@ namespace SimTheme_Park_Online.Data.Structures
                                         uint PARAM4,
                                         uint ChartPosition,
                                         uint PARAM6,
-                                        uint PARAM7)
+                                        uint InstantAction)
             : base((uint)ListType,
                    CreatedBy,
                    Email,
@@ -70,7 +70,7 @@ namespace SimTheme_Park_Online.Data.Structures
                    PARAM4,
                    ChartPosition,
                    PARAM6,
-                   PARAM7)
+                   InstantAction)
         {
 
         }

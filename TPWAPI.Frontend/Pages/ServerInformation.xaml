@@ -15,7 +15,7 @@
         <ListBox x:Name="ConnectionsListBox" Margin="5,30,5,29" BorderThickness="1,1,1,0">
 
         </ListBox>
-        <Button Margin="5,0,5,5" VerticalAlignment="Bottom" Height="24" Background="#FF003C49" Foreground="White" BorderThickness="0" FontWeight="Bold">DISCONNECT</Button>
+        <Button x:Name="DisconnectButton" IsEnabled="False" Margin="5,0,5,5" VerticalAlignment="Bottom" Height="24" Background="#FF003C49" Foreground="White" BorderThickness="0" FontWeight="Bold" Click="Button_Click">DISCONNECT</Button>
         <TabControl Margin="5,10,5,5" Grid.Column="1">
             <TabItem Header="Incoming Transmissions">
                 <DataGrid Name="IncomingData" SelectionChanged="IncomingData_SelectionChanged">

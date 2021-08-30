@@ -16,7 +16,9 @@ namespace SimTheme_Park_Online
         {
             Console.WriteLine("Quazar for SimTheme Park Starting...");
             ServerManagement Management = new ServerManagement();
+            Management.Initialize();
             Management.StartAll();
+            Management.ChatServer.ManualSend(0, default(TPWPacket));
             while (true)
             {
                 string command = Console.ReadLine();

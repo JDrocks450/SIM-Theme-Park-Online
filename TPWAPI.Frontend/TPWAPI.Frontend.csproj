@@ -8,6 +8,7 @@
   </PropertyGroup>
 
   <ItemGroup>
+    <Compile Remove="Controls\Quazar\StackableFlyoutWindowControl.xaml.cs" />
     <Compile Remove="Pages\Cities\AddNewCityDialog.xaml.cs" />
     <Compile Remove="Pages\Packet Properties\ExportPage.xaml.cs" />
   </ItemGroup>
@@ -32,6 +33,7 @@
   </ItemGroup>
 
   <ItemGroup>
+    <Page Remove="Controls\Quazar\StackableFlyoutWindowControl.xaml" />
     <Page Remove="Pages\Cities\AddNewCityDialog.xaml" />
     <Page Remove="Pages\Packet Properties\ExportPage.xaml" />
   </ItemGroup>

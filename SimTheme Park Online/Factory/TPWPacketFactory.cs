@@ -46,9 +46,12 @@ namespace SimTheme_Park_Online.Factory
             return packet;
         }
 
-        public static void GenerateGeneric(ref TPWPacket Packet, params TPWListStructure[] Lists)
+        public static void GenerateGeneric(ref TPWPacket Packet, params TPWListStructure[] Lists) => 
+            GenerateGeneric(ref Packet, MergeAll(Lists.Select(x => x.List).ToArray()));
+
+        public static void GenerateGeneric(ref TPWPacket Packet, TPWServersideList List)
         {
-            var definitions = MergeAll(Lists.Select(x => x.List).ToArray());
+            var definitions = List;
             Packet.SetTemplate(definitions.GetTemplate());
             Packet.Body = definitions.GetBytes();
         }
@@ -74,7 +77,7 @@ namespace SimTheme_Park_Online.Factory
             return packet;
         }
 
-        public static TPWPacket GenerateCityResponsePacket(params TPWCityResponseStructure[] ChatParks)
+        public static TPWPacket GenerateCityResponsePacket(params TPWParkResponseStructure[] ChatParks)
         {
             var packet = CreateServerResponse(0x044C, 00, 00, 0x0D);
             GenerateGeneric(ref packet, ChatParks);

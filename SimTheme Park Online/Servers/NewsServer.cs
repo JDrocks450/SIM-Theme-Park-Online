@@ -96,5 +96,10 @@ namespace SimTheme_Park_Online
             QConsole.WriteLine(Name, "Stopping...");
             StopListening();
         }
+
+        protected override void OnOutgoingPacket(uint ID, TPWPacket Data)
+        {
+            
+        }
     }
 }

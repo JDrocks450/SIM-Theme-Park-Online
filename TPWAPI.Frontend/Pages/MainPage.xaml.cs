@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using QuazarAPI;
+using SimTheme_Park_Online.Interop;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -147,6 +148,21 @@ namespace TPWAPI.Frontend.Pages
         private void WorldViewButton_Click(object sender, RoutedEventArgs e)
         {
             NavBox.Visibility = Visibility.Hidden;
+        }
+
+        private void STRFileMenuItem_Click(object sender, RoutedEventArgs e)
+        {
+            FileDialog dialog = new OpenFileDialog()
+            {
+                CheckFileExists = true,
+                Multiselect = false
+            };
+            if (dialog.ShowDialog() ?? false)
+            {
+                var bytes = File.ReadAllBytes(dialog.FileName);
+                string text = TPWStringDecoder.FromMultibyte(bytes);
+                MessageBox.Show(text);
+            }
         }
     }
 }

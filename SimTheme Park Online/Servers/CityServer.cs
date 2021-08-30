@@ -1,6 +1,7 @@
 ﻿using QuazarAPI;
 using QuazarAPI.Networking.Data;
 using QuazarAPI.Networking.Standard;
+using SimTheme_Park_Online.Data;
 using SimTheme_Park_Online.Data.Primitive;
 using SimTheme_Park_Online.Data.Structures;
 using System;
@@ -34,83 +35,174 @@ namespace SimTheme_Park_Online
             }
         }
 
-        private Queue<TPWPacket> PacketQueue = new Queue<TPWPacket>();
-        private TPWCityResponseStructure[] GetCities(Data.TPWConstants.TPWServerListType Type) =>
-            new TPWCityResponseStructure[]
-        {
-            new Data.Structures.TPWCityResponseStructure(Type,
-                    "Bisquick", "admin@bullfrog.com", 16, new byte[]
-                    {
-                        01, 02, 00, 03,
-                        04, 05,
-                        06, 07,
-                        08, 09, 0x0A, 0x0B, 0x0C, 0x0D, 0x0E, 0x0F,
-                    },
-                    "Bisquick's Testing Zone",
-                    "This park is for testing purposes. Thanks for tuning in! The codebase behind this breakthrough is Quazar.TPW-SE, " +
-                    "an API for interacting with an unmodified, SIM Theme Park 1.0 and 2.0 installation. - Jeremy, Bisquick",
-                    0x0B, 0x03, 0x00, 0x02, 0x01, "Daphene", new TPWDTStruct(0x2021, 0x0008, 0x0017), 0x0000000A, 0x01, 0x01, 0x0D, 0x0E),
+        private Dictionary<uint, TPWParkInfo> _parks = new Dictionary<uint, TPWParkInfo>();
+        private Dictionary<uint, TPWCityInfo> _cities = new Dictionary<uint, TPWCityInfo>();
 
-                    new Data.Structures.TPWCityResponseStructure(Type, "admin", "", 0x15, new byte[] { 05, 07, 07, 05 }, "Test Center 3",
-                    "This is an alternate chat park for testing purposes.",
-                    0x30, 0x1111, 0x01, 0x00, 0x02, "Apollo", new TPWDTStruct(0x0000, 0x0000, 0x000B), 0x0B, 0x01, 0x02, 0x0D, 0x0E)
-        };
+        public IEnumerable<TPWParkInfo> Parks => _parks.Values;
+
+        /// <summary>
+        /// Returns a <see cref="TPWParkInfo"/> representing the park with this ID.
+        /// </summary>
+        /// <param name="ParkID"></param>
+        /// <returns></returns>
+        public bool TryGetParkByID(uint ParkID, out TPWParkInfo Park) => _parks.TryGetValue(ParkID, out Park);
+
+        private TPWParkResponseStructure[] GetParkResponses(Data.TPWConstants.TPWServerListType Type) => GetParkResponses(Type, _parks.Values.ToArray());  
+        private TPWParkResponseStructure[] GetParkResponses(Data.TPWConstants.TPWServerListType Type, params TPWParkInfo[] parks) => parks.Select(x => x.GetParkInfoResponse(Type)).ToArray();
 
         public CityServer(int port) : base("CityServer", port, SIMThemeParkWaypoints.CityServer)
         {
+            //city locations
+            Vector3 Loc1 = Util.SphericalCoordinateConverter.ToCartesian(120, 0, 0);
+            Vector3 Loc2 = Util.SphericalCoordinateConverter.ToCartesian(120, 90, 20);
+            Vector3 Loc3 = Util.SphericalCoordinateConverter.ToCartesian(120, 120, 90);
 
+            //cities
+            _cities.Add(0x0A, new TPWCityInfo(0x0000000A, "North Pole", "bullfrog", 2.140f, 0.0f, 119.98f, 0x0B, 100, 0x00, "bullfrog", 0x01, 0x0F));
+            _cities.Add(0x0B, new TPWCityInfo(0x0000000B, "Bloaty Land", "Bisquick", 100, 70, 20, 0x20, 0x03, 0x05, "bullfrog", 0x01, 0x10));
+            _cities.Add(0x0C, new TPWCityInfo(0x0000000C, "Radical Jungle", "System", Loc2.X, Loc2.Y, Loc2.Z, 0x20, 0x03, 0x05, "bullfrog", 0x01, 0x10));
+            _cities.Add(0x0D, new TPWCityInfo(0x0000000D, "Sector 7", "System", Loc1.X, Loc1.Y, Loc1.Z, 0x20, 0x03, 0x05, "bullfrog", 0x01, 0x10));
+            _cities.Add(0x0E, new TPWCityInfo(0x0000000E, "Charvatia", "System", Loc3.X, Loc3.Y, Loc3.Z, 0x20, 0x03, 0x05, "bullfrog", 0x01, 0x10));
+            
+            //parks
+            _parks.Add(16, new TPWParkInfo()
+            {
+                OwnerName = "Bisquick",
+                OwnerEmail = "admin@bullfrog.com",
+                ParkID = 16,
+                ParkName = "Bisquick's Testing Zone",
+                Description = "This park is for testing purposes. Thanks for tuning in! The codebase behind this breakthrough is Quazar.TPW-SE, " +
+                    "an API for interacting with an unmodified, SIM Theme Park 1.0 and 2.0 installation. - Jeremy, Bisquick",
+                Visits = 0x10,
+                Votes = 0x05,
+                CityID = 0x0A,
+                ChartPosition = 0x01,
+                ThemeID = 0x01,
+                InternalName = "Daphene"
+            });
+            _parks.Add(21, new TPWParkInfo()
+            {
+                OwnerName = "admin",
+                OwnerEmail = "admin@bullfrog.com",
+                ParkID = 21,
+                ParkName = "Test Center 3",
+                Description = "Not much is known about this park, but most people who enter it never" +
+                " say much about what they saw...",
+                Visits = 0x03,
+                Votes = 0x00,
+                CityID = 0x0B,
+                ChartPosition = 0x02,
+                ThemeID = 0x03,
+                InternalName = "Apollo"
+            });
+            _parks.Add(24, new TPWParkInfo()
+            {
+                OwnerName = "TwistyT",
+                OwnerEmail = "admin@bullfrog.com",
+                ParkID = 24,
+                ParkName = "Radical Twister",
+                Description = "Founded on the idea that the only good theme park ride is one with serious whiplash," +
+                " this park really does test the limits of the human body! Riding these rides is not recommended.",
+                Visits = 0x20,
+                Votes = 0x50,
+                CityID = 0x0C,
+                ChartPosition = 0x03,
+                ThemeID = 0x02,
+                InternalName = "Beta"
+            });
+            _parks.Add(32, new TPWParkInfo()
+            {
+                OwnerName = "Bisquick",
+                OwnerEmail = "admin@bullfrog.com",
+                ParkID = 32,
+                ParkName = "Oceanic Adventures",
+                Description = "Who doesn't like adventures in oceans? Most people. That's why we're different! " +
+                "We take the oceans into space to create a life-changing experience!",
+                Visits = 0x00,
+                Votes = 0x00,
+                CityID = 0x0D,
+                ChartPosition = 0x05,
+                ThemeID = 0x00,
+                InternalName = "Delta"
+            });
+            _parks.Add(48, new TPWParkInfo()
+            {
+                OwnerName = "admin",
+                OwnerEmail = "admin@bullfrog.com",
+                ParkID = 48,
+                ParkName = "Burrito Village",
+                Description = "Our park prides itself on not having rides, but instead only food stands. We only sell " +
+                "burritos. Before you ask, yes we have bathrooms - is there a fee? Absolutely.",
+                Visits = 0x5C,
+                Votes = 0x03,
+                CityID = 0x0E,
+                ChartPosition = 0x03,
+                ThemeID = 0x01,
+                InternalName = "Burrito"
+            });
+
+            foreach (var city in _cities)
+                foreach (var park in _parks.Values)
+                    if (park.CityID == city.Key)
+                        city.Value.AddPark(park);
         }
 
         protected override void OnIncomingPacket(uint ID, TPWPacket Data)
         {
-            if (Data.PacketQueue == 10)
-                PacketQueue.Enqueue(GetThemeInfoPacket());
-            if (Data.PacketQueue == 11)
-                PacketQueue.Enqueue(GetLogicalServerPacket());
-            if (Data.PacketQueue == 12)
-                PacketQueue.Enqueue(GetRideInfoPacket());
             if (Data.PacketQueue == 13)
-                PacketQueue.Enqueue(GetChatInfoPacket());
-            if (Data.PacketQueue == 14) // fifth and final packet accounted for
             {
-                string BodyText = Encoding.ASCII.GetString(Data.Body);
-                if (BodyText.Contains("CITYID=") && BodyText.Substring(BodyText.IndexOf("CITYID=") + 7, 2) == "11")
-                {
-                    QConsole.WriteLine("ATTENTION", "Game awaiting packet for a city!");
-                    PacketQueue.Enqueue(GetTop10Packet());
-                }
-                else
-                    PacketQueue.Enqueue(GetCityInfoPacket());
-                Send(ID, PacketQueue.ToArray());
-                PacketQueue.Clear();
+                Send(ID,
+                    GetThemeInfoPacket(),
+                    GetLogicalServerPacket(),
+                    GetRideInfoPacket(),
+                    GetChatInfoPacket()
+                );
             }
-            if (Data.PacketQueue == 15)
+            else if (Data.PacketQueue > 13)
             {
-                Send(ID, GetSearchPacket());
+                if (_tryGenerateResponse(Data, out var outgoing))
+                {
+                    outgoing.PacketQueue = Data.PacketQueue;
+                    Send(ID, outgoing);
+                }
+                else if (Data.PacketQueue == 14)
+                    Send(ID, GetCityInfoPacket());
+            }
+            else
+            {
+                ;
             }
         }
 
-        private TPWPacket GetRideInfoPacket() => Factory.TPWPacketFactory.GenerateRideInfoPacket(
-                new Data.Structures.TPWRideInfoPacketStructure("RIDENAME", "SEC STR", new byte[] { 00, 00, 00, 00 }, 0x01, 0x00, "TESTSTR3", 0x02, 0x03, 0x04));
-
-        private TPWPacket GetSearchPacket()
+        private TPWPacket GetRideInfoPacket()
         {
-            var packet = Factory.TPWPacketFactory.GenerateCityResponsePacket(GetCities(Data.TPWConstants.TPWServerListType.SEARCH_RESULT));
+            var rideInfo = new Data.Structures.TPWRideInfoPacketStructure("RIDENAME", "SEC STR", new byte[] { 00, 00, 00, 00 }, 0x01, 0x00, "TESTSTR3", 0x02, 0x03, 0x04);
+            rideInfo.List.IsEmptyList = false;
+            var packet = Factory.TPWPacketFactory.GenerateRideInfoPacket(rideInfo);
+            Factory.TPWPacketFactory.GenerateGeneric(ref packet, rideInfo.List);
+            return packet;
+        }
+
+        private TPWPacket GetSearchPacket(TPWUnicodeString Username)
+        {
+            var results = _parks.Values.Where(x => x.OwnerName.String == Username.String);
+            if (!results.Any())
+                results = _parks.Values.Where(x => x.OwnerName.String.ToLower().StartsWith(Username.String.ToLower()));
+            var packet = Factory.TPWPacketFactory.GenerateCityResponsePacket(GetParkResponses(Data.TPWConstants.TPWServerListType.SEARCH_RESULT, results.ToArray()));
             packet.PacketQueue = 0x0F;
             return packet;
         }
-        private TPWPacket GetTop10Packet()
+        private TPWPacket GetTop10Packet(TPWCityInfo City)
         {
-            var packet = Factory.TPWPacketFactory.GenerateCityResponsePacket(GetCities(Data.TPWConstants.TPWServerListType.TOP10_RESULT));
+            var packet = Factory.TPWPacketFactory.GenerateCityResponsePacket(City.GetTop10ParksStructures());
             packet.PacketQueue = 0x0E;
             return packet;
         }
-        private TPWPacket GetChatInfoPacket() => Factory.TPWPacketFactory.GenerateCityResponsePacket(GetCities(Data.TPWConstants.TPWServerListType.PARKS_INFO));
+        private TPWPacket GetChatInfoPacket() => Factory.TPWPacketFactory.GenerateCityResponsePacket(GetParkResponses(Data.TPWConstants.TPWServerListType.PARKS_INFO));
 
-        public static TPWPacket GetCityInfoPacket() => Factory.TPWPacketFactory.GenerateCityInfoPacket(
-            //123.0 0 0
-            new Data.Structures.TPWCityInfoStructure(0x0000000A, "North Pole", "bullfrog", 2.140f, 0.0f, 119.98f, 0x0B, 100, 0x00, "bullfrog", 0x01, 0x0F),
-            new Data.Structures.TPWCityInfoStructure(0x0000000B, "Bloaty Land", "Bisquick", 100, 70, 20, 0x20, 0x03, 0x05, "Admin", 0x01, 0x10));
+        public TPWPacket GetCityInfoPacket() => Factory.TPWPacketFactory.GenerateCityInfoPacket(
+                _cities.Select(x => x.Value.GetCityInfoResponseStructure()).ToArray()
+        );
 
         private TPWPacket GetLogicalServerPacket() => Factory.TPWPacketFactory.GenerateLogicalServerPacket(
             new Data.Structures.TPWLogicalServerStructure( 
@@ -132,6 +224,70 @@ namespace SimTheme_Park_Online
                 new Data.Structures.TPWThemeInfoStructure(0x03, "HALLOW", "STR2 TEST", "STR3 TEST")
             );
 
+        private bool _tryGenerateResponse(TPWPacket incoming, out TPWPacket outgoing)
+        {
+            string BodyText = Encoding.ASCII.GetString(incoming.Body);
+            uint GetInt(string FieldName)
+            {
+                int index = BodyText.IndexOf(FieldName) + FieldName.Length;
+                char c = BodyText[index];
+                string value = "";
+                while(c != 00)
+                {                    
+                    c = BodyText[index];
+                    value += c;
+                    index++;
+                }
+                return uint.Parse(value);
+            }        
+            string GetString(string FieldName)
+            {
+                int index = BodyText.IndexOf(FieldName) + FieldName.Length + 2;
+                char c = BodyText[index];
+                string value = "";
+                while(c != 00)
+                {                    
+                    c = BodyText[index];
+                    value += c;
+                    index++;
+                }
+                byte[] array = new byte[value.Length / 2];
+                for(int i = 0; i < array.Length; i++)
+                {
+                    string str = value.Substring(0, 2);
+                    array[i] = Convert.ToByte(str, 16);
+                    value = value.Remove(0, 2);
+                }
+                return Encoding.Unicode.GetString(array);
+            }
+            if(BodyText.Contains("CITYID="))
+            {
+                uint CityID = GetInt("CITYID=");
+                if (CityID == 1)
+                {
+                    outgoing = GetCityInfoPacket();
+                    return true;
+                }
+                if (_cities.TryGetValue(CityID, out TPWCityInfo City))
+                {
+                    outgoing = GetTop10Packet(City);
+                    return true;
+                }
+            }
+            else if (BodyText.Contains("OWNERID="))
+            {
+
+            }
+            else if (BodyText.Contains("OWNERNAME="))
+            {
+                TPWUnicodeString userName = GetString("OWNERNAME=");
+                outgoing = GetSearchPacket(userName);
+                return true;
+            }
+            outgoing = null;
+            return false;
+        }
+
         public override void Start()
         {
             QConsole.WriteLine(Name, "Starting...");
@@ -147,6 +303,11 @@ namespace SimTheme_Park_Online
         {
             QConsole.WriteLine(Name, "Stopping...");
             StopListening();
+        }
+
+        protected override void OnOutgoingPacket(uint ID, TPWPacket Data)
+        {
+            
         }
     }
 }

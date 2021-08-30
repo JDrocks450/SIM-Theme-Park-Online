@@ -64,6 +64,7 @@
                 <MenuItem Header="Import">
                     <MenuItem x:Name="PacketMenuItem" Click="PacketMenuItem_Click" Header="Theme Park World Packet"/>
                     <MenuItem Header="Server Profile"/>
+                    <MenuItem Name="STRFileMenuItem" Header="TPW STR File" Click="STRFileMenuItem_Click"/>
                 </MenuItem>
                 <MenuItem Header="Export">
                     <MenuItem IsEnabled="False" Header="Theme Park World Packet"/>

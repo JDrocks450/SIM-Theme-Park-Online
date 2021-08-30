@@ -71,20 +71,12 @@ namespace SimTheme_Park_Online.Data
                     case I4: return EndianBitConverter.Big.GetBytes((uint)Data);
                     case UZ:
                         {
-                            var str = Data.ToString();                                                    
-                            var strBuffer = Encoding.Unicode.GetBytes(str);
-                            byte[] buffer = new byte[strBuffer.Length + 2];    
-                            EndianBitConverter.Big.CopyBytes((ushort)strBuffer.Length, buffer, 0);
-                            strBuffer.CopyTo(buffer, 2);
-                            return buffer;
+                            return ((TPWUnicodeString)Data).GetBytes();
                         }
                     case F4: return EndianBitConverter.Big.GetBytes((float)Data);
                     case SZ:
                         {
-                            var text = Encoding.ASCII.GetBytes(Data.ToString());
-                            byte[] buffer = new byte[text.Length + 1];
-                            text.CopyTo(buffer, 0);
-                            return buffer;
+                            return ((TPWZeroTerminatedString)Data).GetBytes();
                         }
                     case DT:
                         {
@@ -115,6 +107,11 @@ namespace SimTheme_Park_Online.Data
 
         private Templating.TPWDataTemplate _template = new Templating.TPWDataTemplate();
 
+        public bool IsEmptyList
+        {
+            get; set;
+        } = false;
+
         /// <summary>
         /// The type of list, please check <see cref="TPWConstants.TPWServerListType"/> to see if the list is already known.
         /// <para>This list type is specific to each function in the game</para>
@@ -133,7 +130,9 @@ namespace SimTheme_Park_Online.Data
 
         }
 
-        public byte[] GetBytes()
+        public byte[] GetBytes() => _getBytes(IsEmptyList);
+
+        private byte[] _getBytes(bool isEmpty)
         {
             int group = 0;
             int offset = 0;
@@ -172,8 +171,8 @@ namespace SimTheme_Park_Online.Data
             using (MemoryStream stream = new MemoryStream())
             {
                 stream.Write(encoder.GetBytes(ListType));
-                stream.Write(encoder.GetBytes((uint)formattedDataMap.Count));
-                stream.Write(encoder.GetBytes(totalSize)); // DataLength                
+                stream.Write(encoder.GetBytes(isEmpty ? 0 : (uint)formattedDataMap.Count));
+                stream.Write(encoder.GetBytes(isEmpty ? 0 : totalSize)); // DataLength                
                 group = 0;
                 uint prevDataLeng = 0;
                 foreach (var mapItem in formattedDataMap.Values)
@@ -185,7 +184,8 @@ namespace SimTheme_Park_Online.Data
                         stream.Write(Encoding.ASCII.GetBytes(mapItem.format)); 
                         stream.WriteByte(00);                         
                         _TemplateHeader(mapItem.format.Length);
-                    }                                                                                                 
+                    }
+                    if (isEmpty) break;
                     stream.Write(mapItem.data);               
                     group++;
                 }
@@ -198,7 +198,9 @@ namespace SimTheme_Park_Online.Data
                 }
                 return stream.ToArray();
             }
-        }        
+        }
+
+        public byte[] GetEmptyBytes() => _getBytes(true);
 
         public static TPWServersideList MergeAll(params TPWServersideList[] Lists)
         {

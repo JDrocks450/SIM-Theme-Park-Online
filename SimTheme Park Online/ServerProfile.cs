@@ -1,4 +1,5 @@
 ﻿using QuazarAPI;
+using SimTheme_Park_Online.Data;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -38,6 +39,16 @@ namespace SimTheme_Park_Online
         {
             get => _sysNews;
             set => _sysNews = value;
+        }
+
+        public IEnumerable<TPWParkInfo> Parks
+        {
+            get; set;
+        }
+
+        public IEnumerable<TPWCityInfo> Cities
+        {
+            get; set;
         }
 
         public void UpdateGameNews(string NewGameNews)

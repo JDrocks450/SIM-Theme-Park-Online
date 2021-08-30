@@ -1,5 +1,7 @@
 ﻿using QuazarAPI;
 using QuazarAPI.Networking.Standard;
+using SimTheme_Park_Online.Data;
+using SimTheme_Park_Online.Data.Structures;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -13,17 +15,35 @@ namespace SimTheme_Park_Online
     {
         uint MessageDirectorID;
 
+        private CityServer CityServer => ServerManagement.Current.CityServer;
+
         public ChatServer(int port) : base("ChatServer", port, SIMThemeParkWaypoints.ChatServer)
         {
             
         }
 
+        private IEnumerable<TPWChatRoomInfoPacket> GetRoomInfoPackets()
+        {
+            List<TPWChatRoomInfoPacket> list = new List<TPWChatRoomInfoPacket>();
+            foreach (TPWParkInfo park in CityServer.Parks)
+            {
+                list.Add(park.GetRoomInfoPacket());
+            }
+            return list;
+        }
+
         protected override void OnIncomingPacket(uint ID, TPWPacket Data)
         {
-            if (!HandleCommand(ID, Data))
-            {
-                
-            }
+            var parkInfo = CityServer.Parks.ElementAt((int)(Data.PacketQueue - 0x0A));
+            var packet = parkInfo.GetRoomInfoPacket(Data.PacketQueue);
+            packet.PacketQueue = Data.PacketQueue;
+            Send(ID, packet);
+        }
+
+        protected override void OnManualSend(uint ID, ref TPWPacket Data)
+        {
+            OnIncomingPacket(ID, Data);
+            base.OnManualSend(ID, ref Data);
         }
 
         public override void Start()
@@ -41,6 +61,11 @@ namespace SimTheme_Park_Online
         {
             QConsole.WriteLine(Name, "Stopping...");
             StopListening();
+        }
+
+        protected override void OnOutgoingPacket(uint ID, TPWPacket Data)
+        {
+            //Data.PacketQueue = PacketQueue;
         }
     }
 }
