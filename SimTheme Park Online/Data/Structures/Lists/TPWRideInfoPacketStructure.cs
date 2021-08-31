@@ -1,4 +1,5 @@
-﻿using SimTheme_Park_Online.Data.Primitive;
+﻿using Cassandra;
+using SimTheme_Park_Online.Data.Primitive;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -15,7 +16,7 @@ namespace SimTheme_Park_Online.Data.Structures
         public TPWRideInfoPacketStructure(
             TPWUnicodeString Str1, 
             TPWUnicodeString Str2, 
-            byte[] BG, 
+            TimeUuid BG, 
             uint Param1,
             uint Param2,
             TPWUnicodeString Str3,
@@ -23,8 +24,8 @@ namespace SimTheme_Park_Online.Data.Structures
             uint Param4,
             uint Param5)
             : base(
-                  (uint)TPWConstants.TPWServerListType.RIDE_INFO,
-                  Str1, Str2, BG, Param1, Param2, Str3, Param3, Param4, Param5
+                      (uint)TPWConstants.TPWServerListType.RIDE_INFO,
+                      Str1, Str2, BG, Param1, Param2, Str3, Param3, Param4, Param5
                   )
         {
 

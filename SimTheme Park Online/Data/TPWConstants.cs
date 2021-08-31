@@ -1,4 +1,5 @@
-﻿using SimTheme_Park_Online.Data.Primitive;
+﻿using Cassandra;
+using SimTheme_Park_Online.Data.Primitive;
 using System;
 using System.Collections.Generic;
 using System.Text;
@@ -27,7 +28,7 @@ namespace SimTheme_Park_Online.Data
                     return F4;
                 if (Data is TPWUnicodeString)
                     return UZ;
-                if (Data is byte[])
+                if (Data is TimeUuid)
                     return BG;
                 if (Data is TPWZeroTerminatedString)
                     return SZ;

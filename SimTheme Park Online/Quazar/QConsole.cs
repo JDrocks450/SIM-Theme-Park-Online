@@ -52,5 +52,10 @@ namespace QuazarAPI
                 }
             }
         }
+
+        internal static void WriteLine(string v, object getInformation)
+        {
+            throw new NotImplementedException();
+        }
     }
 }

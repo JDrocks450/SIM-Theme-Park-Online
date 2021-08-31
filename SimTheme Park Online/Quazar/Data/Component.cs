@@ -143,19 +143,19 @@ namespace QuazarAPI.Networking.Standard
             void Ready()
             {
                 dataBuffer = new byte[ReceiveAmount];
-                try
-                {                    
+                //try
+                //{                    
                     //This will handle the client forcibly closing connection by raising an exception the moment connection is lost.
                     //Therefore, this condition is handled here
                     connection?.Client.BeginReceive(dataBuffer, 0, ReceiveAmount, SocketFlags.None, OnRecieve, null);
-                }
-                catch(Exception e)
-                {
+               // }
+                //catch(Exception e)
+                //{
                     //Raise event and disconnect problem client
-                    OnForceClose(connection, ID);
-                    Disconnect(ID);
-                    return;
-                }
+                  //  OnForceClose(connection, ID);
+                  //  Disconnect(ID);
+                  //  return;
+                //}
             }
             Ready();
         }        

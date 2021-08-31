@@ -1,4 +1,5 @@
-﻿using MiscUtil.Conversion;
+﻿using Cassandra;
+using MiscUtil.Conversion;
 using SimTheme_Park_Online.Data.Primitive;
 using System;
 using System.Collections.Generic;
@@ -84,7 +85,7 @@ namespace SimTheme_Park_Online.Data
                         }
                     case BG:
                         {
-                            byte[] source = (byte[])Data;
+                            byte[] source = ((TimeUuid)Data).ToByteArray();
                             byte[] buffer = new byte[source.Length + 2];
                             EndianBitConverter.Big.CopyBytes((ushort)source.Length, buffer, 0);
                             source.CopyTo(buffer, 2);

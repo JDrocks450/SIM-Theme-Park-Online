@@ -1,4 +1,5 @@
-﻿using SimTheme_Park_Online.Data.Primitive;
+﻿using Cassandra;
+using SimTheme_Park_Online.Data.Primitive;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -17,8 +18,8 @@ namespace SimTheme_Park_Online.Data.Structures
         /// </summary>
         /// <param name="CreatedBy">The Username of the creator</param>
         /// <param name="Email">The email of the creator</param>
-        /// <param name="ParkID">Currently unknown</param>
-        /// <param name="IMAGE">Currently unknown</param>
+        /// <param name="ParkID">The ID of this park</param>
+        /// <param name="Guid">The unique identifer of this park</param>
         /// <param name="ParkName">The name of the park</param>
         /// <param name="Description">The description of the park</param>
         /// <param name="NumVisits">The number of times its been visited</param>
@@ -37,7 +38,7 @@ namespace SimTheme_Park_Online.Data.Structures
                                         TPWUnicodeString CreatedBy,
                                         TPWUnicodeString Email,
                                         uint ParkID,
-                                        byte[] IMAGE,
+                                        TimeUuid Guid,
                                         TPWUnicodeString ParkName,
                                         TPWUnicodeString Description,
                                         uint NumVisits,
@@ -56,7 +57,7 @@ namespace SimTheme_Park_Online.Data.Structures
                    CreatedBy,
                    Email,
                    ParkID,
-                   IMAGE,
+                   Guid,
                    ParkName,
                    Description,
                    NumVisits,

@@ -1,9 +1,11 @@
-﻿using QuazarAPI;
+﻿using Cassandra;
+using QuazarAPI;
 using QuazarAPI.Networking.Data;
 using QuazarAPI.Networking.Standard;
 using SimTheme_Park_Online.Data;
 using SimTheme_Park_Online.Data.Primitive;
 using SimTheme_Park_Online.Data.Structures;
+using SimTheme_Park_Online.Util;
 using System;
 using System.Collections;
 using System.Collections.Generic;
@@ -78,7 +80,8 @@ namespace SimTheme_Park_Online
                 CityID = 0x0A,
                 ChartPosition = 0x01,
                 ThemeID = 0x01,
-                InternalName = "Daphene"
+                InternalName = "1",
+                Key = TimeUuid.Parse("A423D062-26D7-11D4-87E5-0090271E1063")
             });
             _parks.Add(21, new TPWParkInfo()
             {
@@ -93,7 +96,8 @@ namespace SimTheme_Park_Online
                 CityID = 0x0B,
                 ChartPosition = 0x02,
                 ThemeID = 0x03,
-                InternalName = "Apollo"
+                InternalName = "0001",
+                Key = TimeUuid.Parse("F891EC60-3A3E-11D4-87E6-0090271E1063")
             });
             _parks.Add(24, new TPWParkInfo()
             {
@@ -108,7 +112,7 @@ namespace SimTheme_Park_Online
                 CityID = 0x0C,
                 ChartPosition = 0x03,
                 ThemeID = 0x02,
-                InternalName = "Beta"
+                InternalName = "01"
             });
             _parks.Add(32, new TPWParkInfo()
             {
@@ -123,7 +127,7 @@ namespace SimTheme_Park_Online
                 CityID = 0x0D,
                 ChartPosition = 0x05,
                 ThemeID = 0x00,
-                InternalName = "Delta"
+                InternalName = "TP 1.0"
             });
             _parks.Add(48, new TPWParkInfo()
             {
@@ -138,13 +142,16 @@ namespace SimTheme_Park_Online
                 CityID = 0x0E,
                 ChartPosition = 0x03,
                 ThemeID = 0x01,
-                InternalName = "Burrito"
+                InternalName = "Sim Theme Park 1.0"
             });
 
             foreach (var city in _cities)
                 foreach (var park in _parks.Values)
+                {
                     if (park.CityID == city.Key)
                         city.Value.AddPark(park);
+                    QConsole.WriteLine("CityServer", park.GetInformation());
+                }
         }
 
         protected override void OnIncomingPacket(uint ID, TPWPacket Data)
@@ -176,7 +183,7 @@ namespace SimTheme_Park_Online
 
         private TPWPacket GetRideInfoPacket()
         {
-            var rideInfo = new Data.Structures.TPWRideInfoPacketStructure("RIDENAME", "SEC STR", new byte[] { 00, 00, 00, 00 }, 0x01, 0x00, "TESTSTR3", 0x02, 0x03, 0x04);
+            var rideInfo = new Data.Structures.TPWRideInfoPacketStructure("RIDENAME", "SEC STR", TimeUuid.NewId(), 0x01, 0x00, "TESTSTR3", 0x02, 0x03, 0x04);
             rideInfo.List.IsEmptyList = false;
             var packet = Factory.TPWPacketFactory.GenerateRideInfoPacket(rideInfo);
             Factory.TPWPacketFactory.GenerateGeneric(ref packet, rideInfo.List);
@@ -251,14 +258,7 @@ namespace SimTheme_Park_Online
                     value += c;
                     index++;
                 }
-                byte[] array = new byte[value.Length / 2];
-                for(int i = 0; i < array.Length; i++)
-                {
-                    string str = value.Substring(0, 2);
-                    array[i] = Convert.ToByte(str, 16);
-                    value = value.Remove(0, 2);
-                }
-                return Encoding.Unicode.GetString(array);
+                return HexConverter.ByteStringToUnicode(value);
             }
             if(BodyText.Contains("CITYID="))
             {

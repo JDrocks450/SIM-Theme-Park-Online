@@ -10,29 +10,38 @@ namespace SimTheme_Park_Online.Data.Primitive
     [Serializable]
     public class TPWDTStruct
     {
-        public ushort A { get; set; }
-        public ushort B { get; set; }
-        public ushort C { get; set; }
+        public ushort Year { get; set; }
+        public ushort Month { get; set; }
+        public ushort Day { get; set; }
 
         public TPWDTStruct()
         {
 
         }
 
-        public TPWDTStruct(ushort A, ushort B, ushort C)
+        public TPWDTStruct(ushort Year, ushort Month, ushort Day)
         {
-            this.A = A;
-            this.B = B;
-            this.C = C;
+            this.Year = Year;
+            this.Month = Month;
+            this.Day = Day;
         }
 
         public byte[] GetBytes()
         {
             byte[] buffer = new byte[6];
-            EndianBitConverter.Big.CopyBytes(A, buffer, 0);
-            EndianBitConverter.Big.CopyBytes(B, buffer, 2);
-            EndianBitConverter.Big.CopyBytes(C, buffer, 4);
+            EndianBitConverter.Big.CopyBytes(Year, buffer, 0);
+            EndianBitConverter.Big.CopyBytes(Month, buffer, 2);
+            EndianBitConverter.Big.CopyBytes(Day, buffer, 4);
             return buffer;
+        }
+
+        public static implicit operator DateTime(TPWDTStruct Struct)
+        {
+            return new DateTime(Struct.Year, Struct.Month, Struct.Day);
+        }
+        public static implicit operator TPWDTStruct(DateTime Struct)
+        {
+            return new TPWDTStruct((ushort)Struct.Year, (ushort)Struct.Month, (ushort)Struct.Day);
         }
     }
 }

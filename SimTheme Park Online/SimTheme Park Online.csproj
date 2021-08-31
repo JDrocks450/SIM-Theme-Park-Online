@@ -15,6 +15,10 @@
   </ItemGroup>
 
   <ItemGroup>
+    <PackageReference Include="CassandraCSharpDriver" Version="3.16.3" />
+  </ItemGroup>
+
+  <ItemGroup>
     <None Update="Library\AuthSuccess.dat">
       <CopyToOutputDirectory>Always</CopyToOutputDirectory>
     </None>
