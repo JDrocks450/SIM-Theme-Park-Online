@@ -5,7 +5,13 @@ VisualStudioVersion = 16.0.30907.101
 MinimumVisualStudioVersion = 10.0.40219.1
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "SimTheme Park Online", "SimTheme Park Online\SimTheme Park Online.csproj", "{D01945F1-1F3A-4D17-83CD-9779A2644112}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TPWAPI.Frontend", "TPWAPI.Frontend\TPWAPI.Frontend.csproj", "{D18210DA-52D7-486B-90D5-B4368A6487C5}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TPWAPI.Frontend", "TPWAPI.Frontend\TPWAPI.Frontend.csproj", "{D18210DA-52D7-486B-90D5-B4368A6487C5}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TPWSE.ChatServer", "TPWSE.ChatServer\TPWSE.ChatServer.csproj", "{D288262B-6A3C-48F8-B6F3-1DA22F5DBFE4}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TPWSE.Common", "TPWSE.Common\TPWSE.Common.csproj", "{94C638B9-79AB-4926-9455-E9FC1395084E}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TPWSE.CityServer", "TPWSE.CityServer\TPWSE.CityServer.csproj", "{5108D6F6-8C8C-48EF-B14B-5A0479FEF333}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -21,6 +27,18 @@ Global
 		{D18210DA-52D7-486B-90D5-B4368A6487C5}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{D18210DA-52D7-486B-90D5-B4368A6487C5}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{D18210DA-52D7-486B-90D5-B4368A6487C5}.Release|Any CPU.Build.0 = Release|Any CPU
+		{D288262B-6A3C-48F8-B6F3-1DA22F5DBFE4}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{D288262B-6A3C-48F8-B6F3-1DA22F5DBFE4}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{D288262B-6A3C-48F8-B6F3-1DA22F5DBFE4}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{D288262B-6A3C-48F8-B6F3-1DA22F5DBFE4}.Release|Any CPU.Build.0 = Release|Any CPU
+		{94C638B9-79AB-4926-9455-E9FC1395084E}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{94C638B9-79AB-4926-9455-E9FC1395084E}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{94C638B9-79AB-4926-9455-E9FC1395084E}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{94C638B9-79AB-4926-9455-E9FC1395084E}.Release|Any CPU.Build.0 = Release|Any CPU
+		{5108D6F6-8C8C-48EF-B14B-5A0479FEF333}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{5108D6F6-8C8C-48EF-B14B-5A0479FEF333}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{5108D6F6-8C8C-48EF-B14B-5A0479FEF333}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{5108D6F6-8C8C-48EF-B14B-5A0479FEF333}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

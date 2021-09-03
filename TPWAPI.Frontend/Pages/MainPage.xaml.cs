@@ -4,6 +4,7 @@ using SimTheme_Park_Online.Interop;
 using System;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using System.Windows;
 using System.Windows.Controls;
 using static TPWAPI.Frontend.ApplicationResources;
@@ -155,13 +156,28 @@ namespace TPWAPI.Frontend.Pages
             FileDialog dialog = new OpenFileDialog()
             {
                 CheckFileExists = true,
-                Multiselect = false
+                Multiselect = false,
+                Title = "BFST file you want to view"
             };
             if (dialog.ShowDialog() ?? false)
             {
                 var bytes = File.ReadAllBytes(dialog.FileName);
-                string text = TPWStringDecoder.FromMultibyte(bytes);
-                MessageBox.Show(text);
+                dialog = new OpenFileDialog()
+                {
+                    CheckFileExists = true,
+                    Multiselect = false,
+                    Title = "Locate MBtoUni.dat in your game folder"
+                };
+                if (dialog.ShowDialog() ?? false) {
+                    var strings = SimTheme_Park_Online.Util.FileFormats.BFSTReader.GetStrings(bytes, new Uri(dialog.FileName));
+                    int take = 5, page = 1;
+                    for (int i = 0; i < strings.Count; i+=take) {
+                        string text = string.Join('\n', strings.Skip(i).Take(take));
+                        MessageBox.Show(text, $"Showing {take} items per page, {strings.Count} items, " +
+                            $"Page {page} of {Math.Ceiling(strings.Count / (decimal)take)}");
+                        page++;
+                    }
+                }
             }
         }
     }

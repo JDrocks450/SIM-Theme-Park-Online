@@ -1,5 +1,6 @@
 ﻿using QuazarAPI;
 using QuazarAPI.Networking.Standard;
+using SimTheme_Park_Online.Databases;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -48,6 +49,11 @@ namespace SimTheme_Park_Online
         public ChatServer ChatServer;
 
         /// <summary>
+        /// The database storing the parks in the game
+        /// </summary>
+        public TPWParkDatabase ParkDatabase;
+
+        /// <summary>
         /// Creates a new <see cref="ServerManagement"/> object and initializes the server threads without starting them.
         /// </summary>
         public ServerManagement()
@@ -67,13 +73,20 @@ namespace SimTheme_Park_Online
         /// </summary>
         public void Initialize()
         {
+            ParkDatabase = new TPWParkDatabase(
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    "TPW-SE", "Database", "tpwse_parksdb.db"
+                    )
+                );
+
             LoginServer = new LoginServer(Config.LOGIN_PORT);
             LoginThread = new Thread((ThreadStart)delegate { LoginServer.Start(); });
             NewsServer = new NewsServer(Config.NEWS_PORT);
             NewsThread = new Thread((ThreadStart)delegate { NewsServer.Start(); });
-            CityServer = new CityServer(Config.CITY_PORT);
+            CityServer = new CityServer(Config.CITY_PORT, ParkDatabase);
             CityThread = new Thread((ThreadStart)delegate { CityServer.Start(); });
-            ChatServer = new ChatServer(Config.CHAT_PORT);
+            ChatServer = new ChatServer(Config.CHAT_PORT, ParkDatabase);
             ChatThread = new Thread((ThreadStart)delegate { ChatServer.Start(); });
         }
 

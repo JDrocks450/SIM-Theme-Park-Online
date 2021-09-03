@@ -7,15 +7,17 @@
   </PropertyGroup>
 
   <ItemGroup>
-    <Compile Remove="Quazar\Datagram.cs" />
-  </ItemGroup>
-
-  <ItemGroup>
     <None Remove="SimTheme Park Online %282%29.zip" />
   </ItemGroup>
 
   <ItemGroup>
     <PackageReference Include="CassandraCSharpDriver" Version="3.16.3" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TPWSE.ChatServer\TPWSE.ChatServer.csproj" />
+    <ProjectReference Include="..\TPWSE.CityServer\TPWSE.CityServer.csproj" />
+    <ProjectReference Include="..\TPWSE.Common\TPWSE.Common.csproj" />
   </ItemGroup>
 
   <ItemGroup>
