@@ -1,4 +1,5 @@
-﻿using SimTheme_Park_Online.Database;
+﻿using QuazarAPI;
+using SimTheme_Park_Online.Database;
 using System;
 using System.Collections.Generic;
 using System.IO;
@@ -29,7 +30,9 @@ namespace SimTheme_Park_Online.Databases
         /// The general collection of data stored in this database. 
         /// <para>Inheriting types should use other functionality other than this to ensure data integrity.</para>
         /// </summary>
-        private readonly Dictionary<T1, T2> DataCollection = new Dictionary<T1, T2>();
+        protected readonly Dictionary<T1, T2> DataCollection = new Dictionary<T1, T2>();
+        public int AmountOfEntries => DataCollection.Count;
+        private readonly Dictionary<string, T1[]> SpecialCollections = new Dictionary<string, T1[]>();
         protected readonly Queue<KeyValuePair<T1, T2>> TaskQueue = new Queue<KeyValuePair<T1, T2>>();
 
         /// <summary>
@@ -46,6 +49,33 @@ namespace SimTheme_Park_Online.Databases
             pushQueue.Start();
         }
 
+        /// <summary>
+        /// Special lists allow you to specify lists of keys in this database that can be grouped together to make data easier to find. 
+        /// </summary>
+        /// <param name="Name">The name of this list</param>
+        /// <param name="Keys">The keys to point to in this database</param>
+        public bool ApplySpecialList(string Name, params T1[] Keys)
+        {
+            if (SpecialListExists(Name))
+            {
+                foreach (var key in Keys)
+                    AppendSpecialListEntry(Name, key);
+                return true;
+            }
+            QConsole.WriteLine(Name, $"The category '{Name}' has been applied with value(s): {string.Join(' ', Keys)}");
+            SpecialCollections.Add(Name, Keys);
+            return true;
+        }
+        /// <summary>
+        /// Special lists allow you to specify lists of keys in this database that can be grouped together to make data easier to find. 
+        /// </summary>
+        /// <param name="Name">The name of this list</param>
+        public IEnumerable<T2> GetSpecialListEntries(string Name)
+        {
+            foreach (var key in SpecialCollections[Name])            
+                yield return DataCollection[key];            
+        }
+
         protected void WriteDatabase(string FileName, params KeyValuePair<T1, T2>[] Data) {
             Directory.CreateDirectory(Path.GetDirectoryName(FileName));               
             using (var fs = File.Create(FileName)) WriteDatabase(fs, Data); 
@@ -53,7 +83,7 @@ namespace SimTheme_Park_Online.Databases
         protected void WriteDatabase(Stream Datastream, params KeyValuePair<T1, T2>[] Data)
         {                     
             Datastream.Write(JsonSerializer.SerializeToUtf8Bytes(Data));
-            QuazarAPI.QConsole.WriteLine("ServerProfile", "Server Profile has been successfully saved.");
+            QuazarAPI.QConsole.WriteLine(Name, "Database has been written to file.");
         }
 
         public async Task LoadFromFile(string FileName)
@@ -71,9 +101,22 @@ namespace SimTheme_Park_Online.Databases
         }
 
         public virtual bool TryGetValue(T1 Key, out T2 Value) => DataCollection.TryGetValue(Key, out Value);
+        public virtual bool TryGetValue(string SpecialName, T1 Key, out T2 Value)
+        {
+            Value = default(T2);
+            if (!SpecialCollections.TryGetValue(SpecialName, out T1[] values))
+                return false;
+            int index = Array.BinarySearch<T1>(values, Key);
+            if (index >= 0)
+            {
+                Value = DataCollection[Key];
+                return true;
+            }
+            return false;
+        }
         public virtual IEnumerable<T2> GetAllData() => DataCollection.Values;
 
-        public bool AddData(T1 Key, T2 Value)
+        public virtual bool AddData(T1 Key, T2 Value)
         {
             if (DataCollection.ContainsKey(Key))
                 return false;
@@ -105,8 +148,9 @@ namespace SimTheme_Park_Online.Databases
                     //WriteDatabase(FileName, dataSource);
                     lock (DataCollection)
                     {
-                        DataCollection.Add(task.Key, task.Value);
+                        DataCollection.Add(task.Key, task.Value);                        
                     }
+                    QConsole.WriteLine(Name, $"{task.Value.GetType().Name} has been added to the database.");
                 }
                 _hasChanges = false;
             }
@@ -121,5 +165,21 @@ namespace SimTheme_Park_Online.Databases
         }
 
         public IEnumerable<T2> Search(Func<T2, bool> SearchFunction) => DataCollection.Values.Where(SearchFunction);
+        public abstract T1 CreateKey();
+        public abstract T CreateValue<T>(string ValueName);
+        public bool SpecialListExists(string SpecialListName) => SpecialCollections.TryGetValue(SpecialListName, out _);
+        public bool AppendSpecialListEntry(string SpecialListName, T1 Value)
+        {
+            if (!SpecialListExists(SpecialListName))
+                return false;
+            if (TryGetValue(SpecialListName, Value, out _))
+                return false;
+            var array = SpecialCollections[SpecialListName];
+            Array.Resize(ref array, array.Length + 1);
+            array[array.Length - 1] = Value;
+            SpecialCollections[SpecialListName] = array;
+            QConsole.WriteLine(Name, $"Added to the category: {SpecialListName}, {Value}");
+            return true;
+        }
     }
 }

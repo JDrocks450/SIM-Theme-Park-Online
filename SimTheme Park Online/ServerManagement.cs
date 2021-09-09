@@ -52,6 +52,8 @@ namespace SimTheme_Park_Online
         /// The database storing the parks in the game
         /// </summary>
         public TPWParkDatabase ParkDatabase;
+        public TPWCityDatabase CityDatabase;
+        public TPWPlayerDatabase PlayerDatabase;
 
         /// <summary>
         /// Creates a new <see cref="ServerManagement"/> object and initializes the server threads without starting them.
@@ -79,14 +81,26 @@ namespace SimTheme_Park_Online
                     "TPW-SE", "Database", "tpwse_parksdb.db"
                     )
                 );
+            CityDatabase = new TPWCityDatabase(
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    "TPW-SE", "Database", "tpwse_citiesdb.db"
+                    )
+                );
+            PlayerDatabase = new TPWPlayerDatabase(
+                Path.Combine(
+                    Environment.GetFolderPath(Environment.SpecialFolder.MyDocuments),
+                    "TPW-SE", "Database", "tpwse_playersdb.db"
+                    )
+                );
 
-            LoginServer = new LoginServer(Config.LOGIN_PORT);
+            LoginServer = new LoginServer(Config.LOGIN_PORT, PlayerDatabase);
             LoginThread = new Thread((ThreadStart)delegate { LoginServer.Start(); });
             NewsServer = new NewsServer(Config.NEWS_PORT);
             NewsThread = new Thread((ThreadStart)delegate { NewsServer.Start(); });
-            CityServer = new CityServer(Config.CITY_PORT, ParkDatabase);
+            CityServer = new CityServer(Config.CITY_PORT, CityDatabase, ParkDatabase) { SendAmount = 188 };
             CityThread = new Thread((ThreadStart)delegate { CityServer.Start(); });
-            ChatServer = new ChatServer(Config.CHAT_PORT, ParkDatabase);
+            ChatServer = new ChatServer(Config.CHAT_PORT, PlayerDatabase, ParkDatabase);
             ChatThread = new Thread((ThreadStart)delegate { ChatServer.Start(); });
         }
 

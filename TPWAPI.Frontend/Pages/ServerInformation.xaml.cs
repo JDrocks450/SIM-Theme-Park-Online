@@ -114,6 +114,12 @@ namespace TPWAPI.Frontend.Pages
 
         private void SendPacketButton_Click(object sender, RoutedEventArgs e)
         {
+            if (ConnectionsListBox.SelectedIndex == -1)
+            {
+                MessageBox.Show("No selected connection found");
+                return;
+            }
+            uint selectedID = (uint)(ConnectionsListBox.SelectedItem as ListBoxItem).Tag;
             void SendPacket(string path)
             {
                 try

@@ -1,4 +1,5 @@
 ﻿using SimTheme_Park_Online.Data.Primitive;
+using SimTheme_Park_Online.Database;
 using System;
 using System.Collections.Generic;
 using System.Linq;
@@ -6,7 +7,7 @@ using System.Linq;
 namespace SimTheme_Park_Online.Data
 {
     [Serializable]
-    public class TPWCityInfo
+    public class TPWCityInfo : IDatabaseObject
     {
         public uint CityID { get; set; }
         public TPWUnicodeString CityName { get; set; }
@@ -20,11 +21,6 @@ namespace SimTheme_Park_Online.Data
         public TPWUnicodeString Str3 { get;set; }
         public uint AmountOfParks { get;set; }
         public uint Param6 { get;set; }
-
-        /// <summary>
-        /// Gets a list of park ids that belong to this City.
-        /// </summary>
-        public List<uint> Parks { get; set; } = new List<uint>();
 
         public TPWCityInfo( uint CityID,
                             TPWUnicodeString CityName,
@@ -52,12 +48,6 @@ namespace SimTheme_Park_Online.Data
             this.AmountOfParks = AmountOfParks;
             this.Param6 = Param6;
         }
-        
-        public void AddPark(TPWParkInfo Park)
-        {
-            Park.CityID = CityID;
-            Parks.Add(Park.ParkID);
-        }
 
         public Structures.TPWCityInfoStructure GetCityInfoResponseStructure()
         {
@@ -69,12 +59,8 @@ namespace SimTheme_Park_Online.Data
         public Structures.TPWParkResponseStructure[] GetTop10ParksStructures(SimTheme_Park_Online.Database.IDatabaseInterface<uint, TPWParkInfo> DatabaseHandler)
         {
             List<Structures.TPWParkResponseStructure> parks = new List<Structures.TPWParkResponseStructure>();
-            foreach (var parkID in Parks)
-            {
-                if (!DatabaseHandler.TryGetValue(parkID, out var ParkInfo))
-                    continue;
-                parks.Add(ParkInfo.GetParkInfoResponse(TPWConstants.TPWCityServerListType.TOP10_RESULT));
-            }
+            foreach (var ParkInfo in DatabaseHandler.GetSpecialListEntries("CITYID=" + CityID.ToString()))            
+                parks.Add(ParkInfo.GetParkInfoResponse(TPWConstants.TPWCityServerListType.TOP10_RESULT));            
             return parks.ToArray();
         }
     }

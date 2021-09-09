@@ -12,6 +12,8 @@ namespace SimTheme_Park_Online.Data
         public static readonly byte[] Bc_Header = new byte[2] { (byte)'B', (byte)'c' };
         public static readonly byte[] Bs_Header = new byte[2] { (byte)'B', (byte)'s' };
 
+        public const ushort TPWSendLimit = 400;
+
         /// <summary>
         /// Constants for transmissions on the <see cref="CityServer"/>
         /// </summary>
@@ -40,6 +42,22 @@ namespace SimTheme_Park_Online.Data
                     return DT;
                 return XX;
             }
+        }
+
+        public enum TPWLoginMsgCodes : ushort
+        {
+            /// <summary>
+            /// Login Success code
+            /// </summary>
+            SUCCESS = 0x09,
+            /// <summary>
+            /// Error code 01
+            /// </summary>
+            ERROR_1 = 0x01,
+            /// <summary>
+            /// Error code 02
+            /// </summary>
+            ERROR_2 = 0x02
         }
 
         /// <summary>
@@ -74,12 +92,8 @@ namespace SimTheme_Park_Online.Data
             /// This is already implemented here: <see cref="Data.Packets.TPWChatRoomInfoPacket"/>
             /// </summary>
             RoomInfo = 07,
-            /// <summary>
-            /// Under investigation
-            /// </summary>
             CreatePlayer = 00,
-            Bs_CreatePlayerResponse = 0x34,
-
+            CreatePlayerSuccess = 0x34,
             SetPlayerData = 01,
             CreatePark = 05,            
             MovePlayer = 04,
@@ -87,7 +101,15 @@ namespace SimTheme_Park_Online.Data
             HearingRange = 0x02,
             GetPlayers = 0x08,
             EnumPlayer = 0x27,
-            CreateParkSuccess = 0x36
+            CreateParkSuccess = 0x36,
+            ServerChatConfirmation = 0x43,
+            Chat = 0x11,
+            Tell = 0x13,
+            ImAFK = 15,
+            AddBuddy = 09,
+            Shout = 22,
+            EarmuffsOn = 11,
+            EarmuffsOff = 12,
         }
 
         /// <summary>
@@ -104,6 +126,13 @@ namespace SimTheme_Park_Online.Data
             /// Represents data that is 1 byte in length -- usually ASCII-encoded numbers.
             /// </summary>
             ASCII = 0x01
+        }
+
+        public enum TPWChatPlayerMovementTypes
+        {
+            None,
+            Walk,
+            Teleport
         }
     }
 }

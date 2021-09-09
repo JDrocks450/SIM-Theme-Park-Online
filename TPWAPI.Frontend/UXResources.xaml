@@ -31,7 +31,7 @@
         <Setter Property="Foreground" Value="#FFFFFF6B"/>
         <Setter Property="FontFamily" Value="Comic Sans MS"/>
         <Setter Property="FontSize" Value="18"/>
-        <Setter Property="FontWeight" Value="Bold"/>
+        <Setter Property="FontWeight" Value="Regular"/>
         <Setter Property="Effect">
             <Setter.Value>
                 <DropShadowEffect BlurRadius="0" ShadowDepth="2" Color="#FFB0B000" />

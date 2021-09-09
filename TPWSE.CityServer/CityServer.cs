@@ -1,4 +1,6 @@
-﻿using Cassandra;
+﻿//#define STPVER2
+
+using Cassandra;
 using QuazarAPI;
 using QuazarAPI.Networking.Data;
 using QuazarAPI.Networking.Standard;
@@ -38,7 +40,7 @@ namespace SimTheme_Park_Online
             }
         }
 
-        private Dictionary<uint, TPWCityInfo> _cities = new Dictionary<uint, TPWCityInfo>();
+        private readonly IDatabaseInterface<uint, TPWCityInfo> cityDatabase;
         private readonly IDatabaseInterface<uint, TPWParkInfo> parksDatabase;
 
         /// <summary>
@@ -48,40 +50,21 @@ namespace SimTheme_Park_Online
         /// <returns></returns>
         public bool TryGetParkByID(uint ParkID, out TPWParkInfo Park) => parksDatabase.TryGetValue(ParkID, out Park);
 
-        private TPWParkResponseStructure[] GetParkResponses(Data.TPWConstants.TPWCityServerListType Type) => GetParkResponses(Type, parksDatabase.GetAllData().ToArray());  
         private TPWParkResponseStructure[] GetParkResponses(Data.TPWConstants.TPWCityServerListType Type, params TPWParkInfo[] parks) => parks.Select(x => x.GetParkInfoResponse(Type)).ToArray();
 
         public bool AddPark(TPWParkInfo ParkInfo) => parksDatabase.AddData(ParkInfo.ParkID, ParkInfo);
 
-        public CityServer(int port, IDatabaseInterface<uint, TPWParkInfo> ParksDatabase) : base("CityServer", port, SIMThemeParkWaypoints.CityServer)
+        public CityServer(int port, 
+            IDatabaseInterface<uint, TPWCityInfo> CityDatabase,
+            IDatabaseInterface<uint, TPWParkInfo> ParksDatabase) : base("CityServer", port, SIMThemeParkWaypoints.CityServer)
         {
-            parksDatabase = ParksDatabase;
-
-            //city locations
-            Vector3 Loc1 = Util.SphericalCoordinateConverter.ToCartesian(120, 0, 0);
-            Vector3 Loc2 = Util.SphericalCoordinateConverter.ToCartesian(120, 90, 20);
-            Vector3 Loc3 = Util.SphericalCoordinateConverter.ToCartesian(120, 120, 90);
-
-            //cities
-            _cities.Add(0x0A, new TPWCityInfo(0x0000000A, "North Pole", "bullfrog", 2.140f, 0.0f, 119.98f, 0x0B, 100, 0x00, "bullfrog", 0x01, 0x0F));
-            _cities.Add(0x0B, new TPWCityInfo(0x0000000B, "Bloaty Land", "Bisquick", 100, 70, 20, 0x20, 0x03, 0x05, "bullfrog", 0x01, 0x10));
-            _cities.Add(0x0C, new TPWCityInfo(0x0000000C, "Radical Jungle", "System", Loc2.X, Loc2.Y, Loc2.Z, 0x20, 0x03, 0x05, "bullfrog", 0x01, 0x10));
-            _cities.Add(0x0D, new TPWCityInfo(0x0000000D, "Sector 7", "System", Loc1.X, Loc1.Y, Loc1.Z, 0x20, 0x03, 0x05, "bullfrog", 0x01, 0x10));
-            _cities.Add(0x0E, new TPWCityInfo(0x0000000E, "Charvatia", "System", Loc3.X, Loc3.Y, Loc3.Z, 0x20, 0x03, 0x05, "bullfrog", 0x01, 0x10));
-            
-            //parks                        
-
-            foreach (var city in _cities)
-                foreach (var park in parksDatabase.GetAllData())
-                {
-                    if (park.CityID == city.Key)
-                        city.Value.AddPark(park);
-                    QConsole.WriteLine("CityServer", park.GetInformation());
-                }            
+            cityDatabase = CityDatabase;
+            parksDatabase = ParksDatabase;                               
         }
 
         protected override void OnIncomingPacket(uint ID, TPWPacket Data)
         {
+#if !STPVER2
             if (Data.PacketQueue == 13)
             {
                 Send(ID,
@@ -105,6 +88,11 @@ namespace SimTheme_Park_Online
             {
                 ;
             }
+            return;
+#endif
+            var cityInfo = GetCityInfoPacket();
+            cityInfo.PacketQueue = Data.PacketQueue;
+            Send(ID, GetCityInfoPacket());
         }
 
         private TPWPacket GetRideInfoPacket()
@@ -127,7 +115,16 @@ namespace SimTheme_Park_Online
              Factory.TPWPacketFactory.ExportToDisk("Library\\City\\Generated\\G_SearchPacket", packet);
             return packet;
         }
-        public TPWPacket GetTop10Packet(uint CityID) => GetTop10Packet(_cities[CityID]);
+        public bool TryGetTop10Packet(uint CityID, out TPWPacket Top10Packet)
+        {
+            if (cityDatabase.TryGetValue(CityID, out TPWCityInfo City))
+            {
+                Top10Packet = GetTop10Packet(City);
+                return true;
+            }
+            Top10Packet = null;
+            return false;
+        }
         internal TPWPacket GetTop10Packet(TPWCityInfo City)
         {
             var packet = Factory.TPWPacketFactory.GenerateCityResponsePacket(City.GetTop10ParksStructures(parksDatabase));
@@ -135,10 +132,16 @@ namespace SimTheme_Park_Online
             Factory.TPWPacketFactory.ExportToDisk("Library\\City\\Generated\\G_Top10", packet);
             return packet;
         }
-        private TPWPacket GetChatInfoPacket() => Factory.TPWPacketFactory.GenerateCityResponsePacket(GetParkResponses(Data.TPWConstants.TPWCityServerListType.PARKS_INFO));
+        private TPWPacket GetChatInfoPacket()
+        {
+            var chatellites = parksDatabase.GetSpecialListEntries("Chatellites");
+            return Factory.TPWPacketFactory.GenerateCityResponsePacket(
+                GetParkResponses(Data.TPWConstants.TPWCityServerListType.PARKS_INFO, chatellites.ToArray())
+            );
+        }
 
         public TPWPacket GetCityInfoPacket() => Factory.TPWPacketFactory.GenerateCityInfoPacket(
-                _cities.Select(x => x.Value.GetCityInfoResponseStructure()).ToArray()
+                cityDatabase.GetAllData().Select(x => x.GetCityInfoResponseStructure()).ToArray()
         );
 
         private TPWPacket GetLogicalServerPacket() => Factory.TPWPacketFactory.GenerateLogicalServerPacket(
@@ -192,11 +195,8 @@ namespace SimTheme_Park_Online
                     outgoing = GetCityInfoPacket();
                     return true;
                 }
-                if (_cities.TryGetValue(CityID, out TPWCityInfo City))
-                {
-                    outgoing = GetTop10Packet(City);
-                    return true;
-                }
+                if (TryGetTop10Packet(CityID, out outgoing))                
+                    return true;                
             }
             else if (BodyText.Contains("PARKID="))
             {

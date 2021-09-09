@@ -11,9 +11,9 @@ namespace TPWAPI.Frontend
     internal static class ApplicationResources
     {
         internal static ServerManagement Management { get; set; }
-        public static ServerProfile ServerProfile => Management.Profile;
+        public static ServerProfile CurrentProfile => Management.Profile;
 
-        internal static Dictionary<SimTheme_Park_Online.Data.Templating.TPWSystemTypes, SolidColorBrush > SystemSelectionBrushes =
+        internal static Dictionary<TPWSystemTypes, SolidColorBrush > SystemSelectionBrushes =
             new Dictionary<SimTheme_Park_Online.Data.Templating.TPWSystemTypes, SolidColorBrush>()
         {
                 { TPWSystemTypes.BYTE, Brushes.Purple },

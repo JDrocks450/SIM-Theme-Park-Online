@@ -7,7 +7,7 @@
     <ProjectGuid>{94C638B9-79AB-4926-9455-E9FC1395084E}</ProjectGuid>
     <OutputType>Library</OutputType>
     <AppDesignerFolder>Properties</AppDesignerFolder>
-    <RootNamespace>TPWSE.Common</RootNamespace>
+    <RootNamespace>SimTheme_Park_Online</RootNamespace>
     <AssemblyName>TPWSE.Common</AssemblyName>
     <TargetFrameworkVersion>v4.8</TargetFrameworkVersion>
     <FileAlignment>512</FileAlignment>
@@ -144,6 +144,7 @@
     <Compile Include="Data\TPWConstants.cs" />
     <Compile Include="Data\TPWPacket.cs" />
     <Compile Include="Data\TPWParkInfo.cs" />
+    <Compile Include="Data\TPWPlayerInfo.cs" />
     <Compile Include="Data\TPWServersideList.cs" />
     <Compile Include="Extentions.cs" />
     <Compile Include="Factory\TPWPacketFactory.cs" />
@@ -151,6 +152,7 @@
     <Compile Include="Primitive\DTStruct.cs" />
     <Compile Include="Primitive\DWORD.cs" />
     <Compile Include="Primitive\ITPWBOSSSerializable.cs" />
+    <Compile Include="Primitive\TPWPosition.cs" />
     <Compile Include="Primitive\UnicodeString.cs" />
     <Compile Include="Primitive\ZeroTerminatedString.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
@@ -170,6 +172,7 @@
     <Compile Include="Util\HexConverter.cs" />
     <Compile Include="Util\LittleEndianBitConverter.cs" />
     <Compile Include="Util\SphericalCoordinateConverter.cs" />
+    <Compile Include="Util\UniqueNumber.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />

@@ -12,8 +12,6 @@ namespace SimTheme_Park_Online
 {
     public class NewsServer : Component
     {
-        uint MessageDirectorID;
-
         public NewsServer(int port) : base("NewsServer", port, SIMThemeParkWaypoints.NewsServer)
         {
             
@@ -21,23 +19,20 @@ namespace SimTheme_Park_Online
 
         protected override void OnIncomingPacket(uint ID, TPWPacket Data)
         {
-            if (!HandleCommand(ID, Data))
+            if (Data.PacketQueue == 0x0C)
             {
-                if (Data.PacketQueue == 0x0C)
+                if (false)
                 {
-                    if (true)
-                    {
-                        var packets = TPWPacket.ParseAll("Library\\News\\NewsPacket.dat");
-                        QConsole.WriteLine(Name, "Sending NewsPackets...\n");
-                        Send(ID, packets.ToArray());
-                        return;
-                    }
+                    var packets = TPWPacket.ParseAll("Library\\News\\NewsPacket.dat");
                     QConsole.WriteLine(Name, "Sending NewsPackets...\n");
-                    Send(ID,
-                        GenerateServerInfoPacket(),
-                        GenerateGameInfoPacket(ServerManagement.Current.Profile.GameNewsString),
-                        GenerateSystemInfoPacket(ServerManagement.Current.Profile.SystemNewsString));
+                    Send(ID, packets.ToArray());
+                    return;
                 }
+                QConsole.WriteLine(Name, "Sending NewsPackets...\n");
+                Send(ID,
+                    GenerateServerInfoPacket(),
+                    GenerateGameInfoPacket(ServerManagement.Current.Profile.GameNewsString),
+                    GenerateSystemInfoPacket(ServerManagement.Current.Profile.SystemNewsString));
             }
         }
 

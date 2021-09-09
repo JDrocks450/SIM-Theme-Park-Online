@@ -1,4 +1,5 @@
-﻿using SimTheme_Park_Online.Data;
+﻿using QuazarAPI;
+using SimTheme_Park_Online.Data;
 using SimTheme_Park_Online.Data.Primitive;
 using SimTheme_Park_Online.Data.Templating;
 using System;
@@ -32,6 +33,11 @@ namespace SimTheme_Park_Online.Parsers
             this.StartIndex = StartIndex;
             this.Length = Length;
         }
+
+        public override string ToString()
+        {
+            return $"[{this.GetType().Name}] {Name} | {TypeCode} | {Data}";
+        }
     }
     /// <summary>
     /// Parses incoming / outgoing <see cref="ChatServer"/> packets.
@@ -49,8 +55,9 @@ namespace SimTheme_Park_Online.Parsers
             if (Enum.IsDefined(typeof(TPWConstants.TPWChatServerCommand), ChatMsgType))
                 name += " " + Enum.GetName(typeof(TPWConstants.TPWChatServerCommand),
                    msgType);
-            else throw new Exception($"Found a new data type -- Jeremy, you need to add this to the source collection now. Type: {ChatMsgType}");
+            else QConsole.WriteLine("New Findings", $"Found a new data type -- Jeremy, you need to add this to the source collection now. Type: {ChatMsgType}");
             list.Add(new TPWChatParsedData(TPWConstants.TPWChatTypeCodes.ASCII, (TPWZeroTerminatedString)ChatMsgType.ToString(), name, 0, 4));
+            int count = 1;
             while (!Data.IsBodyEOF)
             {
                 int chatValueType = Data.ReadBodyByte();
@@ -70,9 +77,13 @@ namespace SimTheme_Park_Online.Parsers
                         value = Data.ReadBodyUnicodeString(0xFFFF);
                         break;
                 }
-                name = "Parameter: " + value;
+                if (chatValueType == 255)
+                    name = "Separator";
+                else
+                    name = "Parameter: " + count;
                 long length = Data.BodyPosition - position;
-                list.Add(new TPWChatParsedData(typeCode, value,  name, (uint)position, (uint)length));                                       
+                list.Add(new TPWChatParsedData(typeCode, value,  name, (uint)position, (uint)length));
+                count++;
             }
             return true;
         }

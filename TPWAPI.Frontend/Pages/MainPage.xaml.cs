@@ -1,5 +1,6 @@
 ﻿using Microsoft.Win32;
 using QuazarAPI;
+using SimTheme_Park_Online;
 using SimTheme_Park_Online.Interop;
 using System;
 using System.Collections.Generic;
@@ -27,17 +28,29 @@ namespace TPWAPI.Frontend.Pages
             {
                 Dispatcher.Invoke(delegate
                 {
-                    if (Consoles.TryGetValue(channel, out TextBox box))                    
-                        box.Text += formatted + "\n";
-                    else
-                    {
-                        AddChannel(channel, formatted);
-                    }
-                    ConsoleOutput.Text += formatted + "\n";
+                    AddConsoleOutput(channel, formatted);
                 });
             };
             foreach (var entry in QConsole.TotalLog)
-                ConsoleOutput.Text += entry + "\n";
+                AddConsoleOutput("", entry);
+        }
+
+        private void AddConsoleOutput(string channel, string formatted)
+        {
+            if (!string.IsNullOrWhiteSpace(channel))
+            {
+                if (Consoles.TryGetValue(channel, out TextBox box))
+                {
+                    box.Text += formatted + "\n";
+                    box.ScrollToEnd();
+                }
+                else
+                {
+                    AddChannel(channel, formatted);
+                }
+            }
+            ConsoleOutput.Text += formatted + "\n";
+            ConsoleOutput.ScrollToEnd();
         }
 
         private void PacketMenuItem_Click(object sender, RoutedEventArgs e)
@@ -75,11 +88,14 @@ namespace TPWAPI.Frontend.Pages
             {
                 Header = channel
             });
-            newItem.Content = new TextBox()
+            newItem.Content = new Border()
             {
-                Text = formatted + "\n"
+                Child = new TextBox()
+                {
+                    Text = formatted + "\n"
+                }
             };
-            Consoles.Add(channel, newItem.Content as TextBox);
+            Consoles.Add(channel, (newItem.Content as Border).Child as TextBox);
         }        
 
         private void LoginInfoButton_Click(object sender, RoutedEventArgs e)
@@ -123,11 +139,11 @@ namespace TPWAPI.Frontend.Pages
         private void GameNewsEdit_Click(object sender, RoutedEventArgs e)
         {
             TextEdit textEdit = new TextEdit();
-            textEdit.InputtedText = ApplicationResources.ServerProfile.GameNewsString;
+            textEdit.InputtedText = ApplicationResources.CurrentProfile.GameNewsString;
             textEdit.Closed += delegate
             {
                 if (textEdit.Cancelled) return;
-                ServerProfile.UpdateGameNews(textEdit.InputtedText);
+                CurrentProfile.UpdateGameNews(textEdit.InputtedText);
             };
             textEdit.Owner = Application.Current.MainWindow;
             textEdit.Show();
@@ -136,11 +152,11 @@ namespace TPWAPI.Frontend.Pages
         private void SystemNewsEdit_Click(object sender, RoutedEventArgs e)
         {
             TextEdit textEdit = new TextEdit();
-            textEdit.InputtedText = ApplicationResources.ServerProfile.SystemNewsString;
+            textEdit.InputtedText = ApplicationResources.CurrentProfile.SystemNewsString;
             textEdit.Closed += delegate
             {
                 if (textEdit.Cancelled) return;
-                ServerProfile.UpdateSystemNews(textEdit.InputtedText);
+                CurrentProfile.UpdateSystemNews(textEdit.InputtedText);
             };
             textEdit.Owner = Application.Current.MainWindow;
             textEdit.Show();
@@ -179,6 +195,13 @@ namespace TPWAPI.Frontend.Pages
                     }
                 }
             }
+        }
+
+        private void ServerTellItem_Click(object sender, RoutedEventArgs e)
+        {
+            TextEdit editor = new TextEdit();
+            editor.ShowDialog();
+            ServerManagement.Current.ChatServer.ServerTell(editor.InputtedText);
         }
     }
 }

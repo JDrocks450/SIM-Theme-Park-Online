@@ -53,8 +53,8 @@ namespace SimTheme_Park_Online.Factory
         public static void GenerateGeneric(ref TPWPacket Packet, TPWServersideList List)
         {
             var definitions = List;
-            Packet.SetTemplate(definitions.GetTemplate());
-            Packet.Body = definitions.GetBytes();            
+            //Packet.SetTemplate(definitions?.GetTemplate());
+            definitions.CreatePacket(ref Packet);   
         }
 
         public static TPWPacket GenerateRideInfoPacket(params TPWRideInfoPacketStructure[] Rides)

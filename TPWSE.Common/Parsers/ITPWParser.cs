@@ -35,7 +35,7 @@ namespace SimTheme_Park_Online.Parsers
             }
             NewPosition = index;
             return System.Text.Encoding.Unicode.GetString(value.ToArray());
-        }
+        }        
     }
     /// <summary>
     /// A parser that takes in a <see cref="TPWPacket"/> and returns parsed data types.

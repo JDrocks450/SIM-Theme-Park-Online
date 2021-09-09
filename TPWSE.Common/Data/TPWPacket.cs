@@ -27,6 +27,8 @@ namespace SimTheme_Park_Online
         * 1 0 WORD: 0x012E, 9 SUCCESS, 2 SERV ERROR, 1 AUTH ERROR
         */
 
+        public bool IsHeaderless { get; set; } = false;
+
         public DateTime Received, Sent;
         public string ReceivedTime => Received == default ? "Not Received" : Received.ToString();
         public string SentTime => Sent == default ? "Not Sent" : Sent.ToString();
@@ -39,7 +41,7 @@ namespace SimTheme_Park_Online
         /// <summary>
         /// The length of the header, readonly
         /// </summary>
-        public ushort HeaderLength => (ushort)Header.Length;
+        public ushort HeaderLength => IsHeaderless ? (ushort)0 : (ushort)Header.Length;
         public uint DataLength => HeaderLength + BodyLength;
         /// <summary>
         /// WORD -- Indicates the type of the message
@@ -91,6 +93,26 @@ namespace SimTheme_Park_Online
         private TPWDataTemplate _dataTemplate;
         private bool disposedValue;
 
+        internal List<TPWPacket> splitPackets = new List<TPWPacket>();
+        public bool HasChildPackets => splitPackets.Count > 0;
+        public int ChildPacketAmount => splitPackets.Count;
+        /// <summary>
+        /// Adds a packet to this one as a child. 
+        /// <para>This is used to allow packets to be split by the API without needing to use custom types.
+        /// The API will automatically detect and send these child packets with the primary packet.
+        /// </para>
+        /// </summary>
+        /// <param name="Packets"></param>
+        public void AppendChildPackets(params TPWPacket[] Packets)
+        {
+            splitPackets.AddRange(Packets.Where(x => x != null));
+            if (splitPackets.Remove(this))
+            {
+                QConsole.WriteLine("TPWPacket API", "The primary packet was found as a child packet of itself." +
+                    " However this happened, don't let it happen again.");
+            }
+        }
+
         /// <summary>
         /// Represents whether a <see cref="TPWDataTemplate"/> is added to this packet or not.
         /// </summary>
@@ -118,6 +140,14 @@ namespace SimTheme_Park_Online
             Dispose();
         }
 
+        private uint GetChildPacketBodyLength()
+        {
+            uint bodyLen = 0;
+            foreach (var packet in splitPackets)
+                bodyLen += packet.BodyLength;
+            return bodyLen;
+        }
+
         private byte[] GetHeader()
         {
             byte[] buffer = new byte[20];
@@ -126,7 +156,7 @@ namespace SimTheme_Park_Online
             converter.CopyBytes(MsgType, buffer, 2);
             converter.CopyBytes(Language, buffer, 4);
             converter.CopyBytes(Param2, buffer, 6);
-            converter.CopyBytes(BodyLength, buffer, 8);
+            converter.CopyBytes(BodyLength + GetChildPacketBodyLength(), buffer, 8);
             converter.CopyBytes(Param3, buffer, 12);
             EndianBitConverter.Little.CopyBytes(PacketQueue, buffer, 16);
             return buffer;
@@ -135,7 +165,8 @@ namespace SimTheme_Park_Online
         public byte[] GetBytes()
         {
             byte[] buffer = new byte[DataLength];
-            Header.CopyTo(buffer,0);
+            if (!IsHeaderless)
+                Header.CopyTo(buffer,0);
             if (Body != default)
             {
                 byte[] fooBody = Body;

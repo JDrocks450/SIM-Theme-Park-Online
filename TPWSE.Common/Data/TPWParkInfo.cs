@@ -110,16 +110,6 @@ namespace SimTheme_Park_Online.Data
         }
 
         /// <summary>
-        /// Get information about this park's online game session
-        /// </summary>
-        /// <param name="PlayersInPark"></param>
-        /// <returns></returns>
-        public TPWChatRoomInfoPacket GetRoomInfoPacket(uint PlayersInPark = 0)
-        {
-            return new TPWChatRoomInfoPacket(ParkName, ParkID, PlayersInPark, 1024, 30);
-        }
-
-        /// <summary>
         /// Gets a server response packet - of structure: <see cref="TPWParkResponseStructure"/> - with park information. 
         /// </summary>
         /// <param name="ListType"></param>

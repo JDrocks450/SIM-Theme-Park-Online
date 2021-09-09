@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SimTheme_Park_Online.Data;
+using System;
 
 namespace SimTheme_Park_Online
 {
@@ -21,5 +22,7 @@ namespace SimTheme_Park_Online
         public bool CHAT_ENABLE { get; set; } = true;
 
         public int MAX_CONNECTIONS { get; set; } = 1;
+
+        public uint[] ChatParks { get; set; }
     }
 }

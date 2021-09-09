@@ -11,7 +11,7 @@
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
-            <RowDefinition Height="150"/>
+            <RowDefinition Height="180"/>
         </Grid.RowDefinitions>
         <Grid Margin="0,70,40,0" HorizontalAlignment="Center" VerticalAlignment="Center">
             <Grid.Resources>
@@ -44,13 +44,26 @@
             </Grid>
         </Grid>
         <TabControl x:Name="ConsoleTabs" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
+            <TabControl.Resources>
+                <Style TargetType="Border" BasedOn="{StaticResource TPWUX_BorderFlyoutStyle}">
+                    
+                </Style>
+                <Style TargetType="TextBox">
+                    <Setter Property="FontFamily" Value="Consolas"/>
+                    <Setter Property="Background" Value="{x:Null}"/>
+                    <Setter Property="BorderThickness" Value="0"/>
+                    <Setter Property="MinHeight" Value="150"/>
+                    <Setter Property="Margin" Value="10,0,0,0"/>
+                    <Setter Property="TextOptions.TextFormattingMode" Value="Display"/>
+                    <Setter Property="TextOptions.TextRenderingMode" Value="Grayscale"/>
+                    <Setter Property="FontStretch" Value="Expanded"/>
+                </Style>
+            </TabControl.Resources>
             <TabItem Header="Console">
-                <Border Style="{StaticResource TPWUX_BorderFlyoutStyle}">
-                    <ScrollViewer MinHeight="120">
-                        <TextBox x:Name="ConsoleOutput" Background="{x:Null}" BorderThickness="0" FontFamily="Comic Sans MS" Margin="10,0">
-                            Hello World
-                        </TextBox>
-                    </ScrollViewer>
+                <Border>
+                    <TextBox x:Name="ConsoleOutput">
+                        Hello World
+                    </TextBox>
                 </Border>
             </TabItem>
             <TabItem Header="Hide">
@@ -79,6 +92,9 @@
             <MenuItem Header="News">
                 <MenuItem x:Name="GameNewsEdit" Click="GameNewsEdit_Click" Header="Update Game News..."/>
                 <MenuItem x:Name="SystemNewsEdit" Click="SystemNewsEdit_Click" Header="Update System News..."/>
+            </MenuItem>
+            <MenuItem Header="Chat">
+                <MenuItem Name="ServerTellItem" Header="Tell All..." Click="ServerTellItem_Click"/>
             </MenuItem>
             <MenuItem x:Name="AboutBox" Header="About"/>
         </Menu>

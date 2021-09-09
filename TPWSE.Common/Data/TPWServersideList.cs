@@ -131,9 +131,21 @@ namespace SimTheme_Park_Online.Data
 
         }
 
-        public byte[] GetBytes() => _getBytes(IsEmptyList);
+        /// <summary>
+        /// Creates an array of packets being sent from the server that have their data split.
+        /// </summary>
+        /// <param name="PrimaryPacket">The first packet in the list -- the one with all the information about the current transaction.</param>
+        /// <returns></returns>
+        public void CreatePacket(ref TPWPacket PrimaryPacket)
+        {
+            int index = 0;
+            var packets = getPackets(ref PrimaryPacket, false);
+            if (packets[index] == PrimaryPacket)
+                index++;
+            PrimaryPacket.AppendChildPackets(packets);
+        }
 
-        private byte[] _getBytes(bool isEmpty)
+        private TPWPacket[] getPackets(ref TPWPacket ReferencePacket, bool isEmpty)
         {
             int group = 0;
             int offset = 0;
@@ -148,7 +160,7 @@ namespace SimTheme_Park_Online.Data
             {
                 using (MemoryStream definitionBuffer = new MemoryStream())
                 {
-                    StringBuilder formatStr = new StringBuilder();                    
+                    StringBuilder formatStr = new StringBuilder();
                     foreach (var def in Definitions.Skip(offset))
                     {
                         if (def is TPWServersideListSeparator)
@@ -157,7 +169,7 @@ namespace SimTheme_Park_Online.Data
                             offset++;
                             break;
                         }
-                        formatStr.Append(def.DataType + ',');                        
+                        formatStr.Append(def.DataType + ',');
                         int written = def.Write(definitionBuffer);
                         definitions.Enqueue(new Templating.TPWTemplateDefinition(
                                     templateOffsetEnd, (uint)written, def.DataType + " Value", "A formatted value.", def.GetClosestSystemType()));
@@ -169,40 +181,64 @@ namespace SimTheme_Park_Online.Data
                     formattedDataMap.Add(group - 1, (formatStr.ToString().TrimEnd(','), definitionBuffer.ToArray()));
                 }
             }
-            using (MemoryStream stream = new MemoryStream())
+            group = 0;
+            TPWPacket[] outboundPackets = new TPWPacket[formattedDataMap.Count];
+            foreach (var mapItem in formattedDataMap.Values)
             {
-                stream.Write(encoder.GetBytes(ListType));
-                stream.Write(encoder.GetBytes(isEmpty ? 0 : (uint)formattedDataMap.Count));
-                stream.Write(encoder.GetBytes(isEmpty ? 0 : totalSize)); // DataLength                
-                group = 0;
-                uint prevDataLeng = 0;
-                foreach (var mapItem in formattedDataMap.Values)
+                using (MemoryStream stream = new MemoryStream())
                 {
                     if (group == 0)
                     {
-                        Param = prevDataLeng = (uint)(mapItem.data.Length + mapItem.format.Length + 1);
+                        //emplace header
+                        stream.Write(encoder.GetBytes(ListType));
+                        stream.Write(encoder.GetBytes(isEmpty ? 0 : (uint)formattedDataMap.Count));
+                        stream.Write(encoder.GetBytes(isEmpty ? 0 : totalSize)); // DataLength
+
+                        //emplace the format string
+                        Param = (uint)0;// (uint)(mapItem.data.Length + mapItem.format.Length + 1);
                         stream.Write(encoder.GetBytes(Param));
-                        stream.Write(Encoding.ASCII.GetBytes(mapItem.format)); 
-                        stream.WriteByte(00);                         
+                        stream.Write(Encoding.ASCII.GetBytes(mapItem.format));
+                        stream.WriteByte(00);
                         _TemplateHeader(mapItem.format.Length);
                     }
-                    if (isEmpty) break;
-                    stream.Write(mapItem.data);               
-                    group++;
+                    if (!isEmpty)
+                    {
+                        stream.Write(mapItem.data);
+                    }
+
+                    TPWPacket target = null;
+                    if (group == 0)
+                        target = ReferencePacket;
+                    else
+                    {
+                        target = new TPWPacket()
+                        {
+                            MsgType = ReferencePacket.MsgType,
+                            Language = ReferencePacket.Language,
+                            PacketQueue = ReferencePacket.PacketQueue,
+                            ResponseCode = ReferencePacket.ResponseCode,
+                            IsHeaderless = true
+                        };
+                        outboundPackets[group-1] = target;
+                    }
+                    target.Body = stream.ToArray();                    
                 }
-                while (definitions.Any())
-                {
-                    var def = definitions.Dequeue();
-                    uint width = def.Length;
-                    def.StartOffset += (uint)(formatStrLeng + 16);
-                    def.EndOffset = def.StartOffset + width;
-                    _template.Add(def);
-                }
-                return stream.ToArray();
+                group++;
             }
+
+            while (definitions.Any())
+            {
+                var def = definitions.Dequeue();
+                uint width = def.Length;
+                def.StartOffset += (uint)(formatStrLeng + 16);
+                def.EndOffset = def.StartOffset + width;
+                _template.Add(def);
+            }
+
+            return outboundPackets;
         }
 
-        public byte[] GetEmptyBytes() => _getBytes(true);
+        public void CreateEmptyPacket(ref TPWPacket Packet) => getPackets(ref Packet, true);
 
         public static TPWServersideList MergeAll(params TPWServersideList[] Lists)
         {

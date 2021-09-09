@@ -10,6 +10,7 @@ namespace SimTheme_Park_Online.Databases
 {
     public class TPWParkDatabase : DatabaseBase<uint, TPWParkInfo>
     {
+        uint highestKey = 0;
         public TPWParkDatabase(string FileName) : base("Parks Database", FileName)
         {        
             try
@@ -22,10 +23,21 @@ namespace SimTheme_Park_Online.Databases
             catch
             {
                 GenerateTestParkDB();
+                ApplySpecialList("Chatellites", new uint[]{
+                    16, 21, 24, 32, 48
+                });
             }
         }
 
+        public override bool AddData(uint Key, TPWParkInfo Park)
+        {
+            ApplySpecialList("CITYID=" + Park.CityID.ToString(), Key);
+            return base.AddData(Key, Park);
+        }
         public bool AddPark(TPWParkInfo Park) => AddData(Park.ParkID, Park);
+
+        public override uint CreateKey() => Util.UniqueNumber.Generate(DataCollection.Keys);
+        public override T CreateValue<T>(string ValueName) => default;
 
         private void GenerateTestParkDB()
         {
@@ -107,6 +119,8 @@ namespace SimTheme_Park_Online.Databases
                 DownloadedRides = "0"
             });
             AwaitAllChanges();
+
+            QuazarAPI.QConsole.WriteLine("ParksDB", $"Generated {AmountOfEntries} Parks successfully.");
         }
     }
 }
