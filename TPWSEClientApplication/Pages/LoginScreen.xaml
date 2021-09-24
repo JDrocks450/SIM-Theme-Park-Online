@@ -1,0 +1,48 @@
+﻿<Page x:Class="TPWSE.ClientApplication.Pages.LoginScreen"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TPWSE.ClientApplication.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="LoginScreen" Foreground="White">
+
+    <Grid>
+        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="15,2" Background="#FF3E3E3E">
+            <TextBlock x:Name="StatusBarText">Ready</TextBlock>
+        </Border>
+        <Border HorizontalAlignment="Center" VerticalAlignment="Center" BorderBrush="White" BorderThickness="1" Padding="10" Background="#FF464646">
+            <StackPanel MinWidth="250">
+                <TextBlock HorizontalAlignment="Center" FontSize="16" FontWeight="Bold">Login to SIM Theme Park Online</TextBlock>
+                <Separator Margin="0,10"/>
+                <TextBlock>
+                    <Run FontWeight="Bold">PlayerID</Run>
+                    <Run Name="PlayerIDField"></Run>
+                </TextBlock>
+                <TextBlock>
+                    <Run FontWeight="Bold">CustomerID</Run>
+                    <Run Name="CustIDField"></Run>
+                </TextBlock>
+                <TextBlock>
+                    <Run FontWeight="Bold">Username</Run>
+                    <Run Name="UsernameField"></Run>
+                </TextBlock>
+                <TextBlock>
+                    <Run FontWeight="Bold">Password</Run>
+                    <Run Name="PasswordField"></Run>
+                </TextBlock>
+                <TextBlock>
+                    <Run FontWeight="Bold">Email</Run>
+                    <Run Name="EmailField"></Run>
+                </TextBlock>
+                <Separator Margin="0,10"/>
+                <TextBlock>Username</TextBlock>
+                <TextBox Name="UsernameBox"></TextBox>
+                <TextBlock>Password</TextBlock>
+                <PasswordBox Name="PasswordBox"></PasswordBox>
+                <Button Name="SignInButton" Margin="0,10" Background="#FFB1FFC3" BorderBrush="#FF00AC27" Foreground="#FF00891F" Height="25" Click="SignInButton_Click">Sign In</Button>
+            </StackPanel>
+        </Border>
+    </Grid>
+</Page>

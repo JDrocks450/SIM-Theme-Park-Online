@@ -63,6 +63,8 @@ namespace SimTheme_Park_Online.Parsers
                 int chatValueType = Data.ReadBodyByte();
                 if (chatValueType == -1 || chatValueType == 0)
                     break;
+                if (chatValueType == 255)
+                    continue;
                 TPWConstants.TPWChatTypeCodes typeCode = (TPWConstants.TPWChatTypeCodes)(byte)chatValueType;
                 if (typeCode == TPWConstants.TPWChatTypeCodes.NONE)
                     throw new Exception($"That should not happen -- the type code: {chatValueType} is not recognized.");

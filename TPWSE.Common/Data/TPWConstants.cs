@@ -91,25 +91,32 @@ namespace SimTheme_Park_Online.Data
             /// <summary>
             /// This is already implemented here: <see cref="Data.Packets.TPWChatRoomInfoPacket"/>
             /// </summary>
-            RoomInfo = 07,
-            CreatePlayer = 00,
+            RoomInfo = 0x7,
+            CreatePlayer = 0x0,
             CreatePlayerSuccess = 0x34,
-            SetPlayerData = 01,
-            CreatePark = 05,            
-            MovePlayer = 04,
+            SetPlayerData = 0x1,
+            CreatePark = 0x5,            
+            MovePlayer = 0x4,
             AFK = 0x10,
             HearingRange = 0x02,
-            GetPlayers = 0x08,
-            EnumPlayer = 0x27,
-            CreateParkSuccess = 0x36,
-            ServerChatConfirmation = 0x43,
+            GetPlayers = 0x08,            
             Chat = 0x11,
             Tell = 0x13,
-            ImAFK = 15,
-            AddBuddy = 09,
-            Shout = 22,
-            EarmuffsOn = 11,
-            EarmuffsOff = 12,
+            ImAFK = 0xF,
+            AddBuddy = 0x9,
+            Shout = 0x16,
+            EarmuffsOn = 0xB,
+            EarmuffsOff = 0xC,
+            Ignore = 0xD,
+        }
+        public enum TPWChatServerResponseCodes
+        {            
+            PARK_CREATE = 0x36,
+            CHAT_RECEIVED = 0x43,
+            CHAT_PLAYER_INFO = 0x27,
+            IGNORE_RECEIVED = 0x10,
+            CHAT_IGNORE = 0x3A,
+
         }
 
         /// <summary>

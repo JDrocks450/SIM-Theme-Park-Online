@@ -25,9 +25,9 @@ namespace TPWAPI.Frontend.Pages
     /// </summary>
     public partial class ServerInformation : Window
     {
-        private readonly Component serverComponent;
+        private readonly QuazarServer serverComponent;
 
-        public ServerInformation(Component ServerComponent)
+        public ServerInformation(QuazarServer ServerComponent)
         {
             InitializeComponent();
             serverComponent = ServerComponent;

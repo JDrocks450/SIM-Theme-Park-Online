@@ -35,7 +35,7 @@ namespace TPWAPI.Frontend
             properties.Show();
         }
 
-        internal static void ShowInformationWindow(Component ServerComponent)
+        internal static void ShowInformationWindow(QuazarServer ServerComponent)
         {
             ServerInformation serverInfoWindow = new ServerInformation(ServerComponent);
             serverInfoWindow.Owner = Application.Current.MainWindow;

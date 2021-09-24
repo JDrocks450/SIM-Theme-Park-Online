@@ -12,7 +12,7 @@ using System.Security;
 
 namespace SimTheme_Park_Online
 {
-    public class LoginServer : Component
+    public class LoginServer : QuazarServer
     {
         private readonly IDatabaseInterface<uint, TPWPlayerInfo> playerDatabase;
 

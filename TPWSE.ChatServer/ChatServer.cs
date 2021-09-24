@@ -15,7 +15,7 @@ using TPWSE.ChatServer.Multiplayer;
 
 namespace SimTheme_Park_Online
 {
-    public class ChatServer : Component
+    public class ChatServer : QuazarServer
     {        
         private readonly Parsers.TPWChatPacketParser ChatPacketParser = new Parsers.TPWChatPacketParser();
         private readonly IDatabaseInterface<uint, TPWPlayerInfo> playerDatabase;
@@ -60,6 +60,7 @@ namespace SimTheme_Park_Online
         {
             ChatPacketParser.TryParse(Data, out List<Parsers.TPWChatParsedData> ParsedData);
             uint MessageType = ParsedData[0].Data.ToDWORD();
+            bool closerNecessary = true;
 
             switch ((TPWConstants.TPWChatServerCommand)MessageType)
             {
@@ -81,9 +82,9 @@ namespace SimTheme_Park_Online
                     {
                         QConsole.WriteLine("ChatServer", "Client wants to join a park...");
                         TPWUnicodeString username = (TPWUnicodeString)ParsedData[1].Data,
-                            password = (TPWUnicodeString)ParsedData[5].Data;
-                        DWORD PlayerID = ParsedData[7].Data.ToDWORD(),
-                            CustID = ParsedData[3].Data.ToDWORD();
+                            password = (TPWUnicodeString)ParsedData[3].Data;
+                        DWORD PlayerID = ParsedData[4].Data.ToDWORD(),
+                            CustID = ParsedData[2].Data.ToDWORD();
 
                         if (!playerDatabase.TryGetValue(PlayerID.UInt32, out var DBPlayerInfo))
                         {
@@ -118,7 +119,7 @@ namespace SimTheme_Park_Online
                     break;
                 case TPWConstants.TPWChatServerCommand.CreatePark:
                     {
-                        DWORD parkID = ParsedData[8].Data.ToDWORD();
+                        DWORD parkID = ParsedData[4].Data.ToDWORD();
                         if (RoomManager.TryGetRoom(parkID, out var Room))
                         {
                             QConsole.WriteLine("ChatServer", "Creating park for client...");
@@ -131,7 +132,7 @@ namespace SimTheme_Park_Online
                             JoiningPlayers.Remove(ID);
                             PlayersInRooms.Add(ID, Room);
 
-                            var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.CreateParkSuccess);                                
+                            var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.PARK_CREATE);                                
                             packet.MsgType = 0x012D;
                             packet.Param3 = Data.Param3;
                             packet.PacketQueue = Data.PacketQueue;
@@ -156,18 +157,18 @@ namespace SimTheme_Park_Online
                         }
 
                         uint XWise = ParsedData[1].Data.ToDWORD();
-                        uint YWise = ParsedData[3].Data.ToDWORD();
-                        DWORD Offset = ParsedData[5].Data.ToDWORD();
+                        uint YWise = ParsedData[2].Data.ToDWORD();
+                        DWORD Teleport = ParsedData[3].Data.ToDWORD();
 
-                        if (!Room.MovePlayer(ID, new Primitive.TPWPosition(XWise, YWise), Offset.UInt32 > 0, out var moveType, out var position))
+                        if (!Room.MovePlayer(ID, new Primitive.TPWPosition(XWise, YWise), Teleport.UInt32 > 0, out var moveType, out var position))
                         {
                             QConsole.WriteLine("ChatServer", "Player could not be moved by the OnlineRoom because of an internal error.");
                             break;
                         }
 
-                        var packet = new TPWChatPacket((uint)0x02, (DWORD)1, (DWORD)1300, (DWORD)1300, (DWORD)0);
+                        var packet = new TPWChatPacket((uint)0x02, (TPWUnicodeString)"Bisquick", (DWORD)1300, (DWORD)1300, (DWORD)0);
                         packet.MsgType = 0x012E;
-                        Broadcast(packet);
+                        //Broadcast(packet);
 
                         packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.MovePlayer, (DWORD)0);
                         packet.MsgType = 0x012D;
@@ -175,10 +176,9 @@ namespace SimTheme_Park_Online
                         packet.PacketQueue = Data.PacketQueue;
                         Send(ID, packet);
 
-
                         SetPacketCaching(true);
+                        break;
                     }
-                    break;
                 case TPWConstants.TPWChatServerCommand.AFK:
                     {
                         SetPacketCaching(false);
@@ -210,17 +210,17 @@ namespace SimTheme_Park_Online
                             break;
                         }
 
-                        TPWPacket[] packets = new TPWPacket[Room.PlayerCount+1];
+                        TPWPacket[] packets = new TPWPacket[Room.PlayerCount + (closerNecessary ? 1 : 0)];
                         uint i = 0;
                         foreach (var Tuple in Room.GetConnectedPlayersInfo())
                         {
                             TPWPlayerInfo player = Tuple.Player;
                             TPWPlayerGameState state = Tuple.State;
-                            TPWChatPacket packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.EnumPlayer,
+                            TPWChatPacket packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.CHAT_PLAYER_INFO,
                                                                      player.PlayerName, (DWORD)player.PlayerID, (DWORD)1,
-                                                                     state.CurrentPosition.X,
-                                                                     state.CurrentPosition.Y, (DWORD)0,
-                                                                     (DWORD)0, (DWORD)0, (DWORD)0);
+                                                                     (DWORD)(state.CurrentPosition.X + 500),
+                                                                     (DWORD)(state.CurrentPosition.Y + 1000), (DWORD)0,
+                                                                     (DWORD)1, (DWORD)1, (DWORD)0);
                             packet.MsgType = 0x012E;
                             packet.Param3 = Data.Param3;
                             packet.PacketQueue = 00;//Data.PacketQueue + (uint)i;
@@ -235,7 +235,8 @@ namespace SimTheme_Park_Online
                             PacketQueue = Data.PacketQueue
                         };
                         closer.EmplaceBody((uint)0x4F);
-                        packets[i] = closer;
+                        if (closerNecessary)
+                            packets[i] = closer;
                         Send(ID, packets);
                         SetPacketCaching(true);
                     }
@@ -252,6 +253,7 @@ namespace SimTheme_Park_Online
                             QConsole.WriteLine("ChatServer", "Found the park the guy is in, but couldn't load player data? That's a bug.");
                             break;
                         }
+
                         TPWUnicodeString message = (TPWUnicodeString)ParsedData[1].Data,
                                name = Player.PlayerName;
                         var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.Chat, name, message);
@@ -259,7 +261,7 @@ namespace SimTheme_Park_Online
                         packet.PacketQueue = 0x00;
                         Broadcast(packet);
 
-                        packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.ServerChatConfirmation, message);
+                        packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.CHAT_RECEIVED, message);
                         packet.MsgType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
@@ -267,6 +269,28 @@ namespace SimTheme_Park_Online
 
                         message = $"[{name}] {message}";
                         QConsole.WriteLine("Chat Log", message);
+                    }
+                    break;
+                case TPWConstants.TPWChatServerCommand.Ignore:
+                    {
+                        if (!PlayersInRooms.TryGetValue(ID, out var Room))
+                        {
+                            QConsole.WriteLine("ChatServer", "Uhh, this guy isn't even in a park, yet making requests. So I'm gonna disconnect him.");
+                            Disconnect(ID);
+                            break;
+                        }
+                        TPWUnicodeString username = (TPWUnicodeString)ParsedData[1].Data;
+                        var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.IGNORE_RECEIVED, (DWORD)0);
+                        packet.MsgType = 0x012D;
+                        packet.Param3 = Data.Param3;
+                        packet.PacketQueue = Data.PacketQueue;
+                        Send(ID, packet);
+
+                        packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.CHAT_IGNORE, username);
+                        packet.MsgType = 0x012D;
+                        packet.Param3 = Data.Param3;
+                        packet.PacketQueue = Data.PacketQueue + 1;
+                        Send(ID, packet);
                     }
                     break;
                 default:

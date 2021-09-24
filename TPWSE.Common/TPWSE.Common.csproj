@@ -130,6 +130,7 @@
   <ItemGroup>
     <Compile Include="Database\IDatabaseInterface.cs" />
     <Compile Include="Database\IDatabaseObject.cs" />
+    <Compile Include="Quazar\Data\QuazarClient.cs" />
     <Compile Include="Data\Packets\TPWChatPacket.cs" />
     <Compile Include="Data\Packets\TPWChatRoomInfoPacket.cs" />
     <Compile Include="Data\Structures\Lists\TPWCityInfoStructure.cs" />
@@ -159,7 +160,7 @@
     <Compile Include="Quazar\ConnectionHelper.cs" />
     <Compile Include="Quazar\Datagram.cs" />
     <Compile Include="Quazar\Data\ClientInfoStruct.cs" />
-    <Compile Include="Quazar\Data\Component.cs" />
+    <Compile Include="Quazar\Data\QuazarServer.cs" />
     <Compile Include="Quazar\QConsole.cs" />
     <Compile Include="Quazar\Waypoints.cs" />
     <Compile Include="TPWServerConfig.cs" />

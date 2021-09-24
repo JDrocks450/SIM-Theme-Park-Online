@@ -20,7 +20,7 @@ using System.Text;
 
 namespace SimTheme_Park_Online
 {
-    public class CityServer : Component
+    public class CityServer : QuazarServer
     {
         public class TPWCityWaypoint
         {

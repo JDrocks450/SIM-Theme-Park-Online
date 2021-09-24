@@ -193,16 +193,10 @@ namespace SimTheme_Park_Online
                 Body = new byte[converter.ToUInt32(buffer, offset + 6)]
             };
             if (packet.ResponseCode[0] == 0 && packet.ResponseCode[1] == 0)
-                throw new FormatException("ResponseCode was not recognized: 00 00");
-            int dataEnd = 0, index = 0;
-            foreach (var entry in buffer)
-            {
-                if (entry != 00)
-                    dataEnd = index;
-                index++;
-            }
-            dataEnd -= 20; // header auto correct
+                throw new FormatException("ResponseCode was not recognized: 00 00");         
             offset = 20;
+            if (buffer.Length < offset + (int)packet.BodyLength)
+                throw new ArgumentException("The submitted buffer is too short to contain all the body data, you should wait until there's more data received.");
             packet.Body = buffer.Skip(offset).Take((int)packet.BodyLength).ToArray();
             EndIndex = (int)(offset + packet.BodyLength);
 
@@ -268,7 +262,7 @@ namespace SimTheme_Park_Online
             _bodyBuffer.Position = newPos;
             return retVal;
         }
-        public ITPWBOSSSerializable ReadBodyUnicodeString(ushort Terminator = 0x0000)
+        public TPWUnicodeString ReadBodyUnicodeString(ushort Terminator = 0x0000)
         {
             var retVal = Parsers.TPWParsedData.ReadBodyUnicodeString(Body, (int)_bodyBuffer.Position, out var newPos, Terminator);
             _bodyBuffer.Position = newPos;

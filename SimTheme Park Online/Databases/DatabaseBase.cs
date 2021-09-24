@@ -22,7 +22,8 @@ namespace SimTheme_Park_Online.Databases
         public readonly String FileName;
         public readonly String Name;
 
-        private Thread pushQueue;
+        private Thread pushQueueThread;
+        private ManualResetEvent pushQueueInvoke;
 
         private bool _hasChanges = false;
 
@@ -45,8 +46,9 @@ namespace SimTheme_Park_Online.Databases
                 throw new ArgumentException($"'{nameof(Name)}' cannot be null or whitespace.", nameof(Name));            
             this.Name = Name;
             this.FileName = FileName;
-            pushQueue = new Thread(_doBackgroundWorker);
-            pushQueue.Start();
+            pushQueueInvoke = new ManualResetEvent(false);
+            pushQueueThread = new Thread(_doBackgroundWorker);
+            pushQueueThread.Start();
         }
 
         /// <summary>
@@ -121,6 +123,7 @@ namespace SimTheme_Park_Online.Databases
             if (DataCollection.ContainsKey(Key))
                 return false;
             TaskQueue.Enqueue(new KeyValuePair<T1, T2>(Key, Value));
+            pushQueueInvoke.Set();
             return true;
         }
 
@@ -129,11 +132,18 @@ namespace SimTheme_Park_Online.Databases
             throw new NotImplementedException();
         }
 
+        private void _pauseBackgroundWorker()
+        {
+            pushQueueInvoke.Reset();
+        }
+
         private void _doBackgroundWorker()
         {
             while (true)
-            {
-                if (TaskQueue.Count == 0) continue;
+            {      
+                pushQueueInvoke.WaitOne();          
+                if (TaskQueue.Count == 0)                                   
+                    continue;                
                 _hasChanges = true;
                 while (TaskQueue.TryDequeue(out var task))
                 {
@@ -152,6 +162,7 @@ namespace SimTheme_Park_Online.Databases
                     }
                     QConsole.WriteLine(Name, $"{task.Value.GetType().Name} has been added to the database.");
                 }
+                _pauseBackgroundWorker();
                 _hasChanges = false;
             }
         }

@@ -1,6 +1,7 @@
 ﻿using MiscUtil.Conversion;
 using SimTheme_Park_Online.Data.Primitive;
 using System.Collections.Generic;
+using System.Text;
 
 namespace SimTheme_Park_Online.Parsers
 {
@@ -27,14 +28,17 @@ namespace SimTheme_Park_Online.Parsers
             var converter = EndianBitConverter.Big;
             ushort currentChar = converter.ToUInt16(Buffer, index);
             List<byte> value = new List<byte>();
+            string currentText = "";
             while (currentChar != Terminator)
-            {
-                currentChar = converter.ToUInt16(Buffer, index);
+            {                
                 value.Add(Buffer[index]);
-                index++;
+                value.Add(Buffer[index + 1]);
+                currentText = System.Text.Encoding.Unicode.GetString(value.ToArray());
+                index+=2;
+                currentChar = converter.ToUInt16(Buffer, index);
             }
             NewPosition = index;
-            return System.Text.Encoding.Unicode.GetString(value.ToArray());
+            return currentText;
         }        
     }
     /// <summary>

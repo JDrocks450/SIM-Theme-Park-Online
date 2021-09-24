@@ -14,10 +14,10 @@ using System.Threading.Tasks;
 
 namespace QuazarAPI.Networking.Standard
 {
-    public abstract class Component
+    public abstract class QuazarServer
     {        
         /// <summary>
-        /// The name of this <see cref="Component"/>
+        /// The name of this <see cref="QuazarServer"/>
         /// </summary>
         public string Name
         {
@@ -77,7 +77,7 @@ namespace QuazarAPI.Networking.Standard
         protected void SetPacketCaching(bool Enabled) =>
             _packetCache =
 #if DEBUG 
-            false;
+            true;
 #else
             Enabled;
 #endif
@@ -99,27 +99,28 @@ namespace QuazarAPI.Networking.Standard
 
         protected Queue<(uint ID, byte[] Buffer)> SendQueue = new Queue<(uint ID, byte[] Buffer)>();
         protected Thread SendThread;
+        protected ManualResetEvent SendThreadInvoke;
 
         /// <summary>
-        /// Creates a <see cref="Component"/> with the specified parameters.
+        /// Creates a <see cref="QuazarServer"/> with the specified parameters.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="port"></param>
         /// <param name="Waypoint"></param>
         /// <param name="backlog"></param>
-        protected Component(string name, SIMThemeParkWaypoints Waypoint, uint Backlog = 1) : this(name, (int)Waypoint, Waypoint, Backlog)
+        protected QuazarServer(string name, SIMThemeParkWaypoints Waypoint, uint Backlog = 1) : this(name, (int)Waypoint, Waypoint, Backlog)
         {
 
         }
 
         /// <summary>
-        /// Creates a <see cref="Component"/> with the specified parameters.
+        /// Creates a <see cref="QuazarServer"/> with the specified parameters.
         /// </summary>
         /// <param name="name"></param>
         /// <param name="port"></param>
         /// <param name="Waypoint"></param>
         /// <param name="backlog"></param>
-        protected Component(string name, int port, SIMThemeParkWaypoints Waypoint = SIMThemeParkWaypoints.External, uint backlog = 1)
+        protected QuazarServer(string name, int port, SIMThemeParkWaypoints Waypoint = SIMThemeParkWaypoints.External, uint backlog = 1)
         {
             PORT = port;
             BACKLOG = backlog;
@@ -132,6 +133,8 @@ namespace QuazarAPI.Networking.Standard
         {
             listener = new TcpListener(IPAddress.Loopback, PORT);
             listener.Server.SendBufferSize = SendAmount;
+
+            SendThreadInvoke = new ManualResetEvent(false);
             SendThread = new Thread(doSendLoop);
             SendThread.Start();
         }
@@ -140,6 +143,7 @@ namespace QuazarAPI.Networking.Standard
         {
             while (true)
             {
+                SendThreadInvoke.WaitOne();
                 while (SendQueue.Count > 0)
                 {
                     var data = SendQueue.Dequeue();
@@ -159,7 +163,8 @@ namespace QuazarAPI.Networking.Standard
                                 {
                                     sentAmount = buffer.Read(network_buffer, 0, SendAmount);
                                     connection.GetStream().Write(network_buffer, 0, sentAmount);
-                                    QConsole.WriteLine(Name, $"An outgoing packet was large ({s_buffer.Length} bytes) sent a chunk of {sentAmount}");
+                                    if (s_buffer.Length > SendAmount)
+                                        QConsole.WriteLine(Name, $"An outgoing packet was large ({s_buffer.Length} bytes) sent a chunk of {sentAmount}");
                                 }
                                 while (sentAmount == SendAmount);
                             }
@@ -175,6 +180,7 @@ namespace QuazarAPI.Networking.Standard
                     }
                     else QConsole.WriteLine(Name, $"Tried to send data to a disposed connection.");
                 }
+                SendThreadInvoke.Reset();
             }
         }
 
@@ -420,7 +426,8 @@ namespace QuazarAPI.Networking.Standard
                 QConsole.WriteLine(Name, "Couldn't find the client: " + ID);
                 return;
             }            
-            SendQueue.Enqueue((ID, s_buffer));            
+            SendQueue.Enqueue((ID, s_buffer));
+            SendThreadInvoke.Set();
         }
 
         /// <summary>

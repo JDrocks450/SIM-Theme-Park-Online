@@ -10,7 +10,7 @@ using System.Text;
 
 namespace SimTheme_Park_Online
 {
-    public class NewsServer : Component
+    public class NewsServer : QuazarServer
     {
         public NewsServer(int port) : base("NewsServer", port, SIMThemeParkWaypoints.NewsServer)
         {

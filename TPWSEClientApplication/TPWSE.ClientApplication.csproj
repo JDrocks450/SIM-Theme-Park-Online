@@ -1,0 +1,14 @@
+﻿<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <OutputType>WinExe</OutputType>
+    <TargetFramework>net5.0-windows</TargetFramework>
+    <UseWPF>true</UseWPF>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <ProjectReference Include="..\TPWSE.ClientServices\TPWSE.ClientServices.csproj" />
+    <ProjectReference Include="..\TPWSE.Common\TPWSE.Common.csproj" />
+  </ItemGroup>
+
+</Project>

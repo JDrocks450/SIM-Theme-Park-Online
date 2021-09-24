@@ -7,10 +7,10 @@ namespace SimTheme_Park_Online.Data.Structures
 {
     public class TPWLoginAuthPacket : TPWPacket
     {
-        public const uint AUTH_BODYSIZE = 0x0140;        
+        public const uint AUTH_BODYSIZE = 0x0140;
 
-        public TPWLoginAuthPacket(TPWLoginMsgCodes LoginCode, uint PlayerID, uint CustomerID, 
-            TPWUnicodeString Str1, TPWUnicodeString Email, uint ChildlockFlags)            
+        public TPWLoginAuthPacket(TPWLoginMsgCodes LoginCode, uint PlayerID, uint CustomerID,
+            TPWUnicodeString Str1, TPWUnicodeString Email, uint ChildlockFlags)
         {
             ResponseCode = TPWConstants.Bs_Header;
             MsgType = (ushort)LoginCode;
@@ -31,6 +31,11 @@ namespace SimTheme_Park_Online.Data.Structures
             EndianBitConverter.Big.CopyBytes(ChildlockFlags, footer, 8);
             SetPosition((int)(BodyLength - footer.Length));
             EmplaceBody(footer);
+
+            this.PlayerID = PlayerID;
+            this.CustomerID = CustomerID;
+            this.Str1 = Str1;
+            this.Email = Email;
 #if false
             EmplaceBodyAt(0x58, 0x3A);
             EmplaceBodyAt(0x5C, 0x3B);
@@ -38,6 +43,27 @@ namespace SimTheme_Park_Online.Data.Structures
             EmplaceBodyAt(0x64, 0xFF);
             EmplaceBodyAt(0x68, 0x01);
 #endif
+        }
+
+        public TPWLoginMsgCodes LoginCode => (TPWLoginMsgCodes)MsgType;
+        public DWORD PlayerID { get; }
+        public uint CustomerID { get; }
+        public TPWUnicodeString Str1 { get; }
+        public TPWUnicodeString Email { get; }
+        public bool IsSuccessfulLogin => LoginCode == TPWLoginMsgCodes.SUCCESS;
+
+        public TPWLoginAuthPacket(in TPWPacket packet)
+        {
+            MsgType = packet.MsgType;
+            PacketQueue = packet.PacketQueue;
+            if (packet.MsgType == (ushort)TPWLoginMsgCodes.SUCCESS)
+            {
+                packet.SetPosition(0);
+                PlayerID = packet.ReadBodyDWORD();
+                CustomerID = packet.ReadBodyDWORD();
+                SetPosition(0x30);
+                Email = (TPWUnicodeString)packet.ReadBodyUnicodeString();
+            }
         }
     }
 }
