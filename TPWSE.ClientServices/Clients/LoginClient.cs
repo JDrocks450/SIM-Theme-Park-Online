@@ -11,8 +11,11 @@ using System.Security;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace TPWSE.ClientServices.Login
+namespace TPWSE.ClientServices.Clients
 {
+    /// <summary>
+    /// Represents a standardized client of the TPW-SE LoginServer that can be used to authenticate a user using a username and password
+    /// </summary>
     public class LoginClient : QuazarClient
     {
         public LoginClient(IPAddress Connection, int Port) : base("LoginClient", Connection, Port)
@@ -24,7 +27,7 @@ namespace TPWSE.ClientServices.Login
         {
             TPWPacket packet = new TPWPacket()
             {
-                MsgType = 0x0,
+                MessageType = 0x0,
             };
             packet.AllocateBody(130);
             packet.EmplaceBody((TPWUnicodeString)Username, false);
@@ -45,10 +48,8 @@ namespace TPWSE.ClientServices.Login
                 return null;
             }
             await SendPackets(GenerateLoginPacket(Username, Password));
-            using (TPWPacket packet = await AwaitPacket())
-            {
-                return new TPWLoginAuthPacket(packet);
-            }
+            using (TPWPacket packet = await AwaitPacket())            
+                return new TPWLoginAuthPacket(packet);            
         }
     }
 }

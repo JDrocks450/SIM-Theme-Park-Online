@@ -21,8 +21,8 @@ namespace SimTheme_Park_Online.Data.Packets
                    PacketLength,
                    Param)
         {
-            ResponseCode = TPWConstants.Bs_Header;
-            MsgType = 0x012D;
+            OriginCode = TPWConstants.Bs_Header;
+            MessageType = 0x012D;
             Language = 0x0000;
             PacketQueue = 0x0D;
         }
@@ -46,5 +46,15 @@ namespace SimTheme_Park_Online.Data.Packets
         {
 
         }
+
+        /// <summary>
+        /// Creates a <see cref="TPWChatRoomInfoPacket"/> from an existing <see cref="TPWChatRoomInfo"/> instance.
+        /// </summary>
+        /// <param name="RoomInfo">The room info</param>
+        /// <param name="PacketLength">Unsure what this is</param>
+        /// <param name="Param">Unsure what this is</param>
+        public TPWChatRoomInfoPacket(TPWChatRoomInfo RoomInfo, DWORD PacketLength, DWORD Param) : 
+            this(RoomInfo.ParkName, RoomInfo.ParkID, RoomInfo.NumberOfPlayers, PacketLength, Param)
+        { }
     }
 }

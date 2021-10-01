@@ -17,7 +17,7 @@ namespace SimTheme_Park_Online.Databases
     /// <typeparam name="T1">The means of retrieving data</typeparam>
     /// <typeparam name="T2">The data structure stored in this database.</typeparam>
     [Serializable]    
-    public abstract class DatabaseBase<T1, T2> : IDatabaseInterface<T1, T2> where T2 : IDatabaseObject
+    public abstract class DatabaseBase<T1, T2> : IDatabase<T1, T2> where T2 : IDatabaseObject
     {
         public readonly String FileName;
         public readonly String Name;

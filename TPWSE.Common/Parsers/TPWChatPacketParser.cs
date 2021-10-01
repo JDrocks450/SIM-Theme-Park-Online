@@ -43,13 +43,16 @@ namespace SimTheme_Park_Online.Parsers
     /// Parses incoming / outgoing <see cref="ChatServer"/> packets.
     /// </summary>
     public class TPWChatPacketParser : ITPWParser<TPWChatParsedData>
-    {
-        public bool TryParse(TPWPacket Data, out List<TPWChatParsedData> ParsedValues)
+    {        
+        public bool TryParse(TPWPacket Data, out List<TPWChatParsedData> ParsedValues) {
+            return Parse(Data, out ParsedValues);
+        }
+        public static bool Parse(TPWPacket Data, out List<TPWChatParsedData> ParsedValues)
         {
             var list = new List<TPWChatParsedData>();
             ParsedValues = list;
             Data.SetPosition(0);
-            uint ChatMsgType = Data.ReadBodyDWORD();
+            uint ChatMsgType = Data.ReadBodyDword();
             string name = "ChatMsgType";
             var msgType = (TPWConstants.TPWChatServerCommand)ChatMsgType;
             if (Enum.IsDefined(typeof(TPWConstants.TPWChatServerCommand), ChatMsgType))

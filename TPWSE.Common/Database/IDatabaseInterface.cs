@@ -6,7 +6,13 @@ using System.Threading.Tasks;
 
 namespace SimTheme_Park_Online.Database
 {
-    public interface IDatabaseInterface<T1, T2> where T2 : IDatabaseObject
+    /// <summary>
+    /// Allows a generic way to interact with a database in TPW-SE.
+    /// <para>Each database in the game should implement this interface to allow compatibility and code clarity.</para>
+    /// </summary>
+    /// <typeparam name="T1"></typeparam>
+    /// <typeparam name="T2"></typeparam>
+    public interface IDatabase<T1, T2> where T2 : IDatabaseObject
     {
         bool TryGetValue(T1 Key, out T2 Value);
         bool TryGetValue(string SpecialListName, T1 Key, out T2 Value);

@@ -145,5 +145,23 @@ namespace SimTheme_Park_Online.Data
             builder.AppendLine(DateCreated.ToString());
             return builder.ToString();
         }
+
+        public static TPWParkInfo FromStructure(TPWParkResponseStructure Structure)
+        {
+            return new TPWParkInfo()
+            {
+                ParkName = Structure.ParkName,
+                ChartPosition = Structure.ChartPosition,
+                CityID = Structure.CityID,
+                Description = Structure.Description,
+                DownloadedRides = Structure.DownloadedRides,
+                OwnerEmail = Structure.Email,
+                OwnerName = Structure.CreatedBy,
+                ParkID = Structure.ParkID,
+                ThemeID = Structure.ThemeID,
+                Visits = Structure.NumVisits,
+                Votes = Structure.Votes
+            };
+        }
     }
 }

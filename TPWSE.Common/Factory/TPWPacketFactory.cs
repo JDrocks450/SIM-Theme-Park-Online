@@ -31,10 +31,10 @@ namespace SimTheme_Park_Online.Factory
         {
             return new TPWPacket()
             {
-                ResponseCode = TPWConstants.Bs_Header,
+                OriginCode = TPWConstants.Bs_Header,
                 Param2 = Param2,
                 Param3 = Param3,
-                MsgType = MsgType,      
+                MessageType = MsgType,      
                 PacketQueue = Queue
             };
         }

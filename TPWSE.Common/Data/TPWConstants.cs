@@ -49,15 +49,15 @@ namespace SimTheme_Park_Online.Data
             /// <summary>
             /// Login Success code
             /// </summary>
-            SUCCESS = 0x09,
+            AUTH_SUCCESS = 0x09,
             /// <summary>
-            /// Error code 01
+            /// Authentication Error Code
             /// </summary>
-            ERROR_1 = 0x01,
+            AUTH_ERROR = 0x01,
             /// <summary>
-            /// Error code 02
+            /// Generic Server Error Code
             /// </summary>
-            ERROR_2 = 0x02
+            GENERIC_LOGIN_ERROR = 0x02
         }
 
         /// <summary>

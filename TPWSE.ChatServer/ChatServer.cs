@@ -18,8 +18,8 @@ namespace SimTheme_Park_Online
     public class ChatServer : QuazarServer
     {        
         private readonly Parsers.TPWChatPacketParser ChatPacketParser = new Parsers.TPWChatPacketParser();
-        private readonly IDatabaseInterface<uint, TPWPlayerInfo> playerDatabase;
-        private readonly IDatabaseInterface<uint, TPWParkInfo> ParksDatabase;
+        private readonly IDatabase<uint, TPWPlayerInfo> playerDatabase;
+        private readonly IDatabase<uint, TPWParkInfo> ParksDatabase;
         private readonly OnlineRoomManager RoomManager = new OnlineRoomManager();
 
         /// <summary>
@@ -31,8 +31,8 @@ namespace SimTheme_Park_Online
         /// </summary>
         private Dictionary<uint, TPWOnlineRoom> PlayersInRooms = new Dictionary<uint, TPWOnlineRoom>();
 
-        public ChatServer(int port, IDatabaseInterface<uint, TPWPlayerInfo> PlayerDatabase,
-            IDatabaseInterface<uint, TPWParkInfo> ParksDatabase) : base("ChatServer", port, SIMThemeParkWaypoints.ChatServer)
+        public ChatServer(int port, IDatabase<uint, TPWPlayerInfo> PlayerDatabase,
+            IDatabase<uint, TPWParkInfo> ParksDatabase) : base("ChatServer", port, SIMThemeParkWaypoints.ChatServer)
         {
             playerDatabase = PlayerDatabase;
             this.ParksDatabase = ParksDatabase;
@@ -52,7 +52,7 @@ namespace SimTheme_Park_Online
         {
             var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.AFK,
                             (DWORD)0);
-            packet.MsgType = 0x012D;
+            packet.MessageType = 0x012D;
             return packet;
         }
 
@@ -101,7 +101,7 @@ namespace SimTheme_Park_Online
                         JoiningPlayers.Add(ID, DBPlayerInfo);
                         var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.CreatePlayerSuccess,
                             DBPlayerInfo.PlayerName, password, PlayerID, CustID, (DWORD)1024, (DWORD)34);                            
-                        packet.MsgType = 0x012D;
+                        packet.MessageType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
                         Send(ID, packet);
@@ -111,7 +111,7 @@ namespace SimTheme_Park_Online
                     {
                         QConsole.WriteLine("ChatServer", "This client is allowed to join the room, confirming transaction...");
                         var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.SetPlayerData);
-                        packet.MsgType = 0x012D;
+                        packet.MessageType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
                         Send(ID, packet);
@@ -133,7 +133,7 @@ namespace SimTheme_Park_Online
                             PlayersInRooms.Add(ID, Room);
 
                             var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.PARK_CREATE);                                
-                            packet.MsgType = 0x012D;
+                            packet.MessageType = 0x012D;
                             packet.Param3 = Data.Param3;
                             packet.PacketQueue = Data.PacketQueue;
                             Send(ID, packet);
@@ -167,11 +167,11 @@ namespace SimTheme_Park_Online
                         }
 
                         var packet = new TPWChatPacket((uint)0x02, (TPWUnicodeString)"Bisquick", (DWORD)1300, (DWORD)1300, (DWORD)0);
-                        packet.MsgType = 0x012E;
+                        packet.MessageType = 0x012E;
                         //Broadcast(packet);
 
-                        packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.MovePlayer, (DWORD)0);
-                        packet.MsgType = 0x012D;
+                        packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.MovePlayer, (TPWUnicodeString)"Bisquick", (DWORD)0);
+                        packet.MessageType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
                         Send(ID, packet);
@@ -192,9 +192,9 @@ namespace SimTheme_Park_Online
                     break;
                 case TPWConstants.TPWChatServerCommand.HearingRange:
                     {
-                        var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.HearingRange,
-                            (DWORD)1);
-                        packet.MsgType = 0x012D;
+                        var packet = new TPWChatPacket(
+                            (uint)TPWConstants.TPWChatServerCommand.HearingRange,(DWORD)1);                            
+                        packet.MessageType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
                         Send(ID, packet);
@@ -221,7 +221,7 @@ namespace SimTheme_Park_Online
                                                                      (DWORD)(state.CurrentPosition.X + 500),
                                                                      (DWORD)(state.CurrentPosition.Y + 1000), (DWORD)0,
                                                                      (DWORD)1, (DWORD)1, (DWORD)0);
-                            packet.MsgType = 0x012E;
+                            packet.MessageType = 0x012E;
                             packet.Param3 = Data.Param3;
                             packet.PacketQueue = 00;//Data.PacketQueue + (uint)i;
                             packets[i] = packet;
@@ -229,7 +229,7 @@ namespace SimTheme_Park_Online
                         }
                         var closer = new TPWPacket()
                         {
-                            MsgType = 0x012D,
+                            MessageType = 0x012D,
                             Language = 0x00,
                             Param3 = Data.Param3,
                             PacketQueue = Data.PacketQueue
@@ -257,12 +257,12 @@ namespace SimTheme_Park_Online
                         TPWUnicodeString message = (TPWUnicodeString)ParsedData[1].Data,
                                name = Player.PlayerName;
                         var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.Chat, name, message);
-                        packet.MsgType = 0x012E;                        
+                        packet.MessageType = 0x012E;                        
                         packet.PacketQueue = 0x00;
                         Broadcast(packet);
 
                         packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.CHAT_RECEIVED, message);
-                        packet.MsgType = 0x012D;
+                        packet.MessageType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
                         Send(ID, packet);
@@ -281,13 +281,13 @@ namespace SimTheme_Park_Online
                         }
                         TPWUnicodeString username = (TPWUnicodeString)ParsedData[1].Data;
                         var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.IGNORE_RECEIVED, (DWORD)0);
-                        packet.MsgType = 0x012D;
+                        packet.MessageType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
                         Send(ID, packet);
 
                         packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.CHAT_IGNORE, username);
-                        packet.MsgType = 0x012D;
+                        packet.MessageType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue + 1;
                         Send(ID, packet);
@@ -332,7 +332,7 @@ namespace SimTheme_Park_Online
         public void Tell(TPWUnicodeString From, TPWUnicodeString Text)
         {
             var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.Tell, From, Text);
-            packet.MsgType = 0x012E;
+            packet.MessageType = 0x012E;
             packet.PacketQueue = 0x00;
             Broadcast(packet);
         }

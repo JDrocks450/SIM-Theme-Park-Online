@@ -18,10 +18,11 @@ namespace QuazarAPI.Networking.Standard
     public abstract class QuazarClient : IDisposable
     {
         public bool IsDisposed { get; private set; }
+        public bool IsConnected => _client != null && _client.Connected;
         protected TcpClient _client;
         protected Task _recvTask;
         protected bool _recvStop = true;
-        protected readonly Queue<ArraySegment<byte>> _recvQueue;
+        protected readonly List<ArraySegment<byte>> _recvQueue;
         private ManualResetEvent _recvInvoke;
 
         public QuazarClient(string Name, IPAddress Address, int Port)
@@ -34,7 +35,7 @@ namespace QuazarAPI.Networking.Standard
             this.Name = Name;
             this.Address = Address;
             this.Port = Port;
-            _recvQueue = new Queue<ArraySegment<byte>>();
+            _recvQueue = new List<ArraySegment<byte>>();
             _recvInvoke = new ManualResetEvent(false);
 
             _client = new TcpClient();
@@ -62,30 +63,36 @@ namespace QuazarAPI.Networking.Standard
         }
         public async Task<TPWPacket> AwaitPacket()
         {
+            retry:
             var Data = await AwaitResponse();            
-            using (MemoryStream networkData = new MemoryStream(Data.Array, true))
+            using (MemoryStream networkData = new MemoryStream())
             {
+                await networkData.WriteAsync(Data.Array, 0, Data.Count);                    
                 while (true)
                 {
                     try
                     {
-                        var packet = TPWPacket.Parse(Data.Array, out int EndIndex);
+                        var packet = TPWPacket.Parse(networkData.ToArray(), out int EndIndex);
                         networkData.Position = EndIndex;
                         byte[] remaining = new byte[networkData.Length - EndIndex];
                         if (remaining.Length > 0)
                         {
                             networkData.Read(remaining, 0, remaining.Length);
-                            _recvQueue.Enqueue(new ArraySegment<byte>(remaining));
+                            _recvQueue.Insert(0, new ArraySegment<byte>(remaining));
                             _recvInvoke.Set();
                         }
                         return packet;
                     }
-                    catch(ArgumentException e)
+                    catch(ArgumentException)
                     {
                         QConsole.WriteLine(Name, "Partial data received...");
                     }
+                    catch (FormatException ex)
+                    {
+                        QConsole.WriteLine(Name, ex.ToString());
+                    }
                     Data = await AwaitResponse();
-                    networkData.Write(Data.Array);
+                    await networkData.WriteAsync(Data.Array, 0, Data.Count);
                 }                
             }
         }
@@ -98,7 +105,9 @@ namespace QuazarAPI.Networking.Standard
                     _recvInvoke.WaitOne();
                     _recvInvoke.Reset();
                 }
-                ArraySegment<byte> Data = _recvQueue.Dequeue();
+                while (!_recvQueue.Any()) { }
+                ArraySegment<byte> Data = _recvQueue.First();
+                _recvQueue.RemoveAt(0);
                 return Data;
             });
         }
@@ -110,7 +119,7 @@ namespace QuazarAPI.Networking.Standard
                 try
                 {
                     ArraySegment<byte> Data = await awaitData();
-                    _recvQueue.Enqueue(Data);
+                    _recvQueue.Add(Data);
                     _recvInvoke.Set();
                 }
                 catch (SocketException e) // Connection Error

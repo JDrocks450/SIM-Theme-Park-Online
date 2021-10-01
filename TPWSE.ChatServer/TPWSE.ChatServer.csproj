@@ -47,7 +47,6 @@
     <Compile Include="Multiplayer\TPWOnlineRoom.cs" />
     <Compile Include="Multiplayer\TPWPlayerGameState.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Parsers\TPWChatPacketParser.cs" />
     <Compile Include="Data\TPWChatServerRoomInfoStructure.cs" />
   </ItemGroup>
   <ItemGroup>
@@ -58,6 +57,9 @@
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <Folder Include="Parsers\" />
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

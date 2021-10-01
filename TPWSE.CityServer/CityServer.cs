@@ -40,8 +40,8 @@ namespace SimTheme_Park_Online
             }
         }
 
-        private readonly IDatabaseInterface<uint, TPWCityInfo> cityDatabase;
-        private readonly IDatabaseInterface<uint, TPWParkInfo> parksDatabase;
+        private readonly IDatabase<uint, TPWCityInfo> cityDatabase;
+        private readonly IDatabase<uint, TPWParkInfo> parksDatabase;
 
         /// <summary>
         /// Returns a <see cref="TPWParkInfo"/> representing the park with this ID.
@@ -55,8 +55,8 @@ namespace SimTheme_Park_Online
         public bool AddPark(TPWParkInfo ParkInfo) => parksDatabase.AddData(ParkInfo.ParkID, ParkInfo);
 
         public CityServer(int port, 
-            IDatabaseInterface<uint, TPWCityInfo> CityDatabase,
-            IDatabaseInterface<uint, TPWParkInfo> ParksDatabase) : base("CityServer", port, SIMThemeParkWaypoints.CityServer)
+            IDatabase<uint, TPWCityInfo> CityDatabase,
+            IDatabase<uint, TPWParkInfo> ParksDatabase) : base("CityServer", port, SIMThemeParkWaypoints.CityServer)
         {
             cityDatabase = CityDatabase;
             parksDatabase = ParksDatabase;                               

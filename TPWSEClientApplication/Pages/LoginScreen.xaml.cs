@@ -1,4 +1,5 @@
-﻿using System;
+﻿using SimTheme_Park_Online.Data;
+using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -12,7 +13,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using TPWSE.ClientServices.Login;
+using TPWSE.ClientServices.Clients;
 
 namespace TPWSE.ClientApplication.Pages
 {
@@ -47,6 +48,8 @@ namespace TPWSE.ClientApplication.Pages
                     PlayerIDField.Text = response.PlayerID.ToString();
                     CustIDField.Text = response.CustomerID.ToString();
                     StatusBarText.Text = "Sign-In Successful";
+                    TPWPlayerInfo player = new TPWPlayerInfo(response.PlayerID, response.CustomerID, username);
+                    OnSuccessfulAuth(player);
                 }
                 else
                     throw new Exception("There was an error logging in: Auth Error, Bad Username / Password.");
@@ -58,6 +61,14 @@ namespace TPWSE.ClientApplication.Pages
             }
             LoginClient.Dispose();
             IsEnabled = true;            
+        }
+
+        private void OnSuccessfulAuth(TPWPlayerInfo PlayerInfo)
+        {
+            MainWindow mainWindow = Application.Current.MainWindow as MainWindow;
+            if (mainWindow == null)
+                return;
+            mainWindow.ChangeScreen(new OnlineWorldScreen(PlayerInfo));
         }
     }
 }

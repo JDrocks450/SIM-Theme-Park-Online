@@ -9,12 +9,9 @@
       Title="LoginScreen" Foreground="White">
 
     <Grid>
-        <Border HorizontalAlignment="Right" VerticalAlignment="Bottom" Padding="15,2" Background="#FF3E3E3E">
-            <TextBlock x:Name="StatusBarText">Ready</TextBlock>
-        </Border>
-        <Border HorizontalAlignment="Center" VerticalAlignment="Center" BorderBrush="White" BorderThickness="1" Padding="10" Background="#FF464646">
-            <StackPanel MinWidth="250">
-                <TextBlock HorizontalAlignment="Center" FontSize="16" FontWeight="Bold">Login to SIM Theme Park Online</TextBlock>
+        <ContentControl Style="{StaticResource BubbleUXContentElement}" MinWidth="250" HorizontalAlignment="Center" VerticalAlignment="Center">
+            <StackPanel Margin="10,15,10,10">
+                <TextBlock HorizontalAlignment="Center" FontSize="16" FontWeight="Bold">SIM Theme Park Online</TextBlock>
                 <Separator Margin="0,10"/>
                 <TextBlock>
                     <Run FontWeight="Bold">PlayerID</Run>
@@ -42,7 +39,8 @@
                 <TextBlock>Password</TextBlock>
                 <PasswordBox Name="PasswordBox"></PasswordBox>
                 <Button Name="SignInButton" Margin="0,10" Background="#FFB1FFC3" BorderBrush="#FF00AC27" Foreground="#FF00891F" Height="25" Click="SignInButton_Click">Sign In</Button>
+                <TextBlock x:Name="StatusBarText" HorizontalAlignment="Center">Ready</TextBlock>
             </StackPanel>
-        </Border>
+        </ContentControl>
     </Grid>
 </Page>

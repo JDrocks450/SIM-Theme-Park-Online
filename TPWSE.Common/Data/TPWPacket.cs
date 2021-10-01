@@ -37,7 +37,7 @@ namespace SimTheme_Park_Online
         /// The header of the packet, two bytes, ASCII
         /// <para>Bs, Bc, etc.</para>
         /// </summary>
-        public byte[] ResponseCode { get; set; } = Data.TPWConstants.Bs_Header;
+        public byte[] OriginCode { get; set; } = Data.TPWConstants.Bs_Header;
         /// <summary>
         /// The length of the header, readonly
         /// </summary>
@@ -46,7 +46,7 @@ namespace SimTheme_Park_Online
         /// <summary>
         /// WORD -- Indicates the type of the message
         /// </summary>
-        public ushort MsgType { get; set; }
+        public ushort MessageType { get; set; }
         /// <summary>
         /// WORD - Language ID, 0409 [US]
         /// </summary>
@@ -129,7 +129,7 @@ namespace SimTheme_Park_Online
         }
         public TPWPacket(ushort MsgType, ushort LanguageCode, ushort Param2, UInt32 Param3, UInt32 PacketPriority)
         {
-            this.MsgType = MsgType;
+            this.MessageType = MsgType;
             this.Language = LanguageCode;
             this.Param2 = Param2;
             this.Param3 = Param3;
@@ -151,9 +151,9 @@ namespace SimTheme_Park_Online
         private byte[] GetHeader()
         {
             byte[] buffer = new byte[20];
-            ResponseCode.CopyTo(buffer, 0);
+            OriginCode.CopyTo(buffer, 0);
             EndianBitConverter converter = EndianBitConverter.Big;
-            converter.CopyBytes(MsgType, buffer, 2);
+            converter.CopyBytes(MessageType, buffer, 2);
             converter.CopyBytes(Language, buffer, 4);
             converter.CopyBytes(Param2, buffer, 6);
             converter.CopyBytes(BodyLength + GetChildPacketBodyLength(), buffer, 8);
@@ -184,16 +184,16 @@ namespace SimTheme_Park_Online
             int offset = 2;
             TPWPacket packet = new TPWPacket()
             {
-                ResponseCode = new byte[2] { buffer[0], buffer[1] },
-                MsgType = converter.ToUInt16(buffer, offset + 0),
+                OriginCode = new byte[2] { buffer[0], buffer[1] },
+                MessageType = converter.ToUInt16(buffer, offset + 0),
                 Language = converter.ToUInt16(buffer, offset + 2),
                 Param2 = converter.ToUInt16(buffer, offset + 4),
                 Param3 = converter.ToUInt32(buffer, offset + 10),
                 PacketQueue = EndianBitConverter.Little.ToUInt32(buffer, offset + 14),
                 Body = new byte[converter.ToUInt32(buffer, offset + 6)]
             };
-            if (packet.ResponseCode[0] == 0 && packet.ResponseCode[1] == 0)
-                throw new FormatException("ResponseCode was not recognized: 00 00");         
+            if (packet.OriginCode[0] == 0 && packet.OriginCode[1] == 0)
+                throw new FormatException($"{nameof(packet.OriginCode)} was not recognized: {packet.OriginCode.Select(x => x.ToString())}");         
             offset = 20;
             if (buffer.Length < offset + (int)packet.BodyLength)
                 throw new ArgumentException("The submitted buffer is too short to contain all the body data, you should wait until there's more data received.");
@@ -250,7 +250,13 @@ namespace SimTheme_Park_Online
             _bodyBuffer.Read(array, 0, Length);
             return array;
         }
-        public uint ReadBodyDWORD(Endianness Endian = Endianness.BigEndian)
+        public ushort ReadBodyUshort(Endianness Endian = Endianness.BigEndian)
+        {
+            if (Endian == Endianness.BigEndian)
+                return EndianBitConverter.Big.ToUInt16(ReadBodyByteArray(2), 0);
+            else return EndianBitConverter.Little.ToUInt16(ReadBodyByteArray(2), 0);
+        }
+        public uint ReadBodyDword(Endianness Endian = Endianness.BigEndian)
         {             
             if (Endian == Endianness.BigEndian)
                 return EndianBitConverter.Big.ToUInt32(ReadBodyByteArray(4),0);
@@ -262,11 +268,24 @@ namespace SimTheme_Park_Online
             _bodyBuffer.Position = newPos;
             return retVal;
         }
+        public TPWUnicodeString ReadBodyKnownLengthUnicodeString()
+        {
+            var retVal = Parsers.TPWParsedData.ReadBodyFullFormattedUZ(Body, (int)_bodyBuffer.Position, out var newPos);
+            _bodyBuffer.Position = newPos;
+            return retVal;
+        }
         public TPWUnicodeString ReadBodyUnicodeString(ushort Terminator = 0x0000)
         {
             var retVal = Parsers.TPWParsedData.ReadBodyUnicodeString(Body, (int)_bodyBuffer.Position, out var newPos, Terminator);
             _bodyBuffer.Position = newPos;
             return retVal;
+        }
+        public TPWDTStruct ReadBodyDateTime()
+        {
+            ushort Year = ReadBodyUshort();
+            ushort Month = ReadBodyUshort();
+            ushort Day = ReadBodyUshort();
+            return new TPWDTStruct(Year,Month,Day);
         }
 
         public static IEnumerable<TPWPacket> ParseAll(params string[] Files)
@@ -344,6 +363,8 @@ namespace SimTheme_Park_Online
             }
         }
 
+        public void Advance(int amount = 1) => SetPosition((int)BodyPosition + amount);
+
         // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
         // ~TPWPacket()
         // {
@@ -356,6 +377,6 @@ namespace SimTheme_Park_Online
             // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
             Dispose(disposing: true);
             GC.SuppressFinalize(this);
-        }
+        }        
     }
 }

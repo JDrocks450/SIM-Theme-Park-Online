@@ -1,0 +1,136 @@
+﻿using SimTheme_Park_Online.Data;
+using SimTheme_Park_Online.Data.Primitive;
+using SimTheme_Park_Online.Data.Structures;
+using System;
+using System.Collections.Generic;
+using System.Linq;
+using System.Text;
+using System.Threading.Tasks;
+using System.Windows;
+using System.Windows.Controls;
+using System.Windows.Data;
+using System.Windows.Documents;
+using System.Windows.Input;
+using System.Windows.Media;
+using System.Windows.Media.Imaging;
+using System.Windows.Navigation;
+using System.Windows.Shapes;
+using TPWSE.ClientServices.Clients;
+
+namespace TPWSE.ClientApplication.Pages
+{
+    /// <summary>
+    /// Interaction logic for OnlineWorldScreen.xaml
+    /// </summary>
+    public partial class OnlineWorldScreen : Page
+    {
+        private CityClient cityClient;
+        private ChatClient chatClient;
+
+        public OnlineWorldScreen()
+        {
+            InitializeComponent();
+            cityClient = new CityClient(System.Net.IPAddress.Loopback, 7591);
+            cityClient.StatusChanged += CityClient_StatusChanged;
+            chatClient = new ChatClient(System.Net.IPAddress.Loopback, 7593);
+
+            init();
+            ParksControl.OnSearch += ParksControl_OnSearch;
+        }
+
+        private async void ParksControl_OnSearch(object sender, string username)
+        {
+            ParksControl.ShowWait();
+            IEnumerable<TPWParkInfo> parks = await cityClient.GetParksByUser(username);
+            ParksControl.ShowParks($"Parks by {username}", parks, chatClient.OnlineChatRooms);
+        }
+
+        private async void init()
+        {
+            bool connectionResult = await AwaitConnectionAsync();
+            if (!connectionResult) return;            
+            IEnumerable<DWORD> parkIDs = 
+                cityClient.OnlineParks.Select(x => (DWORD)x.ParkID);
+            await chatClient.Connect();
+            TPWChatRoomInfo[] RoomInfos = await chatClient.DownloadChatRoomInfo(parkIDs.ToArray());
+            _ = Dispatcher.InvokeAsync(delegate
+            {
+                PopulateCities();
+                PopulateOnlineParks(RoomInfos);
+                OnlineGameConnectionStatus.Text = "Downloading Online Chat Room Info...";
+                OnlineGameConnectionStatus.Visibility = Visibility.Collapsed;
+            });
+        }
+
+        private void CityClient_StatusChanged(object sender, CityClient.StatusCodes e)
+        {
+            Dispatcher.Invoke(delegate
+            {
+                CityStatusLabel.Text = $"Downloading Online Cities ({e.ToString()}) ...";
+            });
+        }
+
+        public OnlineWorldScreen(TPWPlayerInfo playerInfo) : this()
+        {
+            PlayerInfo = playerInfo;
+        }
+
+        public readonly TPWPlayerInfo PlayerInfo;
+
+        private async Task<bool> AwaitConnectionAsync()
+        {
+            try
+            {
+                await cityClient.AttemptConnectionAsync();
+            }
+            catch (Exception ex)
+            {
+                MessageBox.Show(ex.ToString());
+                ((MainWindow)Application.Current.MainWindow).ChangeScreen(new LoginScreen()); // boot to login screen
+                                                                                              
+                return false;
+            }
+            return true;
+        }
+
+        private void PopulateCities()
+        {            
+            foreach(var city in cityClient.Cities)
+            {
+                var stack = new StackPanel();
+                stack.Children.Add(new TextBlock() { FontWeight = FontWeights.Bold, Text = city.CityName, Margin = new Thickness(0,5,0,0) });
+                stack.Children.Add(new Separator() { Margin = new Thickness(0,5,0,5) });
+                stack.Children.Add(new TextBlock() { Text = "Amount of Parks: " + city.AmountOfParks });
+                stack.Children.Add(new TextBlock() { FontStyle = FontStyles.Italic, Text = "City ID: " + city.CityID.ToString() });
+
+                var control = new ContentControl()
+                {
+                    Content = stack,
+                    Cursor = Cursors.Hand,
+                    Tag = city
+                };
+                control.MouseLeftButtonUp += CitySelected;
+
+                CitiesView.Children.Add(control);
+            }
+            CityStatusLabel.Visibility = Visibility.Collapsed;
+        }
+
+        private async void CitySelected(object sender, MouseButtonEventArgs e)
+        {
+            var city = (sender as FrameworkElement).Tag as TPWCityInfo;
+            IEnumerable<TPWParkInfo> Parks = await cityClient.GetParksByCity(city);
+            ParksControl.ShowParks($"Top 10 Parks in {city.CityName}", Parks, chatClient.OnlineChatRooms);
+        }
+
+        private void PopulateOnlineParks(TPWChatRoomInfo[] OnlineChatRooms)
+        {
+            foreach (var park in cityClient.OnlineParks)
+            {
+                var parkControl = new ContentControl();
+                UXResources.CreateParkControl(ref parkControl, park, OnlineChatRooms, true);
+                OnlineSessionsView.Children.Add(parkControl);
+            }            
+        }
+    }
+}

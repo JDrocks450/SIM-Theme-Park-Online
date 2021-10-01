@@ -1,10 +1,12 @@
-﻿namespace SimTheme_Park_Online.Data.Structures
+﻿using System.Collections.Generic;
+
+namespace SimTheme_Park_Online.Data.Structures
 {
     public class TPWListStructure
     {
         public TPWServersideList List { get; private set; }
 
-        private TPWListStructure()
+        protected TPWListStructure()
         {
 
         }
@@ -23,6 +25,22 @@
             {
                 List = returnValue
             };
+        }
+
+        protected virtual void _fromList(TPWServersideList Packet)
+        {
+            List = Packet;
+        }
+
+        public static IEnumerable<T> FromPacket<T>(TPWPacket Packet) where T : TPWListStructure
+        {
+            var lists = TPWServersideList.Parse(Packet);
+            foreach (var list in lists)
+            {
+                T tPWListStructure = (T) new TPWListStructure();
+                tPWListStructure._fromList(list);
+                yield return tPWListStructure;
+            }            
         }
     }
 }

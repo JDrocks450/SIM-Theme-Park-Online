@@ -20,7 +20,6 @@ namespace SimTheme_Park_Online.Data.Packets
         public TPWChatPacket(uint ChatResponseCode, params ITPWBOSSSerializable[] Objects)
         {
             EmplaceBody((uint)ChatResponseCode);
-
             foreach(var obj in Objects)
             {
                 var serializableType = obj;
@@ -31,7 +30,6 @@ namespace SimTheme_Park_Online.Data.Packets
                 if (obj is TPWUnicodeString)
                     EmplaceBlock((TPWUnicodeString)serializableType);
             }
-
             EmplaceBody(00);
         }
     }

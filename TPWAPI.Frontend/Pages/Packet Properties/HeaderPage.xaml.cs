@@ -30,10 +30,10 @@ namespace TPWAPI.Frontend.Pages.Packet_Properties
         public void PopulateData(TPWPacket ViewingPacket)
         {
             //Header
-            ResponseCodeField.Text = $"{string.Join(' ', ViewingPacket.ResponseCode.Select(x => (char)x))}";
-            ResponseCodeEncode.Text = $"{{ { string.Join(',', ViewingPacket.ResponseCode) } }}";
+            ResponseCodeField.Text = $"{string.Join(' ', ViewingPacket.OriginCode.Select(x => (char)x))}";
+            ResponseCodeEncode.Text = $"{{ { string.Join(',', ViewingPacket.OriginCode) } }}";
 
-            MsgCodeField.Text =        ViewingPacket.MsgType.ToString();
+            MsgCodeField.Text =        ViewingPacket.MessageType.ToString();
             Param1Field.Text =         ViewingPacket.Language.ToString();
             Param2Field.Text =         ViewingPacket.Param2.ToString();
             Param3Field.Text =         ViewingPacket.Param3.ToString();

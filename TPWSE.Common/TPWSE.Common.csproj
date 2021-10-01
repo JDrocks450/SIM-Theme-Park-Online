@@ -130,6 +130,8 @@
   <ItemGroup>
     <Compile Include="Database\IDatabaseInterface.cs" />
     <Compile Include="Database\IDatabaseObject.cs" />
+    <Compile Include="Data\TPWChatRoomInfo.cs" />
+    <Compile Include="Parsers\TPWChatPacketParser.cs" />
     <Compile Include="Quazar\Data\QuazarClient.cs" />
     <Compile Include="Data\Packets\TPWChatPacket.cs" />
     <Compile Include="Data\Packets\TPWChatRoomInfoPacket.cs" />

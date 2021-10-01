@@ -23,18 +23,33 @@ namespace SimTheme_Park_Online.Parsers
             NewPosition = index;
             return System.Text.Encoding.ASCII.GetString(value.ToArray());
         }
-        public static TPWUnicodeString ReadBodyUnicodeString(byte[] Buffer, int index, out long NewPosition, ushort Terminator = 00)
+        public static TPWUnicodeString ReadBodyFullFormattedUZ(byte[] Buffer, int index, out long NewPosition)
         {
+            ushort byteLength = EndianBitConverter.Big.ToUInt16(Buffer, index);
+            index += 2;
+            return ReadBodyUnicodeString(Buffer, index, out NewPosition, 0x00, byteLength);
+        }
+        public static TPWUnicodeString ReadBodyUnicodeString(byte[] Buffer, int index, out long NewPosition, ushort Terminator = 00, ushort readAmount = 00)
+        {           
             var converter = EndianBitConverter.Big;
             ushort currentChar = converter.ToUInt16(Buffer, index);
             List<byte> value = new List<byte>();
             string currentText = "";
-            while (currentChar != Terminator)
-            {                
+            ushort alreadyRead = 0;
+            while (true)
+            {
+                if (readAmount == 0)
+                {
+                    if (currentChar == Terminator)
+                        break;
+                }
+                else if (alreadyRead >= readAmount)
+                    break;
                 value.Add(Buffer[index]);
                 value.Add(Buffer[index + 1]);
                 currentText = System.Text.Encoding.Unicode.GetString(value.ToArray());
                 index+=2;
+                alreadyRead += 2;
                 currentChar = converter.ToUInt16(Buffer, index);
             }
             NewPosition = index;

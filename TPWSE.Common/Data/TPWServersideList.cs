@@ -213,10 +213,10 @@ namespace SimTheme_Park_Online.Data
                     {
                         target = new TPWPacket()
                         {
-                            MsgType = ReferencePacket.MsgType,
+                            MessageType = ReferencePacket.MessageType,
                             Language = ReferencePacket.Language,
                             PacketQueue = ReferencePacket.PacketQueue,
-                            ResponseCode = ReferencePacket.ResponseCode,
+                            OriginCode = ReferencePacket.OriginCode,
                             IsHeaderless = true
                         };
                         outboundPackets[group-1] = target;
@@ -293,6 +293,75 @@ namespace SimTheme_Park_Online.Data
         {
             return Create(ListType,
                 Values.Select(x => new TPWServersideListDefinition(x)).ToArray());
+        }
+
+        public static IEnumerable<TPWServersideList> Parse(TPWPacket packet)
+        {
+            uint expectedEntries = 0, size = 0;
+            string formatString = "";
+
+            void ReadHeader(ref TPWServersideList TList)
+            {
+                packet.SetPosition(0);
+                uint listType = packet.ReadBodyDword();
+                expectedEntries = packet.ReadBodyDword();
+                size = packet.ReadBodyDword();
+
+                TList.ListType = listType;
+                TList.Param = packet.ReadBodyDword();
+                formatString = packet.ReadBodyTerminatedString();
+                packet.SetPosition((int)packet.BodyPosition + 1);
+            }
+
+            TPWServersideList list = new TPWServersideList();
+            ReadHeader(ref list);
+            if (packet.BodyLength < size)
+                throw new ArgumentException("The data is not of sufficient length: " + size + " bytes. This is likely an imcomplete packet.");
+            string[] formatSpecifiers = formatString.Split(',');
+            for (int i = 0; i < expectedEntries; i++)
+            {
+                foreach (var specifier in formatSpecifiers)
+                {
+                    switch (specifier)
+                    {
+                        case I4: list.Definitions.Add(new TPWServersideListDefinition(packet.ReadBodyDword())); break;
+                        case UZ: 
+                            list.Definitions.Add(new TPWServersideListDefinition(packet.ReadBodyKnownLengthUnicodeString()));
+                            break;
+                        case F4: list.Definitions.Add(new TPWServersideListDefinition(EndianBitConverter.Big.ToSingle(packet.ReadBodyByteArray(4), 0))); break;
+                        case SZ: 
+                            list.Definitions.Add(new TPWServersideListDefinition(packet.ReadBodyTerminatedString())); 
+                            packet.Advance();
+                            break;
+                        case DT: list.Definitions.Add(new TPWServersideListDefinition(packet.ReadBodyDateTime())); break;
+                        case BG:
+                            {
+                                ushort length = packet.ReadBodyUshort();
+                                byte[] uuid = packet.ReadBodyByteArray(length);
+                                var guid = new Guid(uuid);
+                                var tuuid = TimeUuid.Parse(guid.ToString());
+                                list.Definitions.Add(new TPWServersideListDefinition(tuuid));
+                                break;
+                            }
+                        default:
+                            throw new NotImplementedException("This data type hasn't been implemented yet.");
+                    }
+                }
+                yield return list;
+                list = new TPWServersideList()
+                {
+                    ListType = list.ListType,
+                };
+            }
+        }
+
+        public static IEnumerable<TPWServersideList> Parse(byte[] Array)
+        {
+            //Make a packet to use the body reading functions I wrote
+            TPWPacket packet = new TPWPacket();
+            packet.Body = Array;
+
+            return Parse(packet);
         }
     }
 }

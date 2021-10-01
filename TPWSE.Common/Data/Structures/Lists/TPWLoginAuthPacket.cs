@@ -12,8 +12,8 @@ namespace SimTheme_Park_Online.Data.Structures
         public TPWLoginAuthPacket(TPWLoginMsgCodes LoginCode, uint PlayerID, uint CustomerID,
             TPWUnicodeString Str1, TPWUnicodeString Email, uint ChildlockFlags)
         {
-            ResponseCode = TPWConstants.Bs_Header;
-            MsgType = (ushort)LoginCode;
+            OriginCode = TPWConstants.Bs_Header;
+            MessageType = (ushort)LoginCode;
             PacketQueue = 0x0A;
             AllocateBody(0x0140);
             EmplaceBody(PlayerID);
@@ -45,22 +45,22 @@ namespace SimTheme_Park_Online.Data.Structures
 #endif
         }
 
-        public TPWLoginMsgCodes LoginCode => (TPWLoginMsgCodes)MsgType;
+        public TPWLoginMsgCodes LoginCode => (TPWLoginMsgCodes)MessageType;
         public DWORD PlayerID { get; }
         public uint CustomerID { get; }
         public TPWUnicodeString Str1 { get; }
         public TPWUnicodeString Email { get; }
-        public bool IsSuccessfulLogin => LoginCode == TPWLoginMsgCodes.SUCCESS;
+        public bool IsSuccessfulLogin => LoginCode == TPWLoginMsgCodes.AUTH_SUCCESS;
 
         public TPWLoginAuthPacket(in TPWPacket packet)
         {
-            MsgType = packet.MsgType;
+            MessageType = packet.MessageType;
             PacketQueue = packet.PacketQueue;
-            if (packet.MsgType == (ushort)TPWLoginMsgCodes.SUCCESS)
+            if (packet.MessageType == (ushort)TPWLoginMsgCodes.AUTH_SUCCESS)
             {
                 packet.SetPosition(0);
-                PlayerID = packet.ReadBodyDWORD();
-                CustomerID = packet.ReadBodyDWORD();
+                PlayerID = packet.ReadBodyDword();
+                CustomerID = packet.ReadBodyDword();
                 SetPosition(0x30);
                 Email = (TPWUnicodeString)packet.ReadBodyUnicodeString();
             }

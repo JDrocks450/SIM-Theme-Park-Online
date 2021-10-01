@@ -1,5 +1,4 @@
-﻿using QuazarAPI.Networking.Standard;
-using System;
+﻿using System;
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
@@ -13,23 +12,17 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
-using TPWSE.ClientServices.Clients;
 
-namespace TPWSE.ClientApplication
+namespace TPWSE.ClientApplication.Pages.ParksControl
 {
     /// <summary>
-    /// Interaction logic for MainWindow.xaml
+    /// Interaction logic for ParksResultsPage.xaml
     /// </summary>
-    public partial class MainWindow : Window
+    public partial class ParksResultsPage : Page
     {
-        public MainWindow()
+        public ParksResultsPage()
         {
-            InitializeComponent();            
-        }        
-
-        public void ChangeScreen(Page Page)
-        {
-            Content.Content = Page;
+            InitializeComponent();
         }
     }
 }

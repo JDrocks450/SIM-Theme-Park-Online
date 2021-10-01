@@ -40,8 +40,8 @@ namespace SimTheme_Park_Online
         {
             return new TPWPacket()
             {
-                ResponseCode = TPWConstants.Bs_Header,
-                MsgType = 0x0007,
+                OriginCode = TPWConstants.Bs_Header,
+                MessageType = 0x0007,
                 Language = 0x0809,
                 Param2 = 0x0000,
                 Param3 = 0x08,
@@ -52,8 +52,8 @@ namespace SimTheme_Park_Online
         {
             return new TPWPacket()
             {
-                ResponseCode = TPWConstants.Bs_Header,
-                MsgType = 0x0005,
+                OriginCode = TPWConstants.Bs_Header,
+                MessageType = 0x0005,
                 Language = 0x0809,
                 Param2 = 0x0000,
                 Param3 = 0x00,
@@ -65,8 +65,8 @@ namespace SimTheme_Park_Online
         {
             return new TPWPacket()
             {
-                ResponseCode = TPWConstants.Bs_Header,
-                MsgType = 0x0004,
+                OriginCode = TPWConstants.Bs_Header,
+                MessageType = 0x0004,
                 Language = 0x0809,
                 Param2 = 0x0000,
                 Param3 = 0x00,

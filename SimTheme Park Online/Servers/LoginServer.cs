@@ -14,9 +14,9 @@ namespace SimTheme_Park_Online
 {
     public class LoginServer : QuazarServer
     {
-        private readonly IDatabaseInterface<uint, TPWPlayerInfo> playerDatabase;
+        private readonly IDatabase<uint, TPWPlayerInfo> playerDatabase;
 
-        public LoginServer(int port, IDatabaseInterface<uint, TPWPlayerInfo> PlayerDatabase) : base("LoginServer", port, SIMThemeParkWaypoints.LoginServer, 8)
+        public LoginServer(int port, IDatabase<uint, TPWPlayerInfo> PlayerDatabase) : base("LoginServer", port, SIMThemeParkWaypoints.LoginServer, 8)
         {
             playerDatabase = PlayerDatabase;
         }
@@ -32,7 +32,7 @@ namespace SimTheme_Park_Online
             QConsole.WriteLine("LoginServer", "User was not authenticated - Bad password.");
             var failedPacket = new TPWPacket()
             {
-                MsgType = (ushort)TPWConstants.TPWLoginMsgCodes.ERROR_1,
+                MessageType = (ushort)TPWConstants.TPWLoginMsgCodes.AUTH_ERROR,
                 PacketQueue = 0x0A
             };
             Send(ID, failedPacket);
@@ -83,7 +83,7 @@ namespace SimTheme_Park_Online
         protected TPWPacket GenerateLoginSuccessPacket(TPWPlayerInfo Player)
         {
             return new Data.Structures.TPWLoginAuthPacket(
-                TPWConstants.TPWLoginMsgCodes.SUCCESS, Player.PlayerID, Player.CustomerID,
+                TPWConstants.TPWLoginMsgCodes.AUTH_SUCCESS, Player.PlayerID, Player.CustomerID,
                 Player.PlayerName, "admin@bullfrog.com", 0xFFFFFFFF);
 
         }

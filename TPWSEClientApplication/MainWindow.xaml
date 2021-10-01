@@ -8,7 +8,7 @@
         Title="MainWindow" Height="768" Width="1024" Background="#FF1D1D1D">
     <Grid>
         <TextBlock Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Left">Do not steal, TPW-SE is created and maintained by Jeremy Glazebrook</TextBlock>
-        <Frame>
+        <Frame NavigationUIVisibility="Hidden" x:Name="Content">
             <Frame.Content>
                 <pages:LoginScreen/>
             </Frame.Content>

@@ -1,4 +1,5 @@
 ﻿using SimTheme_Park_Online.Data.Primitive;
+using SimTheme_Park_Online.Data.Structures;
 using SimTheme_Park_Online.Database;
 using System;
 using System.Collections.Generic;
@@ -49,6 +50,23 @@ namespace SimTheme_Park_Online.Data
             this.Param6 = Param6;
         }
 
+        public static TPWCityInfo FromStructure(TPWCityInfoStructure Structure)
+        {
+            return new TPWCityInfo(
+                Structure.CityID,
+                Structure.CityName,
+                Structure.Str2,
+                Structure.X,
+                Structure.Y,
+                Structure.Z,
+                0,
+                0,
+                Structure.LimitedInfoMode,
+                "",
+                Structure.AmountOfParks,
+                0);
+        }
+
         public Structures.TPWCityInfoStructure GetCityInfoResponseStructure()
         {
             return new Structures.TPWCityInfoStructure(
@@ -56,7 +74,7 @@ namespace SimTheme_Park_Online.Data
             );
         }
 
-        public Structures.TPWParkResponseStructure[] GetTop10ParksStructures(SimTheme_Park_Online.Database.IDatabaseInterface<uint, TPWParkInfo> DatabaseHandler)
+        public Structures.TPWParkResponseStructure[] GetTop10ParksStructures(SimTheme_Park_Online.Database.IDatabase<uint, TPWParkInfo> DatabaseHandler)
         {
             List<Structures.TPWParkResponseStructure> parks = new List<Structures.TPWParkResponseStructure>();
             foreach (var ParkInfo in DatabaseHandler.GetSpecialListEntries("CITYID=" + CityID.ToString()))            

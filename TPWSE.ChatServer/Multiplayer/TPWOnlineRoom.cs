@@ -53,7 +53,7 @@ namespace TPWSE.ChatServer.Multiplayer
         /// <param name="ParksDatabase">The database with the park contained inside</param>
         /// <param name="Park">The found park</param>
         /// <returns>True if the park was found</returns>
-        internal bool TryGetOnlinePark(IDatabaseInterface<uint, TPWParkInfo> ParksDatabase, out TPWParkInfo Park) =>
+        internal bool TryGetOnlinePark(IDatabase<uint, TPWParkInfo> ParksDatabase, out TPWParkInfo Park) =>
             ParksDatabase.TryGetValue("Chatellites", ParkID, out Park);
         internal bool TryGetOnlinePlayerByConnection(uint ConnectionID, out TPWPlayerInfo Player) => 
             _players.TryGetValue(ConnectionID, out Player);
@@ -71,12 +71,21 @@ namespace TPWSE.ChatServer.Multiplayer
         /// Get information about this park's online game session
         /// </summary>
         /// <returns></returns>
-        internal TPWChatRoomInfoPacket GetRoomInfoPacket(IDatabaseInterface<uint, TPWParkInfo> Database)
+        internal TPWChatRoomInfo GetRoomInfo(IDatabase<uint, TPWParkInfo> Database)
         {
             if (!TryGetOnlinePark(Database, out var Park))
                 throw new Exception("Huh, couldn't find that park to get RoomInfo for.");
             QConsole.WriteLine("ChatServer", $"{ParkID}: Found info for my park, returning my RoomInfo...");
-            return new TPWChatRoomInfoPacket(Park.ParkName, ParkID, PlayerCount, 1024, 30);
+            return new TPWChatRoomInfo(Park.ParkName, ParkID, PlayerCount);
+        }
+        /// <summary>
+        /// Get information about this park's online game session
+        /// </summary>
+        /// <returns></returns>
+        internal TPWChatRoomInfoPacket GetRoomInfoPacket(IDatabase<uint, TPWParkInfo> Database)
+        {
+            var roomInfo = GetRoomInfo(Database);
+            return new TPWChatRoomInfoPacket(roomInfo, 1024, 30);
         }        
 
         /// <summary>
