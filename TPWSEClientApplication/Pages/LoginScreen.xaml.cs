@@ -31,11 +31,20 @@ namespace TPWSE.ClientApplication.Pages
 
         private async void SignInButton_Click(object sender, RoutedEventArgs e)
         {
+            TPWPlayerInfo player = await AttemptAuth();
+            if (player == null)
+                return;
+            OnSuccessfulAuth(player);
+        }
+
+        private async Task<TPWPlayerInfo> AttemptAuth()
+        {
             StatusBarText.Text = "Connecting...";
             IsEnabled = false;
             string username = UsernameBox.Text,
                 password = PasswordBox.Password;
             LoginClient = new LoginClient(System.Net.IPAddress.Loopback, 7598);
+            TPWPlayerInfo returnValue = null;
             try
             {
                 var response = await LoginClient.AttemptLogin(username, password);
@@ -49,18 +58,19 @@ namespace TPWSE.ClientApplication.Pages
                     CustIDField.Text = response.CustomerID.ToString();
                     StatusBarText.Text = "Sign-In Successful";
                     TPWPlayerInfo player = new TPWPlayerInfo(response.PlayerID, response.CustomerID, username);
-                    OnSuccessfulAuth(player);
+                    returnValue = player;
                 }
                 else
                     throw new Exception("There was an error logging in: Auth Error, Bad Username / Password.");
             }
-            catch(Exception ex)
+            catch (Exception ex)
             {
                 MessageBox.Show(ex.Message);
                 StatusBarText.Text = "Not Connected";
             }
             LoginClient.Dispose();
-            IsEnabled = true;            
+            IsEnabled = true;
+            return returnValue;
         }
 
         private void OnSuccessfulAuth(TPWPlayerInfo PlayerInfo)
@@ -69,6 +79,13 @@ namespace TPWSE.ClientApplication.Pages
             if (mainWindow == null)
                 return;
             mainWindow.ChangeScreen(new OnlineWorldScreen(PlayerInfo));
+        }
+
+        private async void GetUserInfo_Click(object sender, RoutedEventArgs e)
+        {
+            var value = await AttemptAuth();
+            if (value != null)                
+                StatusBarText.Text = "Internal Login Info Found";
         }
     }
 }

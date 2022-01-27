@@ -25,9 +25,9 @@ namespace QuazarAPI.Networking.Standard
         }
 
         /// <summary>
-        /// The amount of data to recieve per transmission
+        /// The amount of data to receive per transmission
         /// </summary>
-        protected static int ReceiveAmount => 1000;
+        public int ReceiveAmount { get; protected set; } = 1000;
         public int SendAmount { get; set; } = SimTheme_Park_Online.Data.TPWConstants.TPWSendLimit;
 
         /// <summary>
@@ -164,7 +164,7 @@ namespace QuazarAPI.Networking.Standard
                                     sentAmount = buffer.Read(network_buffer, 0, SendAmount);
                                     connection.GetStream().Write(network_buffer, 0, sentAmount);
                                     if (s_buffer.Length > SendAmount)
-                                        QConsole.WriteLine(Name, $"An outgoing packet was large ({s_buffer.Length} bytes) sent a chunk of {sentAmount}");
+                                        QConsole.WriteLine("System", $"{Name} - An outgoing packet was large ({s_buffer.Length} bytes) sent a chunk of {sentAmount}");
                                 }
                                 while (sentAmount == SendAmount);
                             }
@@ -217,13 +217,13 @@ namespace QuazarAPI.Networking.Standard
             var packets = TPWPacket.ParseAll(ref readBuffer);
             foreach (var packet in packets)
             {
-                QConsole.WriteLine(Name, $"Incoming packet was successfully parsed.");
+                QConsole.WriteLine("System", $"{Name}: Incoming packet was successfully parsed.");
                 packet.Received = DateTime.Now;
                 if (_packetCache)
                     IncomingTrans.Add(packet);
                 OnIncomingPacket(ID, packet);
             }
-            QConsole.WriteLine(Name, $"Found {packets.Count()} Packets...");
+            QConsole.WriteLine("System", $"{Name}: Found {packets.Count()} Packets...");
             return true;
         }
 
@@ -452,7 +452,7 @@ namespace QuazarAPI.Networking.Standard
             {
                 foreach (var child in Data.splitPackets)
                     _doSend(child);
-                QConsole.WriteLine(Name, $"Found an outgoing transmission with {Data.ChildPacketAmount} child packets, those have been sent too.");
+                QConsole.WriteLine("System", $"{Name}: Found an outgoing transmission with {Data.ChildPacketAmount} child packets, those have been sent too.");
             }
         }
         protected virtual void OnManualSend(uint ID, ref TPWPacket Data)

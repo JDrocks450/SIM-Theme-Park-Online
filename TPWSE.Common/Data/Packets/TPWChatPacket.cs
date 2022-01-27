@@ -23,10 +23,10 @@ namespace SimTheme_Park_Online.Data.Packets
             foreach(var obj in Objects)
             {
                 var serializableType = obj;
-                if (obj is DWORD)
-                    serializableType = ((DWORD)obj).UInt32.ToSZ();
-                if (serializableType is TPWZeroTerminatedString)
-                    EmplaceBlock((TPWZeroTerminatedString)serializableType);
+                if (obj is DWORD dWORD)
+                    serializableType = dWORD.UInt32.ToSZ();
+                if (serializableType is TPWZeroTerminatedString @string)
+                    EmplaceBlock(@string);
                 if (obj is TPWUnicodeString)
                     EmplaceBlock((TPWUnicodeString)serializableType);
             }

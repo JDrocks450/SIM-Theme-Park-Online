@@ -1,0 +1,98 @@
+﻿<Page x:Class="TPWSE.ClientApplication.Pages.OnlineParkPage"
+      xmlns="http://schemas.microsoft.com/winfx/2006/xaml/presentation"
+      xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
+      xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006" 
+      xmlns:d="http://schemas.microsoft.com/expression/blend/2008" 
+      xmlns:local="clr-namespace:TPWSE.ClientApplication.Pages"
+      mc:Ignorable="d" 
+      d:DesignHeight="450" d:DesignWidth="800"
+      Title="OnlineParkPage" Foreground="White">
+
+    <Grid Margin="20,10,20,10">
+        <Grid.ColumnDefinitions>
+            <ColumnDefinition Width="250"/>
+            <ColumnDefinition/>
+        </Grid.ColumnDefinitions>
+        <DockPanel Margin="10,10,20,10" Grid.Column="1">
+            <TextBlock FontSize="24" FontWeight="Bold" DockPanel.Dock="Top" FontFamily="Segoe UI Variable Display">Online Chat Room - <Run Name="ThemeParkNameLabel">THEME PARK NAME</Run></TextBlock>
+            <Separator DockPanel.Dock="Top" Margin="0,10"/>
+            <ContentControl DockPanel.Dock="Top" Padding="10" Style="{StaticResource BubbleUXContentElement}" HorizontalAlignment="Left" Background="#FF00465D">
+                <CheckBox Name="ShowMapBox" Checked="ShowMapBox_Checked" Unchecked="ShowMapBox_Unchecked" IsChecked="False" Foreground="White">Show Online Theme Park Map</CheckBox>
+            </ContentControl>
+            <ContentControl Margin="0,10,0,0" Padding="10" DockPanel.Dock="Top" Style="{StaticResource BubbleUXContentElement}">
+                <DockPanel>
+                    <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Left" Margin="10,0" FontSize="18" FontWeight="Bold" Text="Chat Log" FontFamily="Segoe UI Variable Display"/>
+                    <Separator DockPanel.Dock="Top" Margin="0,10"/>
+                    <TextBox x:Name="Chatbox" DockPanel.Dock="Bottom" Height="30" VerticalContentAlignment="Center" Padding="5,0" Foreground="White" BorderThickness="1,1,0,1" Background="{x:Null}" BorderBrush="#FF636363" Margin="0,0,30,0" KeyUp="Chatbox_KeyUp">
+
+                    </TextBox>
+                    <Button x:Name="SendButton" DockPanel.Dock="Bottom" HorizontalAlignment="Right" Width="30" Height="30" RenderTransformOrigin="0.5,0.5" FontFamily="Segoe UI Variable Display" Foreground="White" Background="{x:Null}" BorderBrush="#FF636363" FontSize="18" Padding="0" BorderThickness="0,1,1,1" Click="SendButton_Click">
+                        <Button.RenderTransform>
+                            <TransformGroup>
+                                <ScaleTransform/>
+                                <SkewTransform/>
+                                <RotateTransform/>
+                                <TranslateTransform Y="30"/>
+                            </TransformGroup>
+                        </Button.RenderTransform>
+                        &#x2192;
+                    </Button>
+                    <ScrollViewer Margin="0,0,0,-25" VerticalScrollBarVisibility="Auto">
+                        <StackPanel x:Name="ChatLogView">
+                            <StackPanel.Resources>
+                                <Style TargetType="Border">
+                                    <Setter Property="Margin" Value="0,0,5,2"/>
+                                    <Setter Property="BorderThickness" Value="4,0,0,0"/>
+                                    <Setter Property="Padding" Value="10,2"/>
+                                    <Setter Property="BorderBrush" Value="#FF00B386"/>
+                                    <Style.Resources>
+                                        <Style TargetType="TextBlock">
+                                            <Setter Property="FontFamily" Value="Segoe UI Variable Text"/>
+                                            <Setter Property="TextWrapping" Value="Wrap"/>
+                                        </Style>
+                                    </Style.Resources>
+                                </Style>
+                            </StackPanel.Resources>
+                            <Border>
+                                <TextBlock>Bisquick</TextBlock>
+                            </Border>
+                            <Border>
+                                <TextBlock>TwistyT</TextBlock>
+                            </Border>
+                        </StackPanel>
+                    </ScrollViewer>
+                </DockPanel>
+            </ContentControl>
+        </DockPanel>
+        <ContentControl Style="{StaticResource BubbleUXContentElement}" Margin="10" VerticalAlignment="Stretch" Padding="10">
+            <DockPanel>
+                <TextBlock DockPanel.Dock="Top" HorizontalAlignment="Center" FontSize="16" FontWeight="Bold" Text="Visitors"/>
+                <Separator DockPanel.Dock="Top" Margin="0,10"/>
+                <ScrollViewer VerticalScrollBarVisibility="Auto" Margin="0,0,-10,0">
+                    <StackPanel x:Name="PlayersView">
+                        <StackPanel.Resources>
+                            <Style TargetType="Border">
+                                <Setter Property="Margin" Value="5,0,5,2"/>
+                                <Setter Property="BorderThickness" Value="4,0,0,0"/>
+                                <Setter Property="Padding" Value="10,5"/>
+                                <Setter Property="BorderBrush" Value="#FF5A00FF"/>
+                                <Style.Resources>
+                                    <Style TargetType="TextBlock">
+                                        <Setter Property="FontFamily" Value="Segoe UI Variable Text"/>
+                                        <Setter Property="FontWeight" Value="Bold"/>
+                                    </Style>
+                                </Style.Resources>
+                            </Style>
+                        </StackPanel.Resources>
+                        <Border>
+                            <TextBlock>Bisquick</TextBlock>
+                        </Border>
+                        <Border>
+                            <TextBlock>TwistyT</TextBlock>
+                        </Border>
+                    </StackPanel>
+                </ScrollViewer>
+            </DockPanel>
+        </ContentControl>
+    </Grid>
+</Page>

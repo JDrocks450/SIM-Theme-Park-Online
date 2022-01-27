@@ -110,7 +110,7 @@ namespace TPWSE.ClientServices.Clients
         /// </para> </param>
         /// <returns></returns>
         /// <exception cref="SocketException"></exception>
-        public async Task<IEnumerable<TPWParkInfo>> GetParksByUser(string username)
+        public async Task<IEnumerable<TPWParkInfo>> GetParksByUser(TPWUnicodeString username)
         {
             if (!IsConnected)
                 throw new SocketException(404);
@@ -120,7 +120,7 @@ namespace TPWSE.ClientServices.Clients
                 MessageType = 0,
                 PacketQueue = CurrentPacketQueue
             };
-            packet.EmplaceBody((TPWZeroTerminatedString)("OWNERNAME=" + username), true);
+            packet.EmplaceBody((TPWZeroTerminatedString)("OWNERNAME=" + string.Join('\0', username.GetBytes(false))), true);
             await SendPacket(packet);
             packet.Dispose();
             packet = await AwaitPacket();

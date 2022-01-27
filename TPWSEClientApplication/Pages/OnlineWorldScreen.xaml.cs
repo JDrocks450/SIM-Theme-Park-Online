@@ -24,6 +24,7 @@ namespace TPWSE.ClientApplication.Pages
     /// </summary>
     public partial class OnlineWorldScreen : Page
     {
+        public readonly TPWPlayerInfo PlayerInfo;
         private CityClient cityClient;
         private ChatClient chatClient;
 
@@ -73,9 +74,7 @@ namespace TPWSE.ClientApplication.Pages
         public OnlineWorldScreen(TPWPlayerInfo playerInfo) : this()
         {
             PlayerInfo = playerInfo;
-        }
-
-        public readonly TPWPlayerInfo PlayerInfo;
+        }        
 
         private async Task<bool> AwaitConnectionAsync()
         {
@@ -127,10 +126,31 @@ namespace TPWSE.ClientApplication.Pages
         {
             foreach (var park in cityClient.OnlineParks)
             {
-                var parkControl = new ContentControl();
+                var roomInfo = OnlineChatRooms?.FirstOrDefault(x => x.ParkID == park.ParkID) ?? null;
+                var parkControl = new ContentControl() { Tag = roomInfo };
                 UXResources.CreateParkControl(ref parkControl, park, OnlineChatRooms, true);
+                parkControl.Cursor = Cursors.Hand;
+                parkControl.MouseLeftButtonUp += OnlineParkSelected;
                 OnlineSessionsView.Children.Add(parkControl);
             }            
+        }
+
+        private async void OnlineParkSelected(object sender, MouseButtonEventArgs e)
+        {
+            if (chatClient.IsOnlineRoomConnected)            
+                return;
+            IsEnabled = false;
+            TPWChatRoomInfo room = (TPWChatRoomInfo)(sender as ContentControl).Tag;
+            bool success = await chatClient.OnlineRoomConnect(PlayerInfo, room);
+            IsEnabled = true;
+            if (!success)
+            {
+                MessageBox.Show("There was an internal server error connecting to that chat room. " +
+                    "Please try your request again later.");
+                return;
+            }
+            MainWindow window = (MainWindow)Application.Current.MainWindow;
+            window.ChangeScreen(new OnlineParkPage(PlayerInfo, chatClient));
         }
     }
 }

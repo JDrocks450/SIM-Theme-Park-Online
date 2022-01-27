@@ -11,9 +11,14 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid>
             <DockPanel>
-                <TextBlock FontSize="24" FontWeight="Bold" Margin="20,30,10,0" DockPanel.Dock="Top">Explore</TextBlock>
+                <TextBlock FontSize="24" FontWeight="Bold" Margin="20,80,10,0" DockPanel.Dock="Top" FontFamily="Segoe UI Variable Display">Explore</TextBlock>
                 <Separator DockPanel.Dock="Top" Margin="20,5,20,0"/>
-                <TextBlock FontSize="16" FontWeight="Bold" Margin="20,5,10,0" DockPanel.Dock="Top">Online Parks</TextBlock>
+                <Border DockPanel.Dock="Top" SnapsToDevicePixels="True" Margin="20,5,20,0" Padding="10,5" BorderThickness="4,1,1,1" CornerRadius="2" BorderBrush="#FF008689" Background="#0CFFFFFF">
+                    <StackPanel>
+                        <TextBlock FontSize="16" FontWeight="Bold" FontFamily="Segoe UI Variable Display Semibold">Online Parks</TextBlock>
+                        <TextBlock FontSize="16">Click on an Online Park to be taken to that park's chat room!</TextBlock>
+                    </StackPanel>
+                </Border>
                 <!--<ScrollViewer VerticalScrollBarVisibility="Auto" HorizontalScrollBarVisibility="Auto">-->
                 <WrapPanel Name="OnlineSessionsView" DockPanel.Dock="Top" Orientation="Horizontal" MinHeight="250" MaxHeight="500" Margin="10" HorizontalAlignment="Center">
                     <WrapPanel.Resources>

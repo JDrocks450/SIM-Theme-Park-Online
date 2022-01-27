@@ -11,7 +11,7 @@ namespace SimTheme_Park_Online.Data
     {
         public static readonly byte[] Bc_Header = new byte[2] { (byte)'B', (byte)'c' };
         public static readonly byte[] Bs_Header = new byte[2] { (byte)'B', (byte)'s' };
-
+        public const uint TPWSE_QuazarClientMagicNumber = 01001;
         public const ushort TPWSendLimit = 400;
 
         /// <summary>
@@ -91,32 +91,32 @@ namespace SimTheme_Park_Online.Data
             /// <summary>
             /// This is already implemented here: <see cref="Data.Packets.TPWChatRoomInfoPacket"/>
             /// </summary>
-            RoomInfo = 0x7,
-            CreatePlayer = 0x0,
-            CreatePlayerSuccess = 0x34,
-            SetPlayerData = 0x1,
-            CreatePark = 0x5,            
-            MovePlayer = 0x4,
-            AFK = 0x10,
-            HearingRange = 0x02,
-            GetPlayers = 0x08,            
-            Chat = 0x11,
-            Tell = 0x13,
-            ImAFK = 0xF,
-            AddBuddy = 0x9,
-            Shout = 0x16,
-            EarmuffsOn = 0xB,
-            EarmuffsOff = 0xC,
-            Ignore = 0xD,
+            RoomInfo = 0x7,         // 07    
+            CreatePlayer = 0x0,     // 00       
+            SetPlayerData = 0x1,    // 01
+            CreatePark = 0x5,       // 05
+            MovePlayer = 0x4,       // 04
+            AFK = 0x10,             // 16
+            HearingRange = 0x02,    // 02
+            GetPlayers = 0x08,      // 08      
+            Chat = 0x11,            // 17
+            Tell = 0x13,            // 19
+            ImAFK = 0xF,            // 15
+            AddBuddy = 0x9,         // 09
+            Shout = 0x16,           // 22
+            EarmuffsOn = 0xB,       // 11
+            EarmuffsOff = 0xC,      // 12
+            Ignore = 0xD,           // 13
+            LocatePlayer = 0x52,    // 82
         }
         public enum TPWChatServerResponseCodes
         {            
-            PARK_CREATE = 0x36,
-            CHAT_RECEIVED = 0x43,
-            CHAT_PLAYER_INFO = 0x27,
-            IGNORE_RECEIVED = 0x10,
-            CHAT_IGNORE = 0x3A,
-
+            PARK_CREATE = 0x36,      // 54
+            CHAT_RECEIVED = 0x43,    // 67
+            CHAT_PLAYER_INFO = 0x27, // 39
+            IGNORE_RECEIVED = 0x10,  // 16
+            CHAT_IGNORE = 0x3A,      // 58
+            CREATE_PLAYER = 0x34,    // 52
         }
 
         /// <summary>

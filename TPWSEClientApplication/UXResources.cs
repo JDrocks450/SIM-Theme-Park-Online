@@ -11,7 +11,7 @@ using System.Windows.Media;
 namespace TPWSE.ClientApplication
 {
     internal static class UXResources
-    {
+    {       
         /// <summary>
         /// Creates a ParkInfo control with all the standard fields supplied. Additionally, this can check an array
         /// of OnlineChatRooms to see if this park is Online or not.

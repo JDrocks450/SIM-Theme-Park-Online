@@ -55,16 +55,30 @@ namespace TPWSE.ChatServer.Multiplayer
         /// <returns>True if the park was found</returns>
         internal bool TryGetOnlinePark(IDatabase<uint, TPWParkInfo> ParksDatabase, out TPWParkInfo Park) =>
             ParksDatabase.TryGetValue("Chatellites", ParkID, out Park);
-        internal bool TryGetOnlinePlayerByConnection(uint ConnectionID, out TPWPlayerInfo Player) => 
+        internal bool TryGetPlayerInfoByName(TPWUnicodeString PlayerName, out TPWPlayerInfo Player)
+        {
+            Player = _players.FirstOrDefault(x => x.Value.PlayerName.String == PlayerName).Value;
+            if (Player == null)
+                return false;
+            return true;
+        }
+        internal bool TryGetConnectionIDByName(TPWUnicodeString PlayerName, out uint ConnectionID)
+        {
+            ConnectionID = _players.FirstOrDefault(x => x.Value.PlayerName.String == PlayerName).Key;
+            if (ConnectionID == default)
+                return false;
+            return true;
+        }
+        internal bool TryGetPlayerInfoByConnection(uint ConnectionID, out TPWPlayerInfo Player) => 
             _players.TryGetValue(ConnectionID, out Player);
-        internal bool AttemptTranslate(uint ConnectionID, out TPWPlayerGameState State)
+        internal bool TryGetOnlineStateByConnection(uint ConnectionID, out TPWPlayerGameState State)
         {
             State = null;
-            if (!TryGetOnlinePlayerByConnection(ConnectionID, out var player))
+            if (!TryGetPlayerInfoByConnection(ConnectionID, out var player))
                 return false;
-            return TryGetOnlineState(player.PlayerID, out State);
+            return TryGetOnlineStateByID(player.PlayerID, out State);
         }
-        internal bool TryGetOnlineState(uint PlayerID, out TPWPlayerGameState State) => 
+        internal bool TryGetOnlineStateByID(uint PlayerID, out TPWPlayerGameState State) => 
             _playerStates.TryGetValue(PlayerID, out State);
 
         /// <summary>
@@ -93,22 +107,25 @@ namespace TPWSE.ChatServer.Multiplayer
         /// </summary>
         /// <param name="player"></param>
         /// <returns></returns>
-        internal bool Admit(uint ConnectionID, TPWPlayerInfo player)
+        internal bool Admit(uint ConnectionID, TPWPlayerInfo player, TPWSEPlayerInterfaceTypes Interface = TPWSEPlayerInterfaceTypes.SIMThemeParkClient)
         {
-            if (_players.ContainsKey(ConnectionID))
-                return false;            
+            if (_players.ContainsKey(ConnectionID) || TryGetPlayerInfoByName(player.PlayerName, out _))
+            {
+                QConsole.WriteLine("ChatServer", $"{player.PlayerName} is already in this room. [Players in this room: {Players.Count}]");
+                return false;
+            }
             player.SetInParkStatus(true, ParkID);
             Players.Add(player);
             _players.Add(ConnectionID, player);
-            if (!AttemptTranslate(ConnectionID, out _))
+            if (!TryGetOnlineStateByConnection(ConnectionID, out _))
             {
-                _playerStates.Add(player.PlayerID, new TPWPlayerGameState(player.PlayerID));                
+                _playerStates.Add(player.PlayerID, new TPWPlayerGameState(player.PlayerID, default, Interface));                
             }
             else
             {
                 QConsole.WriteLine("ChatServer", $"{player.PlayerName}'s state was loaded from cache from a previous play session in this room.");
             }
-            QConsole.WriteLine("ChatServer", $"{player.PlayerName} was allowed in {ParkID}!");
+            QConsole.WriteLine("ChatServer", $"{player.PlayerName}, on {Interface}, was allowed in {ParkID}! [Players in this room: {Players.Count}]");
             return true;
         }
 
@@ -127,9 +144,9 @@ namespace TPWSE.ChatServer.Multiplayer
         {
             MovementType = TPWConstants.TPWChatPlayerMovementTypes.None;
             NewPosition = Location;
-            if (!AttemptTranslate(ConnectionID, out var state))
+            if (!TryGetOnlineStateByConnection(ConnectionID, out TPWPlayerGameState state))
                 return false;
-            _ = TryGetOnlinePlayerByConnection(ConnectionID, out var player);
+            _ = TryGetPlayerInfoByConnection(ConnectionID, out TPWPlayerInfo player);
             MovementType = state.MovePlayer(Location, Teleport, out bool isFromMovement);
             if (isFromMovement)
                 QConsole.WriteLine("ChatServer", $"{player.PlayerName} is moving from " + Location);
@@ -153,7 +170,7 @@ namespace TPWSE.ChatServer.Multiplayer
         /// <returns></returns>
         internal bool Exit(uint ConnectionID)
         {
-            if (!TryGetOnlinePlayerByConnection(ConnectionID, out var player))
+            if (!TryGetPlayerInfoByConnection(ConnectionID, out var player))
                 return false;
             player.SetInParkStatus(false);
             QConsole.WriteLine("ChatServer", $"{player.PlayerName} left {ParkID}!");
@@ -166,7 +183,7 @@ namespace TPWSE.ChatServer.Multiplayer
             var list = new List<(TPWPlayerInfo, TPWPlayerGameState)>();
             foreach(var player in Players)
             {
-                if (!TryGetOnlineState(player.PlayerID, out var state))
+                if (!TryGetOnlineStateByID(player.PlayerID, out var state))
                     state = new TPWPlayerGameState(player.PlayerID, new TPWPosition(600, 600));
                 list.Add((player, state));
             }
