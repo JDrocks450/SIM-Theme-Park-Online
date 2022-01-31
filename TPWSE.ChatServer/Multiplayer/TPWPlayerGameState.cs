@@ -64,22 +64,22 @@ namespace TPWSE.ChatServer.Multiplayer
         /// <param name="Teleport">Whether or not they are teleporting there</param>
         /// <param name="IsFromPosition">No longer used</param>
         /// <returns></returns>
-        public TPWChatPlayerMovementTypes MovePlayer(TPWPosition DesiredPosition, bool Teleport, out bool IsFromPosition)
+        public bool MovePlayer(TPWPosition DesiredPosition, TPWChatPlayerMovementTypes Teleport, out bool IsFromPosition)
         {
             IsFromPosition = false;
-            TPWChatPlayerMovementTypes SetWalkTo()
+            bool SetWalkTo()
             {
                 this.DesiredPosition = DesiredPosition;
                 CurrentMovement = TPWChatPlayerMovementTypes.Walk;
-                return TPWChatPlayerMovementTypes.Walk;
+                return true;
             }
-            if (!Teleport) // player is starting to move
+            if (Teleport != TPWChatPlayerMovementTypes.Teleport) // player is starting to move
                 return SetWalkTo();
             else
             {
-                CurrentMovement = TPWChatPlayerMovementTypes.None;
+                CurrentMovement = TPWChatPlayerMovementTypes.Teleport;
                 CurrentPosition = this.DesiredPosition = DesiredPosition;
-                return TPWChatPlayerMovementTypes.Teleport;
+                return true;
             }
         }
     }

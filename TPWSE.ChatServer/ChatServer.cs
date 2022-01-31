@@ -182,7 +182,8 @@ namespace SimTheme_Park_Online
                         uint YWise = ParsedData[2].Data.ToDWORD();
                         DWORD Teleport = ParsedData[3].Data.ToDWORD();
 
-                        if (!Room.MovePlayer(ID, new Primitive.TPWPosition(XWise, YWise), Teleport.UInt32 > 0, out var moveType, out var position))
+                        if (!Room.MovePlayer(ID, new Primitive.TPWPosition(XWise, YWise), 
+                            (TPWConstants.TPWChatPlayerMovementTypes)Teleport.UInt32, out var position))
                         {
                             QConsole.WriteLine("ChatServer", "Player could not be moved by the OnlineRoom because of an internal error.");
                             break;
@@ -215,7 +216,7 @@ namespace SimTheme_Park_Online
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
                         Send(ID, packet);
-                        QConsole.WriteLine("ChatServer", "AFK timeout updated...");
+                        QConsole.WriteLine("ChatServer", $"{ID}: AFK timeout updated... (0 ms)");
                         SetPacketCaching(true);
                     }
                     break;

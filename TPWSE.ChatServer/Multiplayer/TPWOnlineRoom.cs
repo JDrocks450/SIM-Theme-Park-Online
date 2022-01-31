@@ -138,20 +138,19 @@ namespace TPWSE.ChatServer.Multiplayer
         /// <param name="MovementType"></param>
         /// <param name="NewPosition"></param>
         /// <returns></returns>
-        internal bool MovePlayer(uint ConnectionID, TPWPosition Location, bool Teleport,
-                                 out TPWConstants.TPWChatPlayerMovementTypes MovementType, 
-                                 out TPWPosition NewPosition)
+        internal bool MovePlayer(uint ConnectionID, TPWPosition Location, 
+                                TPWConstants.TPWChatPlayerMovementTypes Teleporting, 
+                                out TPWPosition NewPosition)
         {
-            MovementType = TPWConstants.TPWChatPlayerMovementTypes.None;
             NewPosition = Location;
             if (!TryGetOnlineStateByConnection(ConnectionID, out TPWPlayerGameState state))
                 return false;
             _ = TryGetPlayerInfoByConnection(ConnectionID, out TPWPlayerInfo player);
-            MovementType = state.MovePlayer(Location, Teleport, out bool isFromMovement);
+            state.MovePlayer(Location, Teleporting, out bool isFromMovement);
             if (isFromMovement)
                 QConsole.WriteLine("ChatServer", $"{player.PlayerName} is moving from " + Location);
             else
-                switch (MovementType)
+                switch (Teleporting)
                 {
                     case TPWConstants.TPWChatPlayerMovementTypes.Walk:
                         QConsole.WriteLine("ChatServer", $"{player.PlayerName} is walking to: " + NewPosition);
