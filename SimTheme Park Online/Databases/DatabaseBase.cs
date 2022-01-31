@@ -1,6 +1,7 @@
 ﻿using QuazarAPI;
 using SimTheme_Park_Online.Database;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -31,7 +32,7 @@ namespace SimTheme_Park_Online.Databases
         /// The general collection of data stored in this database. 
         /// <para>Inheriting types should use other functionality other than this to ensure data integrity.</para>
         /// </summary>
-        protected readonly Dictionary<T1, T2> DataCollection = new Dictionary<T1, T2>();
+        protected readonly ConcurrentDictionary<T1, T2> DataCollection = new ConcurrentDictionary<T1, T2>();
         public int AmountOfEntries => DataCollection.Count;
         private readonly Dictionary<string, T1[]> SpecialCollections = new Dictionary<string, T1[]>();
         protected readonly Queue<KeyValuePair<T1, T2>> TaskQueue = new Queue<KeyValuePair<T1, T2>>();
@@ -98,7 +99,9 @@ namespace SimTheme_Park_Online.Databases
             var array = JsonSerializer.Deserialize<KeyValuePair<T1, T2>[]>(await Datastream.ReadToEndAsync());
             DataCollection.Clear();
             foreach (var item in array)
-                DataCollection.Add(item.Key, item.Value);
+            {
+                DataCollection.TryAdd(item.Key, item.Value);
+            }
             return array;
         }
 
@@ -158,9 +161,9 @@ namespace SimTheme_Park_Online.Databases
                     //WriteDatabase(FileName, dataSource);
                     lock (DataCollection)
                     {
-                        DataCollection.Add(task.Key, task.Value);                        
+                        DataCollection.TryAdd(task.Key, task.Value);                        
                     }
-                    QConsole.WriteLine(Name, $"{task.Value.GetType().Name} has been added to the database.");
+                    QConsole.WriteLine(Name, $"{task.Value} has been added to the database.");
                 }
                 _pauseBackgroundWorker();
                 _hasChanges = false;

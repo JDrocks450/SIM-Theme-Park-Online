@@ -23,7 +23,19 @@ namespace SimTheme_Park_Online.Parsers
         internal readonly string Name;
 
         public readonly Data.TPWConstants.TPWChatTypeCodes TypeCode;
-        public readonly ITPWBOSSSerializable Data;        
+        public readonly ITPWBOSSSerializable Data;
+        public bool IsDWORDConvertable
+        {
+            get
+            {
+                try
+                {
+                    Data.ToDWORD();
+                }
+                catch { return false; }
+                return true;
+            }
+        }
 
         public TPWChatParsedData(Data.TPWConstants.TPWChatTypeCodes TypeCode, ITPWBOSSSerializable Data, string Name, uint StartIndex, uint Length)
         {
@@ -56,9 +68,14 @@ namespace SimTheme_Park_Online.Parsers
             string name = "ChatMsgType";
             var msgType = (TPWConstants.TPWChatServerCommand)ChatMsgType;
             if (Enum.IsDefined(typeof(TPWConstants.TPWChatServerCommand), ChatMsgType))
-                name += " " + Enum.GetName(typeof(TPWConstants.TPWChatServerCommand),
-                   msgType);
-            else QConsole.WriteLine("New Findings", $"Found a new data type -- Jeremy, you need to add this to the source collection now. Type: {ChatMsgType}");
+                name += " (ServerCommand)" + Enum.GetName(typeof(TPWConstants.TPWChatServerCommand), msgType);
+            else if (Enum.IsDefined(typeof(TPWConstants.TPWChatServerResponseCodes), ChatMsgType))
+                name += " (ServerResponse)" + Enum.GetName(typeof(TPWConstants.TPWChatServerResponseCodes), msgType);
+            else
+            {
+                name += " (Unknown)";
+                QConsole.WriteLine("New Findings", $"Found a new data type -- Jeremy, you need to add this to the source collection now. Type: {ChatMsgType}");
+            }
             list.Add(new TPWChatParsedData(TPWConstants.TPWChatTypeCodes.ASCII, (TPWZeroTerminatedString)ChatMsgType.ToString(), name, 0, 4));
             int count = 1;
             while (!Data.IsBodyEOF)

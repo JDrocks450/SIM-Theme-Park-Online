@@ -7,21 +7,19 @@
       mc:Ignorable="d" 
       d:DesignHeight="450" d:DesignWidth="800"
       Title="OnlineWorldPage">
-    <Page.Resources>
-        <Style TargetType="Button" BasedOn="{StaticResource TPWUX_InGameButton}"/>
-    </Page.Resources>
     <Grid>
-        <threed:ThreeDWorldView x:Name="WorldView" Visibility="Collapsed"/>
-        <Button Margin="10" Style="{StaticResource TPWUX_InGameButton}" VerticalAlignment="Top" HorizontalAlignment="Left">
-            <TextBlock>Go Back</TextBlock>
-        </Button>
-        <StackPanel VerticalAlignment="Bottom" HorizontalAlignment="Right" MinHeight="300" Width="200">
-            <Button x:Name="NewCityButton" Margin="10">
+        <threed:ThreeDWorldView x:Name="WorldView"/>
+        <StackPanel VerticalAlignment="Top" HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0,10">
+            <Button Margin="10" Height="35" Width="100" Background="#FF008279" Foreground="#FF0DDACC">
+                <TextBlock>Go Back</TextBlock>
+            </Button>
+            <Rectangle Width="1" Fill="Gray" Margin="0,10"/>
+            <Button x:Name="NewCityButton" Margin="10" Height="35" Width="100" Background="#FF008279" Foreground="#FF0DDACC">
                 <TextBlock>
                     Add New City
                 </TextBlock>
             </Button>
-            <Button Margin="10,0">
+            <Button Margin="10,0" Height="35" Width="100" Background="#FF008279" Foreground="#FF0DDACC">
                 <TextBlock><Run Text="View Cities"/></TextBlock>
             </Button>
         </StackPanel>

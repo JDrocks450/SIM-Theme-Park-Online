@@ -163,5 +163,10 @@ namespace SimTheme_Park_Online.Data
                 Votes = Structure.Votes
             };
         }
+
+        public override string ToString()
+        {
+            return $"[{GetInformation()}]";
+        }
     }
 }

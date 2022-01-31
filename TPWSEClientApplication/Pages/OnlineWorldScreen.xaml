@@ -11,7 +11,7 @@
     <ScrollViewer VerticalScrollBarVisibility="Auto">
         <Grid>
             <DockPanel>
-                <TextBlock FontSize="24" FontWeight="Bold" Margin="20,80,10,0" DockPanel.Dock="Top" FontFamily="Segoe UI Variable Display">Explore</TextBlock>
+                <TextBlock FontSize="24" FontWeight="Bold" Margin="20,30,10,0" DockPanel.Dock="Top" FontFamily="Segoe UI Variable Display">Explore</TextBlock>
                 <Separator DockPanel.Dock="Top" Margin="20,5,20,0"/>
                 <Border DockPanel.Dock="Top" SnapsToDevicePixels="True" Margin="20,5,20,0" Padding="10,5" BorderThickness="4,1,1,1" CornerRadius="2" BorderBrush="#FF008689" Background="#0CFFFFFF">
                     <StackPanel>
@@ -31,6 +31,7 @@
                         </Style>
                     </WrapPanel.Resources>
                 </WrapPanel>
+                <Button x:Name="DelistedChatRoomsButton" DockPanel.Dock="Top" HorizontalAlignment="Right" Padding="10,5" Margin="0,5,20,10" Background="{x:Null}" Foreground="White" Click="DelistedChatRoomsButton_Click" Content="Switch to Chatroom View"/>
                 <Separator DockPanel.Dock="Top" Margin="20,0"/>
                 <Grid MaxWidth="1024">
                     <Grid.ColumnDefinitions>

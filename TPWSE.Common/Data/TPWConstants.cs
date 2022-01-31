@@ -47,15 +47,15 @@ namespace SimTheme_Park_Online.Data
         public enum TPWLoginMsgCodes : ushort
         {
             /// <summary>
-            /// Login Success code
+            /// User authentication was completed successfully.
             /// </summary>
             AUTH_SUCCESS = 0x09,
             /// <summary>
-            /// Authentication Error Code
+            /// The password was incorrect or otherwise cannot be validated at this time. 
             /// </summary>
             AUTH_ERROR = 0x01,
             /// <summary>
-            /// Generic Server Error Code
+            /// TPW-SE is down for maintainance or is otherwise experiencing high-load or server error.
             /// </summary>
             GENERIC_LOGIN_ERROR = 0x02
         }
@@ -65,12 +65,33 @@ namespace SimTheme_Park_Online.Data
         /// </summary>
         public enum TPWCityServerListType : uint
         {
+            /// <summary>
+            /// Unused in TPW-SE
+            /// </summary>
             LOGICAL_SERVERS = 0x07,
+            /// <summary>
+            /// The list of Themes recognized by the CityServer
+            /// </summary>
             THEME_INFO = 0x08,
+            /// <summary>
+            /// The list of parks currently in a search result or city.
+            /// </summary>
             PARKS_INFO = 0x02,
+            /// <summary>
+            /// The list of cities currently in the online globe.
+            /// </summary>
             CITY_INFO = 0x01,
+            /// <summary>
+            /// Unused in TPW-SE
+            /// </summary>
             RIDE_INFO = 0x09,
+            /// <summary>
+            /// A list of parks.
+            /// </summary>
             SEARCH_RESULT = 0x06,
+            /// <summary>
+            /// A list of parks.
+            /// </summary>
             TOP10_RESULT = 0x03
         }
 
@@ -79,37 +100,106 @@ namespace SimTheme_Park_Online.Data
         /// </summary>
         public enum TPWChatServerChannel : uint
         {
-            CHAT = 0x012D,
-            GLOBAL = 0x012E
+            /// <summary>
+            /// The channel that is to be used when the ChatServer indicates this packet was intended for this client only.
+            /// <para>This channel is rarely used for anything but confirming a command was received.</para>
+            /// </summary>
+            PERSONAL = 0x012D,
+            /// <summary>
+            /// The channel that is shared between all clients.
+            /// <para>This channel is used for most commands sent from the ChatServer.</para>
+            /// </summary>
+            PUBLIC = 0x012E
         }
 
         /// <summary>
-        /// Response codes for <see cref="ChatServer"/> packets
+        /// A command that is to be issued by Clients of a ChatServer.
         /// </summary>
         public enum TPWChatServerCommand : uint
         {
             /// <summary>
-            /// This is already implemented here: <see cref="Data.Packets.TPWChatRoomInfoPacket"/>
+            /// Indicates that this request is to get info on an Online Room.
+            /// <para>Standard Type: <see cref="Data.Packets.TPWChatRoomInfoPacket"/></para>
             /// </summary>
-            RoomInfo = 0x7,         // 07    
-            CreatePlayer = 0x0,     // 00       
-            SetPlayerData = 0x1,    // 01
-            CreatePark = 0x5,       // 05
-            MovePlayer = 0x4,       // 04
-            AFK = 0x10,             // 16
-            HearingRange = 0x02,    // 02
-            GetPlayers = 0x08,      // 08      
-            Chat = 0x11,            // 17
-            Tell = 0x13,            // 19
-            ImAFK = 0xF,            // 15
-            AddBuddy = 0x9,         // 09
-            Shout = 0x16,           // 22
-            EarmuffsOn = 0xB,       // 11
-            EarmuffsOff = 0xC,      // 12
-            Ignore = 0xD,           // 13
-            LocatePlayer = 0x52,    // 82
+            RoomInfo = 0x7,             // 07    
+            /// <summary>
+            /// Indicates that this request is to create a player when joining an Online Room in TPW BOSS.
+            /// <para>Standard formatting is: [PlayerName] [CustomerID] [Password] [PlayerID]</para>
+            /// <para>See: ChatClient.AttemptCreatePlayer for implementation.</para>
+            /// </summary>
+            CreatePlayer = 0x0,         // 00
+            /// <summary>
+            /// Indicates that this request is to validate a <see cref="CreatePlayer"/> packet request.
+            /// <para>Standard formatting is: No additional fields.</para>
+            /// <para>See: ChatClient.AttemptCreatePlayer for implementation.</para>
+            /// </summary>
+            SetPlayerData = 0x1,        // 01
+            /// <summary>
+            /// Indicates that this request is to create a new Online Room (Park) to join.
+            /// <para>Standard formatting is: [ParkName] 0 0 [ParkID]</para>
+            /// <para>See: ChatClient.AttemptCreatePark for implementation.</para>
+            /// </summary>
+            CreatePark = 0x5,           // 05
+            /// <summary>
+            /// Indicates that this request is to signal the user is changing the position of his Avatar.
+            /// <para>Standard formatting is: [X] [Y] [IsTeleporting 0 : 1]</para>
+            /// <para>See: ChatClient.SendMoveCommand for implementation.</para>
+            /// </summary>
+            MovePlayer = 0x4,           // 04
+            /// <summary>
+            /// Indicates that this request is to update the user's AFK timer
+            /// <para>Standard formatting is: No additional fields.</para>
+            /// <para>See: ChatClient.SetAFK for implementation.</para>
+            /// </summary>
+            AFK = 0x10,                 // 16
+            /// <summary>
+            /// Indicates that this request is to update the range at which this user gets chat messages.
+            /// <para>Standard formatting is: [Value]</para>
+            /// <para>See: ChatClient.SetHearingRange for implementation.</para>
+            /// </summary>
+            HearingRange = 0x02,        // 02
+            /// <summary>
+            /// Indicates that this client would like an enumeration of all current players in the room.
+            /// <para>Standard formatting is: No additional fields.</para>
+            /// <para>See: ChatClient.RequestAllPlayers for implementation.</para>
+            /// </summary>
+            GetPlayers = 0x08,          // 08
+            /// <summary>
+            /// Indicates that this request is for the user sending a chat message.
+            /// <para>Standard formatting is: [Message] [SenderName]</para>
+            /// <para>See: ChatClient.SendChatMessage for implementation.</para>
+            /// </summary>
+            Chat = 0x11,                // 17
+            /// <summary>
+            /// Indicates that this request is for the user privately sending a chat message to one other person.
+            /// <para>Standard formatting is: [RecipientName] [Message]</para>
+            /// <para>See: ChatClient.SendTellMessage for implementation.</para>
+            /// <para>It is up to the ChatServer's implementation to honor this system. SenderName is inferred by
+            /// the server based on the ConnectionID of the sender client. As in, SenderName is whomever sent this 
+            /// request, it is not supplied in this command like <see cref="Chat"/> allows.</para>
+            /// </summary>
+            Tell = 0x13,                // 19
+            /// <summary>
+            /// Immediately sets AFK to true for this user.
+            /// </summary>
+            ImAFK = 0xF,                // 15
+            /// <summary>
+            /// Indicates that this request is adding someone as a Friend.
+            /// <para>Standard formatting is: [BuddyName]</para>
+            /// <para>See: ChatClient.AddBuddy for implementation.</para>
+            /// </summary>
+            AddBuddy = 0x9,             // 09
+            Shout = 0x16,               // 22
+            EarmuffsOn = 0xB,           // 11
+            EarmuffsOff = 0xC,          // 12
+            Ignore = 0xD,               // 13
+            LocatePlayer = 0x52,        // 82
+            SystemAnnouncement = 0x4E,  // 78
         }
-        public enum TPWChatServerResponseCodes
+        /// <summary>
+        /// A standard API-ResponseCode to be sent from a ChatServer implementation.
+        /// </summary>
+        public enum TPWChatServerResponseCodes : uint
         {            
             PARK_CREATE = 0x36,      // 54
             CHAT_RECEIVED = 0x43,    // 67
@@ -117,6 +207,13 @@ namespace SimTheme_Park_Online.Data
             IGNORE_RECEIVED = 0x10,  // 16
             CHAT_IGNORE = 0x3A,      // 58
             CREATE_PLAYER = 0x34,    // 52
+            /// <summary>
+            /// Indicates that a player has just successfully moved their current position.
+            /// <para>Standard formatting is: [PlayerName] [X] [Y] [IsTeleporting]</para>
+            /// <para>This is handled by the ChatServer implementation, and is Broadcasted to all players,
+            /// including the user who just successfully moved.</para>
+            /// </summary>
+            BOSS_CHAT_MOVE = 0x22,   // 34
         }
 
         /// <summary>
@@ -135,11 +232,13 @@ namespace SimTheme_Park_Online.Data
             ASCII = 0x01
         }
 
-        public enum TPWChatPlayerMovementTypes
+        /// <summary>
+        /// Dictates whether a movement request was for walking or teleporting.
+        /// </summary>
+        public enum TPWChatPlayerMovementTypes : uint
         {
-            None,
-            Walk,
-            Teleport
+            Walk = 0,
+            Teleport = 1
         }
     }
 }

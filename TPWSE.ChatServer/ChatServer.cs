@@ -198,12 +198,12 @@ namespace SimTheme_Park_Online
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
                         Send(ID, packet);
-
-                        packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.LocatePlayer,
-                            (DWORD)PlayerInfo.PlayerID,
+                        
+                        packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.BOSS_CHAT_MOVE,
+                            PlayerInfo.PlayerName,
                             (DWORD)XWise, (DWORD)YWise, Teleport);
                         packet.MessageType = 0x012E;
-                        Broadcast(packet);                        
+                        Broadcast(packet);                          
 
                         SetPacketCaching(true);
                         break;
@@ -431,7 +431,7 @@ namespace SimTheme_Park_Online
                             break;
                         }
                         var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.LocatePlayer,
-                            (DWORD)0);
+                            (DWORD)PlayerState.CurrentPosition.X, (DWORD)PlayerState.CurrentPosition.Y);                            
                         packet.MessageType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
@@ -452,9 +452,9 @@ namespace SimTheme_Park_Online
             TPWPlayerGameState state = GameState;
             TPWChatPacket packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.CHAT_PLAYER_INFO,
                                                      player.PlayerName, (DWORD)player.PlayerID, (DWORD)player.CustomerID,
-                                                     (DWORD)(state.CurrentPosition.X + 500),
-                                                     (DWORD)(state.CurrentPosition.Y + 1000), (DWORD)0,
-                                                     (DWORD)1, (DWORD)1, (DWORD)0);
+                                                     (DWORD)(state.CurrentPosition.X),
+                                                     (DWORD)(state.CurrentPosition.Y), (DWORD)1,
+                                                     (DWORD)100, (DWORD)200, (DWORD)1000);
             packet.MessageType = 0x012E;
             packet.Param3 = (GameState.ClientInterface == TPWSEPlayerInterfaceTypes.QuazarClient) ? 
                 TPWConstants.TPWSE_QuazarClientMagicNumber : PacketID;

@@ -5,6 +5,7 @@
     <TargetFramework>net5.0-windows</TargetFramework>
     <UseWPF>true</UseWPF>
     <StartupObject>TPWAPI.Frontend.App</StartupObject>
+    <ApplicationIcon>Planet.ico</ApplicationIcon>
   </PropertyGroup>
 
   <ItemGroup>
@@ -36,6 +37,10 @@
     <Page Remove="Controls\Quazar\StackableFlyoutWindowControl.xaml" />
     <Page Remove="Pages\Cities\AddNewCityDialog.xaml" />
     <Page Remove="Pages\Packet Properties\ExportPage.xaml" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <Content Include="Planet.ico" />
   </ItemGroup>
 
   <ItemGroup>

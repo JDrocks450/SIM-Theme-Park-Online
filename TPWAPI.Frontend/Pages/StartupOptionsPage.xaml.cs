@@ -67,12 +67,13 @@ namespace TPWAPI.Frontend.Pages
 
         private void PortButton_Click(object sender, RoutedEventArgs e)
         {
+            OptionsWindow.Visibility = Visibility.Collapsed;
             PortWindow.Visibility = Visibility.Visible;
         }
 
         private void PortOKButton_Click(object sender, RoutedEventArgs e)
         {
-
+            OptionsWindow.Visibility = Visibility.Visible;
             PortWindow.Visibility = Visibility.Collapsed;
         }
     }

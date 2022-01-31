@@ -8,6 +8,7 @@ using SimTheme_Park_Online.Parsers;
 using SimTheme_Park_Online.Primitive;
 using System;
 using System.Collections.Generic;
+using System.IO;
 using System.Linq;
 using System.Net;
 using System.Text;
@@ -24,6 +25,18 @@ namespace TPWSE.ClientServices.Clients
             this.Sender = Sender;
             this.Message = Data = Message;
             IsPrivateMessage = PrivateMessage;
+        }
+    }
+    public class TPWConnectionErrorEventArgs : QEventArgs<Exception>
+    {
+        public readonly TPWPacket DynamicPacket;
+        public readonly List<TPWChatParsedData> PacketFields;
+
+        public TPWConnectionErrorEventArgs(Exception Error, TPWPacket dynamicPacket, List<TPWChatParsedData> packetFields)
+        {
+            DynamicPacket = dynamicPacket;
+            PacketFields = packetFields;
+            Data = Error;
         }
     }
     public class ChatClient : QuazarClient
@@ -60,6 +73,7 @@ namespace TPWSE.ClientServices.Clients
         //EVENTS
         public event EventHandler<TPWChatEventArgs> OnOnlineChatReceived;
         public event EventHandler<QEventArgs<TPWPlayerInfo>> OnPlayerJoin;
+        public event EventHandler<TPWConnectionErrorEventArgs> OnErrorThrown;
 
         public ChatClient(IPAddress Address, int Port) : base("ChatClient", Address, Port)
         {
@@ -67,7 +81,7 @@ namespace TPWSE.ClientServices.Clients
         }        
 
         /// <summary>
-        /// Sends a message to the chat server - pay attention to the 
+        /// Sends a text message to all players in the room.
         /// </summary>
         /// <param name="Message"></param>
         /// <returns></returns>
@@ -76,6 +90,17 @@ namespace TPWSE.ClientServices.Clients
             TPWChatPacket chatMsgPacket = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.Chat,
                 (TPWUnicodeString)Message, (TPWUnicodeString)SenderName);
             await SendPacket(chatMsgPacket);            
+        }
+        /// <summary>
+        /// Sends a message to the chat server - pay attention to the 
+        /// </summary>
+        /// <param name="Message"></param>
+        /// <returns></returns>
+        public async void SendTellMessage(string ToPlayer, string Message)
+        {
+            TPWChatPacket chatMsgPacket = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.Tell,
+                (TPWUnicodeString)ToPlayer, (TPWUnicodeString)Message);
+            await SendPacket(chatMsgPacket);
         }
 
         /// <summary>
@@ -148,7 +173,7 @@ namespace TPWSE.ClientServices.Clients
             {
                 throw new InvalidOperationException("This ChatClient instance is not connected to a room. ");
             }
-            await SendMoveCommand(DestinationPosition, false);
+            await SendMoveCommand(DestinationPosition, TPWConstants.TPWChatPlayerMovementTypes.Walk);
         }
         public async Task Teleport(TPWPosition DestinationPosition)
         {
@@ -156,13 +181,13 @@ namespace TPWSE.ClientServices.Clients
             {
                 throw new InvalidOperationException("This ChatClient instance is not connected to a room. ");
             }
-            await SendMoveCommand(DestinationPosition, true);
+            await SendMoveCommand(DestinationPosition, TPWConstants.TPWChatPlayerMovementTypes.Teleport);
         }
 
-        private async Task SendMoveCommand(TPWPosition DestinationPosition, bool Teleport)
+        private async Task SendMoveCommand(TPWPosition DestinationPosition, TPWConstants.TPWChatPlayerMovementTypes Teleport)
         {
             TPWChatPacket packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.MovePlayer,
-                            (DWORD)DestinationPosition.X, (DWORD)DestinationPosition.Y, Teleport ? 1 : (DWORD)0);
+                            (DWORD)DestinationPosition.X, (DWORD)DestinationPosition.Y, (DWORD)(uint)Teleport);
             await SendPacket(packet);
         }
 
@@ -172,52 +197,86 @@ namespace TPWSE.ClientServices.Clients
             if (!TPWChatPacketParser.Parse(packet, out List<TPWChatParsedData> Items))
             {
                 QConsole.WriteLine("ChatClient", "Error on dynamic packet received.");
+                OnErrorThrown?.Invoke(sender, new TPWConnectionErrorEventArgs(null, packet, null));
                 return;
             }
             packet.SetPosition(0);
             DWORD messageType = packet.ReadBodyDword();
-            if (packet.MessageType == 0x012E) // Stream Message Type
+            try
             {
-                switch (messageType)
+                if (packet.MessageType == (uint)TPWConstants.TPWChatServerChannel.PUBLIC) // PUBLIC DOMAIN
                 {
-                    case (uint)TPWConstants.TPWChatServerResponseCodes.CHAT_PLAYER_INFO:
-                        TPWPlayerInfo playerInfo = new TPWPlayerInfo(
-                            Items[2].Data.ToDWORD(), Items[3].Data.ToDWORD(), (TPWUnicodeString)Items[1].Data);
-                        bool isQuazar = packet.Param3 == TPWConstants.TPWSE_QuazarClientMagicNumber;
-                        if (!OnlinePlayers.Contains(playerInfo))
-                            OnlinePlayers.Add(playerInfo);
-                        if (!_quazarClients.ContainsKey(playerInfo.PlayerID))
-                            _quazarClients.Add(playerInfo.PlayerID, isQuazar); 
-                        OnPlayerJoin?.DynamicInvoke(sender, new QEventArgs<TPWPlayerInfo>() { Data = playerInfo });
-                        break;
-                    case (uint)TPWConstants.TPWChatServerCommand.Chat:
-                        {
-                            TPWUnicodeString Sender = (TPWUnicodeString)Items[1].Data;
-                            TPWUnicodeString Message = (TPWUnicodeString)Items[2].Data;
-                            OnOnlineChatReceived?.DynamicInvoke(sender, new TPWChatEventArgs(Sender, Message));
-                        }
-                        break;
-                    case (uint)TPWConstants.TPWChatServerCommand.Tell:
-                        {
-                            TPWUnicodeString Sender = (TPWUnicodeString)Items[1].Data;
-                            TPWUnicodeString Message = (TPWUnicodeString)Items[2].Data;
-                            OnOnlineChatReceived?.DynamicInvoke(sender, new TPWChatEventArgs(Sender, Message, true));
-                        }
-                        break;
+                    switch (messageType)
+                    {
+                        case (uint)TPWConstants.TPWChatServerResponseCodes.CHAT_PLAYER_INFO:
+                            TPWPlayerInfo playerInfo = new TPWPlayerInfo(
+                                Items[2].Data.ToDWORD(), Items[3].Data.ToDWORD(), (TPWUnicodeString)Items[1].Data);
+                            bool isQuazar = packet.Param3 == TPWConstants.TPWSE_QuazarClientMagicNumber;
+                            if (!OnlinePlayers.Contains(playerInfo))
+                                OnlinePlayers.Add(playerInfo);
+                            if (!_quazarClients.ContainsKey(playerInfo.PlayerID))
+                                _quazarClients.Add(playerInfo.PlayerID, isQuazar);
+                            OnPlayerJoin?.DynamicInvoke(sender, new QEventArgs<TPWPlayerInfo>() { Data = playerInfo });
+                            break;
+                        case (uint)TPWConstants.TPWChatServerCommand.Chat:
+                            {
+                                TPWUnicodeString Sender = (TPWUnicodeString)Items[1].Data;
+                                TPWUnicodeString Message = (TPWUnicodeString)Items[2].Data;
+                                OnOnlineChatReceived?.DynamicInvoke(sender, new TPWChatEventArgs(Sender, Message));
+                            }
+                            break;
+                        case (uint)TPWConstants.TPWChatServerCommand.SystemAnnouncement:
+                            {
+                                TPWUnicodeString Message = (TPWUnicodeString)Items[1].Data;
+                                OnOnlineChatReceived?.DynamicInvoke(sender, new TPWChatEventArgs("$INFO", Message));
+                            }
+                            break;
+                        case (uint)TPWConstants.TPWChatServerCommand.Tell:
+                            {
+                                TPWUnicodeString Sender = (TPWUnicodeString)Items[1].Data;
+                                TPWUnicodeString Message = (TPWUnicodeString)Items[2].Data;
+                                OnOnlineChatReceived?.DynamicInvoke(sender, new TPWChatEventArgs(Sender, Message, true));
+                            }
+                            break;
+                        default:
+                            throw new Exception($"StreamMsg: {messageType} Received");
+                    }
                 }
+                else throw new Exception($"DirectMsg: {messageType} Received"); // Private Domain
+            }
+            catch(Exception exception)
+            {
+                OnErrorThrown?.Invoke(sender, new TPWConnectionErrorEventArgs(exception, packet, Items));
+                File.WriteAllBytes("chatclient_errorpacket_dump.dat", packet.GetBytes());
             }
         }
 
         private async Task<bool> AttemptCreatePark(TPWChatRoomInfo joiningRoomInfo)
         {
-            TPWChatPacket joinRoomPacket = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.CreatePark,
+            TPWChatPacket joinRoomPacket = default;
+            bool nonStandardAllowed = false; // true only for servers that aren't using TPW-SE standard command formatting.
+            if (joiningRoomInfo.IsParkIDValid)
+            { // USE CLASSIC STRATEGY FOR TPW-SE STANDARD SERVERS
+                joinRoomPacket = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.CreatePark,
                 joiningRoomInfo.ParkName, (DWORD)0, (DWORD)0, (DWORD)joiningRoomInfo.ParkID);
+            }
+            else
+            { // ATTEMPT TO MIRROR THE SERVER'S RESPONSE HERE
+                joinRoomPacket = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.CreatePark,
+                joiningRoomInfo.ParkName, (DWORD)0, (DWORD)0, joiningRoomInfo.ParkIDResponse);
+                nonStandardAllowed = true;
+            }
             joinRoomPacket.Param3 = TPWConstants.TPWSE_QuazarClientMagicNumber; // allows the Server to know this is a QuazarClient
             await SendPacket(joinRoomPacket);
-            TPWPacket responsePacket = await AwaitPacket();
-            responsePacket.SetPosition(0);
-            if (responsePacket != null && responsePacket.ReadBodyDword() == (uint)TPWConstants.TPWChatServerResponseCodes.PARK_CREATE)
-                return true;
+            TPWPacket responsePacket = await AwaitPacket();            
+            if (responsePacket != null) {
+                responsePacket.SetPosition(0);
+                if (responsePacket.ReadBodyDword() == (uint)TPWConstants.TPWChatServerResponseCodes.PARK_CREATE)
+                    return true; // CREATE PARK SUCCESS
+                responsePacket.SetPosition(0);
+                if (nonStandardAllowed && responsePacket.ReadBodyDword() == (uint)TPWConstants.TPWChatServerCommand.CreatePark)
+                    return true; // NON-STANDARD, ACCEPTABLE RESPONSE
+            }
             return false;
         }
 

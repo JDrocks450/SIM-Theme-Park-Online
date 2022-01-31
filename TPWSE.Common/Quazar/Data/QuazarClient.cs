@@ -1,6 +1,7 @@
 ﻿using SimTheme_Park_Online;
 using SimTheme_Park_Online.Data;
 using System;
+using System.Collections.Concurrent;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -38,7 +39,7 @@ namespace QuazarAPI.Networking.Standard
         private bool awaiterOverride = false;
         protected bool _recvStop = true;
         protected readonly List<ArraySegment<byte>> _recvQueue;
-        private ManualResetEvent _recvInvoke;
+        private ManualResetEvent _recvInvoke, _recvEnqueuePause;
         private ClientRecvStrategy _strategy = ClientRecvStrategy.ASYNC_AWAIT;
 
         //EVENTS
@@ -100,6 +101,7 @@ namespace QuazarAPI.Networking.Standard
             this.Port = Port;
             _recvQueue = new List<ArraySegment<byte>>();
             _recvInvoke = new ManualResetEvent(false);
+            _recvEnqueuePause = new ManualResetEvent(true);
 
             _client = new TcpClient();
             _packetTask = CreatePacketTask();
@@ -156,12 +158,30 @@ namespace QuazarAPI.Networking.Standard
             foreach (TPWPacket packet in Packets)
                 await SendPacket(packet);
         }
+
+        private Task EnqueueData(byte[] Data, int Index = -1)
+        {
+            return Task.Run(delegate
+            {
+                _recvEnqueuePause.WaitOne();
+                _recvEnqueuePause.Reset();
+                var segment = new ArraySegment<byte>(Data);
+                if (segment.Array == null)                
+                    return;                
+                if (Index == -1)
+                    _recvQueue.Add(segment);
+                else _recvQueue.Insert(Index, segment);                
+                _recvEnqueuePause.Set();
+                _recvInvoke.Set();
+            });
+        }
+
         public async Task<TPWPacket> AwaitPacket()
         {
             var Data = await AwaitResponse();            
             using (MemoryStream networkData = new MemoryStream())
             {
-                await networkData.WriteAsync(Data.Array, 0, Data.Count);                    
+                await networkData.WriteAsync(Data, 0, Data.Length);                    
                 while (true)
                 {
                     try
@@ -172,8 +192,7 @@ namespace QuazarAPI.Networking.Standard
                         if (remaining.Length > 0)
                         {
                             networkData.Read(remaining, 0, remaining.Length);
-                            _recvQueue.Insert(0, new ArraySegment<byte>(remaining));
-                            _recvInvoke.Set();
+                            await EnqueueData(remaining, 0);
                         }                       
                         return packet;
                     }
@@ -186,28 +205,35 @@ namespace QuazarAPI.Networking.Standard
                         QConsole.WriteLine(Name, ex.ToString());
                     }
                     Data = await AwaitResponse();
-                    await networkData.WriteAsync(Data.Array, 0, Data.Count);
+                    await networkData.WriteAsync(Data, 0, Data.Length);
                 }                
             }
         }
-        public Task<ArraySegment<byte>> AwaitResponse()
+        public Task<byte[]> AwaitResponse()
         {
             return Task.Run(delegate
-            {
-                if (!_recvQueue.Any())
+            {                
+                while (true)
                 {
-                    _recvInvoke.WaitOne();
-                    _recvInvoke.Reset();
+                    if (!_recvQueue.Any())
+                    {
+                        _recvInvoke.WaitOne();
+                        _recvInvoke.Reset();
+                    }
+                    if (awaiterOverride)
+                    {
+                        awaiterOverride = false;
+                        throw new TaskCanceledException();
+                    }
+                    byte[] Data = _recvQueue.FirstOrDefault().Array;
+                    if (Data == null) continue;
+                    try
+                    {
+                        _recvQueue.RemoveAt(0);
+                    }
+                    catch { }
+                    return Data;
                 }
-                if (awaiterOverride)
-                {
-                    awaiterOverride = false;
-                    throw new TaskCanceledException();
-                }
-                while (!_recvQueue.Any()) { }
-                ArraySegment<byte> Data = _recvQueue.First();
-                _recvQueue.RemoveAt(0);
-                return Data;
             });
         }
 
@@ -217,9 +243,8 @@ namespace QuazarAPI.Networking.Standard
             {
                 try
                 {
-                    ArraySegment<byte> Data = await awaitData();
-                    _recvQueue.Add(Data);
-                    _recvInvoke.Set();
+                    byte[] Data = await awaitData();
+                    await EnqueueData(Data);
                 }
                 catch (SocketException e) // Connection Error
                 {
@@ -228,13 +253,13 @@ namespace QuazarAPI.Networking.Standard
                 }                
             }
         }
-        private async Task<ArraySegment<byte>> awaitData()
+        private async Task<byte[]> awaitData()
         {
             ArraySegment<byte> segment = new ArraySegment<byte>(new byte[ReceiveAmount]);
             int readValue = await _client.Client.ReceiveAsync(segment, SocketFlags.None);
             byte[] data = segment.Array;
             Array.Resize(ref data, readValue);
-            return new ArraySegment<byte>(data);
+            return data;
         }
 
         public void Dispose()

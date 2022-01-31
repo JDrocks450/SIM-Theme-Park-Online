@@ -7,38 +7,35 @@
       mc:Ignorable="d" 
       d:DesignHeight="768" d:DesignWidth="1024"
       Title="MainPage">
-
+    <Page.Resources>
+        
+    </Page.Resources>
     <Grid>
         <Grid.RowDefinitions>
             <RowDefinition/>
             <RowDefinition Height="180"/>
         </Grid.RowDefinitions>
         <Grid Margin="0,70,40,0" HorizontalAlignment="Center" VerticalAlignment="Center">
-            <Grid.Resources>
-                <Style TargetType="Button" BasedOn="{StaticResource TPWUX_InGameButton}">
-                    <Setter Property="Margin" Value="0,10"/>
-                </Style>
-            </Grid.Resources>
             <ux:TPWMessageBox x:Name="NavBox" Width="600"/>
             <TextBlock Style="{StaticResource TPWUX_TitleStyle}" HorizontalAlignment="Left" FontSize="18" Text="Where Would You Like to Go?" VerticalAlignment="Top" Margin="138,30,0,0"/>
             <Grid Margin="40,70,100,40">
                 <StackPanel>
                     <UniformGrid Margin="50,20,50,0">
-                        <Button x:Name="LoginInfoButton" Click="LoginInfoButton_Click">
-                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19"><Run Text="Login Server"/></TextBlock>
+                        <Button x:Name="LoginInfoButton" Click="LoginInfoButton_Click" Background="#FF11806F" Foreground="Black" Margin="0,10,0,0" Height="40">
+                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"><Run Text="Login Server"/></TextBlock>
                         </Button>
-                        <Button x:Name="NewsInfoButton" Click="NewsInfoButton_Click">
-                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19"><Run Text="News Server"/></TextBlock>
+                        <Button x:Name="NewsInfoButton" Click="NewsInfoButton_Click" Background="#FF11806F" Foreground="Black" Margin="0,10,0,0" Height="40">
+                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"><Run Text="News Server"/></TextBlock>
                         </Button>
-                        <Button x:Name="CityServerInfoButton" Click="CityServerInfoButton_Click">
-                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19"><Run Text="City Server"/></TextBlock>
+                        <Button x:Name="CityServerInfoButton" Click="CityServerInfoButton_Click" Background="#FF11806F" Foreground="Black" Margin="0,10,0,0" Height="40">
+                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"><Run Text="City Server"/></TextBlock>
                         </Button>
-                        <Button x:Name="ChatServerInfoButton" Click="ChatServerInfoButton_Click">
-                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="19"><Run Text="Chat Server"/></TextBlock>
+                        <Button x:Name="ChatServerInfoButton" Click="ChatServerInfoButton_Click" Background="#FF11806F" Foreground="Black" Margin="0,10,0,0" Height="40">
+                            <TextBlock Style="{StaticResource TPWUX_TitleStyle}" TextWrapping="Wrap" TextAlignment="Center" FontSize="20"><Run Text="Chat Server"/></TextBlock>
                         </Button>
                     </UniformGrid>
-                    <Button x:Name="WorldViewButton" Margin="50,10" Click="WorldViewButton_Click">
-                        <TextBlock Style="{StaticResource TPWUX_TitleStyle}">Go to the Online World ></TextBlock>
+                    <Button x:Name="WorldViewButton" Margin="50,10,50,10" Click="WorldViewButton_Click" Background="#FF11806F" Foreground="Black" Height="40">
+                        <TextBlock Style="{StaticResource TPWUX_TitleStyle}" FontSize="20" Text="View Online World &gt;&gt;&gt;"/>
                     </Button>
                 </StackPanel>
             </Grid>
@@ -46,7 +43,7 @@
         <TabControl x:Name="ConsoleTabs" Grid.Row="1" Grid.ColumnSpan="2" VerticalAlignment="Bottom">
             <TabControl.Resources>
                 <Style TargetType="Border" BasedOn="{StaticResource TPWUX_BorderFlyoutStyle}">
-                    
+
                 </Style>
                 <Style TargetType="TextBox">
                     <Setter Property="FontFamily" Value="Consolas"/>
@@ -72,7 +69,7 @@
         </TabControl>
         <Menu VerticalAlignment="Top" VerticalContentAlignment="Center">
             <MenuItem Header="File">
-                <MenuItem Header="New"/>
+                <MenuItem Header="New" Width="150"/>
                 <Separator/>
                 <MenuItem Header="Import">
                     <MenuItem x:Name="PacketMenuItem" Click="PacketMenuItem_Click" Header="Theme Park World Packet"/>
@@ -94,7 +91,7 @@
                 <MenuItem x:Name="SystemNewsEdit" Click="SystemNewsEdit_Click" Header="Update System News..."/>
             </MenuItem>
             <MenuItem Header="Chat">
-                <MenuItem Name="ServerTellItem" Header="Tell All..." Click="ServerTellItem_Click"/>
+                <MenuItem Name="ServerTellItem" Header="System Announcement..." Click="ServerTellItem_Click"/>
             </MenuItem>
             <MenuItem x:Name="AboutBox" Header="About"/>
         </Menu>

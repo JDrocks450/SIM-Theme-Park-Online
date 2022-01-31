@@ -46,6 +46,17 @@ namespace TPWSE.ClientApplication.Pages
             client.OnOnlineChatReceived += OnChatReceived;
             client.OnPlayerJoin += OnPlayerJoin;
             client.OnDisconnect += OnDisconnect;
+            client.OnErrorThrown += OnErrorThrown;
+        }
+
+        private void OnErrorThrown(object sender, TPWConnectionErrorEventArgs e)
+        {
+            Dispatcher.Invoke(delegate
+            {
+                AddChatLog("$ERROR", 
+                    $"ERROR!\n\n{e.Data?.Message ?? "No error message."}\n{e.DynamicPacket?.ToString()}\n\n" +
+                    $"{(e.PacketFields != null ? string.Join("\n", e.PacketFields) : "No fields found.")}");
+            });
         }
 
         private void OnDisconnect(object sender, QuazarAPI.Networking.Standard.QEventArgs<Exception> e)
@@ -195,6 +206,29 @@ namespace TPWSE.ClientApplication.Pages
                     }
                 }
                 AddChatLog("$ERROR", "Couldn't move your character since the parameters weren't 2 numbers separated by a comma. (/move <number>,<number>)");
+                return;
+            }
+            if (MessageText.StartsWith("/tell"))
+            {
+                if (MessageText.Length > 6)
+                {
+                    MessageText = MessageText.Remove(0, 6);
+                    string[] numbers = MessageText.Split(' ');
+                    if (numbers.Length == 2)
+                    {
+                        try
+                        {
+                            chatClient.SendTellMessage(numbers[0], numbers[1]);
+                            Chatbox.Text = "";
+                            return;
+                        }
+                        catch
+                        {
+
+                        }
+                    }
+                }
+                AddChatLog("$ERROR", "You wanna tell who? Make sure to use proper syntax. (/tell <Name> <Message>)");
                 return;
             }
             chatClient.SendChatMessage(PlayerInfo.PlayerName, MessageText);

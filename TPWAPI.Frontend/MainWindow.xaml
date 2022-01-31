@@ -3,7 +3,7 @@
         xmlns:x="http://schemas.microsoft.com/winfx/2006/xaml"
         xmlns:d="http://schemas.microsoft.com/expression/blend/2008"
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
-        xmlns:local="clr-namespace:TPWAPI.Frontend" xmlns:threed="clr-namespace:TPWAPI.Frontend.Controls.ThreeD" xmlns:pages="clr-namespace:TPWAPI.Frontend.Pages" xmlns:controls="clr-namespace:GSQuazar.Controls"
+        xmlns:local="clr-namespace:TPWAPI.Frontend" xmlns:pages="clr-namespace:TPWAPI.Frontend.Pages" xmlns:controls="clr-namespace:GSQuazar.Controls"
         mc:Ignorable="d"
         Title="TPW-SE | Quazar - Server Online" Height="768" Width="1024">
     <Grid>
@@ -19,7 +19,7 @@
                 <pages:OnlineWorldPage/>
             </Frame.Content>
         </Frame>
-        <Image Opacity=".5" Source="/Resources/Textures/Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Width="100" Margin="20"/>
+        <Image Opacity=".5" Source="/Resources/Textures/Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Width="100" Margin="20" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
         <Frame Name="WindowContent" NavigationUIVisibility="Hidden">
             <Frame.Content>
                 <pages:StartupOptionsPage/>

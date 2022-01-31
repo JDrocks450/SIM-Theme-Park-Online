@@ -81,5 +81,10 @@ namespace SimTheme_Park_Online.Data
                 parks.Add(ParkInfo.GetParkInfoResponse(TPWConstants.TPWCityServerListType.TOP10_RESULT));            
             return parks.ToArray();
         }
+
+        public override string ToString()
+        {
+            return $"[{CityName} [{CityID}]:, Parks: {AmountOfParks}]";
+        }
     }
 }

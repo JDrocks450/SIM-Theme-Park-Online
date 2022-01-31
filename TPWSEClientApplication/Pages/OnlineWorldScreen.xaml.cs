@@ -52,7 +52,18 @@ namespace TPWSE.ClientApplication.Pages
             if (!connectionResult) return;            
             IEnumerable<DWORD> parkIDs = 
                 cityClient.OnlineParks.Select(x => (DWORD)x.ParkID);
-            await chatClient.Connect();
+            while (true)
+            {
+                try
+                {
+                    await chatClient.Connect();
+                    break;
+                }
+                catch (Exception ex) // CONNECTION ERROR
+                {
+                    MessageBox.Show(ex.Message);
+                }
+            }
             TPWChatRoomInfo[] RoomInfos = await chatClient.DownloadChatRoomInfo(parkIDs.ToArray());
             _ = Dispatcher.InvokeAsync(delegate
             {
@@ -121,18 +132,41 @@ namespace TPWSE.ClientApplication.Pages
             IEnumerable<TPWParkInfo> Parks = await cityClient.GetParksByCity(city);
             ParksControl.ShowParks($"Top 10 Parks in {city.CityName}", Parks, chatClient.OnlineChatRooms);
         }
-
+        /// <summary>
+        /// Link online parks with a list of chatrooms and display the result.
+        /// </summary>
+        /// <param name="OnlineChatRooms"></param>
         private void PopulateOnlineParks(TPWChatRoomInfo[] OnlineChatRooms)
         {
+            int notFoundParks = 0;
             foreach (var park in cityClient.OnlineParks)
             {
                 var roomInfo = OnlineChatRooms?.FirstOrDefault(x => x.ParkID == park.ParkID) ?? null;
+                if (roomInfo == null) notFoundParks++;
                 var parkControl = new ContentControl() { Tag = roomInfo };
                 UXResources.CreateParkControl(ref parkControl, park, OnlineChatRooms, true);
                 parkControl.Cursor = Cursors.Hand;
                 parkControl.MouseLeftButtonUp += OnlineParkSelected;
                 OnlineSessionsView.Children.Add(parkControl);
-            }            
+            }
+            if (notFoundParks > 0)
+                DelistedChatRoomsButton.Content += $" ({OnlineChatRooms.Length})";
+            else DelistedChatRoomsButton.IsEnabled = false;
+        }
+        /// <summary>
+        /// Display just online chat rooms without consulting the CityServer's resulting online parks.
+        /// </summary>
+        private void PopulateOnlineRooms(IEnumerable<TPWChatRoomInfo> OnlineChatRooms)
+        {
+            OnlineSessionsView.Children.Clear();
+            foreach(var room in OnlineChatRooms)
+            {
+                var parkControl = new ContentControl() { Tag = room };
+                UXResources.CreateChatInfoControl(ref parkControl, room);
+                parkControl.Cursor = Cursors.Hand;
+                parkControl.MouseLeftButtonUp += OnlineParkSelected;
+                OnlineSessionsView.Children.Add(parkControl);
+            }
         }
 
         private async void OnlineParkSelected(object sender, MouseButtonEventArgs e)
@@ -141,6 +175,7 @@ namespace TPWSE.ClientApplication.Pages
                 return;
             IsEnabled = false;
             TPWChatRoomInfo room = (TPWChatRoomInfo)(sender as ContentControl).Tag;
+            if (room == null) return;
             bool success = await chatClient.OnlineRoomConnect(PlayerInfo, room);
             IsEnabled = true;
             if (!success)
@@ -151,6 +186,12 @@ namespace TPWSE.ClientApplication.Pages
             }
             MainWindow window = (MainWindow)Application.Current.MainWindow;
             window.ChangeScreen(new OnlineParkPage(PlayerInfo, chatClient));
+        }
+
+        private void DelistedChatRoomsButton_Click(object sender, RoutedEventArgs e)
+        {
+            DelistedChatRoomsButton.Visibility = Visibility.Collapsed;
+            PopulateOnlineRooms(chatClient.OnlineChatRooms);
         }
     }
 }

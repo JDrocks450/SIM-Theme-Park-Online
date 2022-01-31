@@ -164,7 +164,7 @@ namespace TPWAPI.Frontend.Pages
 
         private void WorldViewButton_Click(object sender, RoutedEventArgs e)
         {
-            NavBox.Visibility = Visibility.Hidden;
+            Visibility = Visibility.Collapsed;
         }
 
         private void STRFileMenuItem_Click(object sender, RoutedEventArgs e)

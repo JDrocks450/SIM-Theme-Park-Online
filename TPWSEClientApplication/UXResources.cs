@@ -50,11 +50,37 @@ namespace TPWSE.ClientApplication
                 stack.Children.Add(new TextBlock() { Text = $"{roomInfo.NumberOfPlayers} in this park right now" });
             }
             else if (showOffline)
+            {
+                Control.IsEnabled = false;
                 stack.Children.Add(new TextBlock() { FontWeight = FontWeights.Bold, Foreground = Brushes.Red, Text = "Status: Offline" });
+            }
 
             stack.Children.Add(new Separator() { Margin = new Thickness(0, 5, 0, 5) });
 
             stack.Children.Add(new TextBlock() { FontStyle = FontStyles.Italic, Text = "Park ID: " + park.ParkID.ToString() });
+
+            Control.Content = stack;
+        }
+        /// <summary>
+        /// Creates a ChatRoomInfo control with all the standard fields supplied.
+        /// </summary>
+        public static void CreateChatInfoControl(ref ContentControl Control, TPWChatRoomInfo Info)
+        {
+            var park = Info;
+            var stack = new StackPanel();
+            stack.Children.Add(new TextBlock()
+            {
+                FontWeight = FontWeights.Bold,
+                Text = $"{park.ParkName}",
+                Margin = new Thickness(0, 5, 0, 0)
+            });
+
+            stack.Children.Add(new Separator() { Margin = new Thickness(0, 5, 0, 5) });
+
+            stack.Children.Add(new TextBlock() { Text = $"Park ID: {(park.IsParkIDValid ? park.ParkID : park.ParkIDResponse)}" });
+            stack.Children.Add(new TextBlock() { Text = "Online Players: " + park.NumberOfPlayers });
+
+            stack.Children.Add(new Separator() { Margin = new Thickness(0, 5, 0, 5) });
 
             Control.Content = stack;
         }

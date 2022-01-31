@@ -6,6 +6,7 @@
     <Application.Resources>
         <ResourceDictionary>
             <ResourceDictionary.MergedDictionaries>
+                <ResourceDictionary Source="/PresentationFramework.Classic;component/themes/classic.xaml" />
                 <ResourceDictionary Source="UXResources.xaml"/>
             </ResourceDictionary.MergedDictionaries>
         </ResourceDictionary>
