@@ -20,6 +20,10 @@ namespace SimTheme_Park_Online.Data
         
         public bool CurrentlyInPark { get; private set; }        
         public uint ParkID { get; private set; }
+        public HashSet<DWORD> BuddyList
+        {
+            get;
+        } = new HashSet<DWORD>();
 
         public TPWPlayerInfo(uint PlayerID, uint CustomerID, TPWUnicodeString PlayerName)
         {
@@ -42,6 +46,13 @@ namespace SimTheme_Park_Online.Data
                     this.ParkID = ParkID.Value;
             }
             QuazarAPI.QConsole.WriteLine("ChatServer", $"{PlayerName} In Park? {CurrentlyInPark} | ParkID: {this.ParkID}");
+        }
+
+        public bool AddBuddy(DWORD PlayerID)
+        {
+            if (BuddyList.FirstOrDefault(x => x == PlayerID) == null)
+                return BuddyList.Add(PlayerID);
+            return false;
         }
     }
 }

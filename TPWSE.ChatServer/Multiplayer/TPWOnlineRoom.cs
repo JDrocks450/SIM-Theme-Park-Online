@@ -42,6 +42,11 @@ namespace TPWSE.ChatServer.Multiplayer
         /// </summary>
         internal uint PlayerCount => (uint)_players.Count;
 
+        internal ushort MaxPlayerCount
+        {
+            get; set;
+        } = 456;
+
         internal TPWOnlineRoom(uint ParkID)
         {
             this.ParkID = ParkID;
@@ -107,11 +112,21 @@ namespace TPWSE.ChatServer.Multiplayer
         /// </summary>
         /// <param name="player"></param>
         /// <returns></returns>
-        internal bool Admit(uint ConnectionID, TPWPlayerInfo player, TPWSEPlayerInterfaceTypes Interface = TPWSEPlayerInterfaceTypes.SIMThemeParkClient)
+        internal bool Admit(uint ConnectionID, TPWPlayerInfo player, 
+            out TPWConstants.TPWChatServerResponseCodes? DenialReason,
+            TPWSEPlayerInterfaceTypes Interface = TPWSEPlayerInterfaceTypes.SIMThemeParkClient
+            )
         {
+            if (PlayerCount >= MaxPlayerCount)
+            {
+                QConsole.WriteLine("ChatServer", $"Sorry, this park is full. [Players in this room: {Players.Count}]");
+                DenialReason = TPWConstants.TPWChatServerResponseCodes.ERROR_PARK_FULL;
+                return false;
+            }
             if (_players.ContainsKey(ConnectionID) || TryGetPlayerInfoByName(player.PlayerName, out _))
             {
                 QConsole.WriteLine("ChatServer", $"{player.PlayerName} is already in this room. [Players in this room: {Players.Count}]");
+                DenialReason = TPWConstants.TPWChatServerResponseCodes.ERROR_DUPLICATE_PLAYER;
                 return false;
             }
             player.SetInParkStatus(true, ParkID);
@@ -126,6 +141,7 @@ namespace TPWSE.ChatServer.Multiplayer
                 QConsole.WriteLine("ChatServer", $"{player.PlayerName}'s state was loaded from cache from a previous play session in this room.");
             }
             QConsole.WriteLine("ChatServer", $"{player.PlayerName}, on {Interface}, was allowed in {ParkID}! [Players in this room: {Players.Count}]");
+            DenialReason = null;
             return true;
         }
 

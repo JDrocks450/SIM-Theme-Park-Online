@@ -195,25 +195,40 @@ namespace SimTheme_Park_Online.Data
             Ignore = 0xD,               // 13
             LocatePlayer = 0x52,        // 82
             SystemAnnouncement = 0x4E,  // 78
+            Emote = 0x12
         }
         /// <summary>
         /// A standard API-ResponseCode to be sent from a ChatServer implementation.
         /// </summary>
         public enum TPWChatServerResponseCodes : uint
         {            
-            PARK_CREATE = 0x36,      // 54
-            CHAT_RECEIVED = 0x43,    // 67
-            CHAT_PLAYER_INFO = 0x27, // 39
-            IGNORE_RECEIVED = 0x10,  // 16
-            CHAT_IGNORE = 0x3A,      // 58
-            CREATE_PLAYER = 0x34,    // 52
+            PARK_CREATE = 0x36,             // 54
+            CREATE_PLAYER = 0x34,           // 52
+            ERROR_BLACKMARKED = 0x33,       //
+            ERROR_AUTH_FAILURE = 0x32,      //
+            ERROR_CHILDLOCK = 0x31,
+            ERROR_PARAMETER = 0x30,
+            ERROR_PARK_FULL = 0x2D,
+            ERROR_DUPLICATE_PLAYER = 0x2B,
+            ERROR_MEMORY = 0x29,
+            ERROR_GENERIC = 0x28,
+            CHAT_RECEIVED = 0x43,           // 67
+            CHAT_PLAYER_INFO = 0x27,        // 39
+            IGNORE_RECEIVED = 0x10,         // 16
+            CHAT_IGNORE = 0x3A,             // 58            
             /// <summary>
             /// Indicates that a player has just successfully moved their current position.
             /// <para>Standard formatting is: [PlayerName] [X] [Y] [IsTeleporting]</para>
             /// <para>This is handled by the ChatServer implementation, and is Broadcasted to all players,
             /// including the user who just successfully moved.</para>
             /// </summary>
-            BOSS_CHAT_MOVE = 0x22,   // 34
+            BOSS_CHAT_MOVE = 0x22,          // 34
+            BOSS_CHAT_CONNECTED = 0x23,
+            BOSS_CHAT_ENTERED_PARK = 0x25,
+            BOSS_CHAT_GOTO = 0x52,
+            BOSS_CHAT_GOTO_ALT = 0x13,
+            BOSS_CHAT_IGNORE = 0xD,
+            BOSS_CHAT_BLACKMARK = 0xE
         }
 
         /// <summary>

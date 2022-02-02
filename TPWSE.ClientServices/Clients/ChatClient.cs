@@ -167,28 +167,37 @@ namespace TPWSE.ClientServices.Clients
             return true;
         }
 
-        public async Task Move(TPWPosition DestinationPosition)
+        public Task AddBuddy(TPWUnicodeString PlayerName)
         {
             if (!IsOnlineRoomConnected)
             {
                 throw new InvalidOperationException("This ChatClient instance is not connected to a room. ");
             }
-            await SendMoveCommand(DestinationPosition, TPWConstants.TPWChatPlayerMovementTypes.Walk);
-        }
-        public async Task Teleport(TPWPosition DestinationPosition)
-        {
-            if (!IsOnlineRoomConnected)
-            {
-                throw new InvalidOperationException("This ChatClient instance is not connected to a room. ");
-            }
-            await SendMoveCommand(DestinationPosition, TPWConstants.TPWChatPlayerMovementTypes.Teleport);
+            return SendPacket(new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.AddBuddy, PlayerName));
         }
 
-        private async Task SendMoveCommand(TPWPosition DestinationPosition, TPWConstants.TPWChatPlayerMovementTypes Teleport)
+        public Task Move(TPWPosition DestinationPosition)
+        {
+            if (!IsOnlineRoomConnected)
+            {
+                throw new InvalidOperationException("This ChatClient instance is not connected to a room. ");
+            }
+            return SendMoveCommand(DestinationPosition, TPWConstants.TPWChatPlayerMovementTypes.Walk);
+        }
+        public Task Teleport(TPWPosition DestinationPosition)
+        {
+            if (!IsOnlineRoomConnected)
+            {
+                throw new InvalidOperationException("This ChatClient instance is not connected to a room. ");
+            }
+            return SendMoveCommand(DestinationPosition, TPWConstants.TPWChatPlayerMovementTypes.Teleport);
+        }
+
+        private Task SendMoveCommand(TPWPosition DestinationPosition, TPWConstants.TPWChatPlayerMovementTypes Teleport)
         {
             TPWChatPacket packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.MovePlayer,
                             (DWORD)DestinationPosition.X, (DWORD)DestinationPosition.Y, (DWORD)(uint)Teleport);
-            await SendPacket(packet);
+            return SendPacket(packet);
         }
 
         private void ChatClient_OnPacketReceived(object sender, QEventArgs<TPWPacket> e)

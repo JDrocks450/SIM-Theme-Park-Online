@@ -150,14 +150,20 @@ namespace TPWSE.ClientApplication.Pages
             if (chatPlayerBrushes.ContainsKey(PlayerName))
                 return;
             var chatText = new TextBlock();
-            chatPlayerBrushes.Add(PlayerName, Brushes.Turquoise);
+            chatPlayerBrushes.Add(PlayerName, Brushes.Purple);
             double bThickness = 3;
             chatText.Inlines.Add(new Run(PlayerName));
-            chatText.Inlines.Add(new Run(isQuazarPlayer ? " TPW-SE App" : " In-Game") { Foreground = Brushes.Turquoise, FontWeight = FontWeights.Regular });
+            chatText.Inlines.Add(new Run(isQuazarPlayer ? " TPW-SE App" : " In-Game") { Foreground = chatPlayerBrushes[PlayerName], FontWeight = FontWeights.Regular });
             if (PlayerName == PlayerInfo.PlayerName)
-            {
                 chatText.Foreground = chatPlayerBrushes[PlayerName];
-                bThickness = 5;
+            else
+            {
+                chatText.Cursor = Cursors.Hand;
+                chatText.ToolTip = "Click on this player's name to send them a Buddy request";
+                chatText.MouseLeftButtonUp += delegate
+                {
+                    chatClient.AddBuddy(PlayerName);
+                };
             }
             PlayersView.Children.Add(new Border()
             {

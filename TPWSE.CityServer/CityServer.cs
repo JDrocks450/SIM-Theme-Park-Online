@@ -1,4 +1,5 @@
 ﻿//#define STPVER2
+//#define EXPORT
 
 using Cassandra;
 using QuazarAPI;
@@ -101,7 +102,9 @@ namespace SimTheme_Park_Online
             rideInfo.List.IsEmptyList = false;
             var packet = Factory.TPWPacketFactory.GenerateRideInfoPacket(rideInfo);
             Factory.TPWPacketFactory.GenerateGeneric(ref packet, rideInfo.List);
+#if EXPORT
             Factory.TPWPacketFactory.ExportToDisk("Library\\City\\Generated\\G_RideInfo", packet);
+#endif
             return packet;
         }
 
@@ -112,7 +115,9 @@ namespace SimTheme_Park_Online
                 results = parksDatabase.Search(x => x.OwnerName.String.ToLower().StartsWith(Username.String.ToLower()));
             var packet = Factory.TPWPacketFactory.GenerateCityResponsePacket(GetParkResponses(Data.TPWConstants.TPWCityServerListType.SEARCH_RESULT, results.ToArray()));
             packet.PacketQueue = 0x0F;
+            #if EXPORT
              Factory.TPWPacketFactory.ExportToDisk("Library\\City\\Generated\\G_SearchPacket", packet);
+#endif
             return packet;
         }
         public bool TryGetTop10Packet(uint CityID, out TPWPacket Top10Packet)
@@ -129,7 +134,9 @@ namespace SimTheme_Park_Online
         {
             var packet = Factory.TPWPacketFactory.GenerateCityResponsePacket(City.GetTop10ParksStructures(parksDatabase));
             packet.PacketQueue = 0x0E;
+            #if EXPORT
             Factory.TPWPacketFactory.ExportToDisk("Library\\City\\Generated\\G_Top10", packet);
+#endif
             return packet;
         }
         private TPWPacket GetChatInfoPacket()
@@ -146,15 +153,15 @@ namespace SimTheme_Park_Online
 
         private TPWPacket GetLogicalServerPacket() => Factory.TPWPacketFactory.GenerateLogicalServerPacket(
             new Data.Structures.TPWLogicalServerStructure( 
-                0x01, "Daphene", 0x02, "Daphene", 0x03, 0x04, "Daphene", "Daphene", 0x05, "Daphene"),
-            new Data.Structures.TPWLogicalServerStructure( 
+                0x01, "TPWSE East", 0x02, "East", 0x03, 0x04, "THREE", "FOUR", 0x05, "FIVE")
+            /* new Data.Structures.TPWLogicalServerStructure( 
                 0x00, "TPW-SE Ls: B", 0x00, "STR2 TEST", 0x00, 0x00, "STR3 TEST", "STR4 TEST", 0x00, "STR5 TEST"),
             new Data.Structures.TPWLogicalServerStructure( 
                 0x00, "TPW-SE Ls: C", 0x00, "STR2 TEST", 0x00, 0x00, "STR3 TEST", "STR4 TEST", 0x00, "STR5 TEST"),
             new Data.Structures.TPWLogicalServerStructure( 
                 0x00, "TPW-SE Ls: D", 0x00, "STR2 TEST", 0x00, 0x00, "STR3 TEST", "STR4 TEST", 0x00, "STR5 TEST"),
             new Data.Structures.TPWLogicalServerStructure( 
-                0x00, "TPW-SE Ls: 5", 0x00, "STR2 TEST", 0x00, 0x00, "STR3 TEST", "STR4 TEST", 0x00, "STR5 TEST")
+                0x00, "TPW-SE Ls: 5", 0x00, "STR2 TEST", 0x00, 0x00, "STR3 TEST", "STR4 TEST", 0x00, "STR5 TEST") */
             );
 
         private TPWPacket GetThemeInfoPacket() => Factory.TPWPacketFactory.GenerateThemeInfoPacket(
