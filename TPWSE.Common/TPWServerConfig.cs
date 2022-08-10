@@ -15,14 +15,17 @@ namespace SimTheme_Park_Online
         public int CITY_PORT { get; set; } = 7591;
         public int NEWS_PORT { get; set; } = 7597;
         public int CHAT_PORT { get; set; } = 7593;
+        public int FTP_PORT { get; set; } = 21;
 
         public bool LOGIN_ENABLE { get; set; } = true;
         public bool NEWS_ENABLE { get; set; } = true;
         public bool CITY_ENABLE { get; set; } = true;
         public bool CHAT_ENABLE { get; set; } = true;
+        public bool FTP_ENABLE { get; set; } = true;
 
         public int MAX_CONNECTIONS { get; set; } = 1;
 
         public uint[] ChatParks { get; set; }
+        
     }
 }

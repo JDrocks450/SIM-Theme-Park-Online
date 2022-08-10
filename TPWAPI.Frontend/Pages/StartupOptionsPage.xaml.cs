@@ -29,11 +29,13 @@ namespace TPWAPI.Frontend.Pages
             NewsPort.Text = management.Config.NEWS_PORT.ToString();
             CityPort.Text = management.Config.CITY_PORT.ToString();
             ChatPort.Text = management.Config.CHAT_PORT.ToString();
+            FTPPort.Text = management.Config.FTP_PORT.ToString();
 
             LoginCheck.IsChecked = management.Config.LOGIN_ENABLE;
             NewsCheck.IsChecked = management.Config.NEWS_ENABLE;
             CityCheck.IsChecked = management.Config.CITY_ENABLE;
-            ChatCheck.IsChecked = management.Config.CHAT_ENABLE;            
+            ChatCheck.IsChecked = management.Config.CHAT_ENABLE;
+            FTPCheck.IsChecked = management.Config.FTP_ENABLE;
         }
 
         private void StartButton_Click(object sender, RoutedEventArgs e)
@@ -47,11 +49,13 @@ namespace TPWAPI.Frontend.Pages
                     NEWS_PORT = int.Parse(NewsPort.Text),
                     CITY_PORT = int.Parse(CityPort.Text),
                     CHAT_PORT = int.Parse(ChatPort.Text),
+                    FTP_PORT = int.Parse(FTPPort.Text),
 
                     LOGIN_ENABLE = LoginCheck.IsChecked ?? false,
                     NEWS_ENABLE = NewsCheck.IsChecked ?? false,
                     CITY_ENABLE = CityCheck.IsChecked ?? false,
                     CHAT_ENABLE = ChatCheck.IsChecked ?? false,
+                    FTP_ENABLE = FTPCheck.IsChecked ?? false,
                 };
                 ApplicationResources.Management.SaveProfile(management.Profile);
             }

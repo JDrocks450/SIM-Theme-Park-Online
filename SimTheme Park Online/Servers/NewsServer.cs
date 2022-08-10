@@ -31,8 +31,9 @@ namespace SimTheme_Park_Online
                 QConsole.WriteLine(Name, "Sending NewsPackets...\n");
                 Send(ID,
                     GenerateServerInfoPacket(),
-                    GenerateGameInfoPacket(ServerManagement.Current.Profile.GameNewsString),
-                    GenerateSystemInfoPacket(ServerManagement.Current.Profile.SystemNewsString));
+                    GenerateGameInfoPacket(""),//ServerManagement.Current.Profile.GameNewsString),
+                    GenerateSystemInfoPacket("")//ServerManagement.Current.Profile.SystemNewsString)
+                );
             }
         }
 

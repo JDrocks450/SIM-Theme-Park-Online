@@ -15,6 +15,7 @@ using System.Windows.Media;
 using System.Windows.Media.Imaging;
 using System.Windows.Navigation;
 using System.Windows.Shapes;
+using TPWSE.ClientServices;
 using TPWSE.ClientServices.Clients;
 
 namespace TPWSE.ClientApplication.Pages
@@ -24,6 +25,9 @@ namespace TPWSE.ClientApplication.Pages
     /// </summary>
     public partial class OnlineParkPage : Page
     {
+        private bool FollowMode = false;
+        private string FollowingClient = default;
+
         private readonly TPWPlayerInfo PlayerInfo;
         private ChatClient chatClient;
         private Dictionary<string, Brush> chatPlayerBrushes = new Dictionary<string, Brush>();        
@@ -47,12 +51,27 @@ namespace TPWSE.ClientApplication.Pages
             client.OnPlayerJoin += OnPlayerJoin;
             client.OnDisconnect += OnDisconnect;
             client.OnErrorThrown += OnErrorThrown;
+            client.OnPlayerMoved += OnPlayerMoved;
+        }
+
+        private void OnPlayerMoved(object sender, TPWChatMoveEventArgs e)
+        {
+            Dispatcher.Invoke(delegate
+            {
+                if (e.Player.String == FollowingClient)
+                {
+                    //AddChatLog("$INFO", $"You're moving with {FollowingClient} to: {e.NewLocation}");
+                    if (!e.IsTeleporting)
+                        chatClient.Move(e.NewLocation);
+                }
+            });
         }
 
         private void OnErrorThrown(object sender, TPWConnectionErrorEventArgs e)
         {
             Dispatcher.Invoke(delegate
             {
+                return;
                 AddChatLog("$ERROR", 
                     $"ERROR!\n\n{e.Data?.Message ?? "No error message."}\n{e.DynamicPacket?.ToString()}\n\n" +
                     $"{(e.PacketFields != null ? string.Join("\n", e.PacketFields) : "No fields found.")}");
@@ -78,10 +97,12 @@ namespace TPWSE.ClientApplication.Pages
         {
             Dispatcher.Invoke(delegate
             {
+                if (e.IsChatMessage)
+                    AddChatLog(e.Sender, e.Message);
                 if (e.IsPrivateMessage)
                     AddPM(e.Sender, e.Message);
-                else
-                    AddChatLog(e.Sender, e.Message);
+                if (e.IsShoutMessage)
+                    AddShoutLog(e.Sender, e.Message);                    
             });            
         }        
 
@@ -92,6 +113,7 @@ namespace TPWSE.ClientApplication.Pages
             AddChatLog("$INFO", $"You are currently visiting {chatClient.ConnectedChatRoom.ParkName} as {PlayerInfo.PlayerName}...");
             ThemeParkNameLabel.Text = chatClient.ConnectedChatRoom.ParkName;
             chatClient.RequestAllPlayers();
+            chatClient.Teleport(TPWClientConstants.InitialLocation);
         }
 
         private void AddPM(TPWUnicodeString Sender, TPWUnicodeString Content)
@@ -104,6 +126,20 @@ namespace TPWSE.ClientApplication.Pages
             if (chatPlayerBrushes.ContainsKey(Sender))
                 foreGround = chatPlayerBrushes[Sender];
             chatText.Inlines.Add(new Run("privately from " + Sender + "  ") { Foreground = foreGround, FontWeight = FontWeights.Bold });
+            chatText.ToolTip = new TextBlock() { Text = $"Respond with /tell {Sender} <PMsg>" };
+            chatText.Inlines.Add(new Run(Content));
+        }
+
+        private void AddShoutLog(TPWUnicodeString Sender, TPWUnicodeString Content)
+        {
+            var chatText = new TextBlock();
+            ChatLogView.Children.Add(new Border() { BorderThickness = new Thickness(4, 0, 0, 0), Child = chatText });
+            chatText.Foreground = Brushes.Red;
+            chatText.FontWeight = FontWeights.Bold;
+            Brush foreGround = Brushes.Red;
+            if (chatPlayerBrushes.ContainsKey(Sender))
+                foreGround = chatPlayerBrushes[Sender];
+            chatText.Inlines.Add(new Run(Sender + " shouts ") { Foreground = foreGround, FontWeight = FontWeights.Bold });
             chatText.ToolTip = new TextBlock() { Text = $"Respond with /tell {Sender} <PMsg>" };
             chatText.Inlines.Add(new Run(Content));
         }
@@ -126,16 +162,15 @@ namespace TPWSE.ClientApplication.Pages
             }
             else
             {
-                Brush foreCol = Brushes.Silver;
+                Brush foreCol = Brushes.DarkTurquoise;
+                contentBorder.BorderBrush = foreCol;
                 if (chatPlayerBrushes.ContainsKey(Sender))
                 {
                     if (Sender == PlayerInfo.PlayerName)
-                        chatText.Foreground = chatPlayerBrushes[Sender];
-                    foreCol = chatPlayerBrushes[Sender];
-                    contentBorder.BorderBrush = chatPlayerBrushes[Sender];
-                }
-                else chatText.Foreground = foreCol;
-                chatText.Inlines.Add(new Run(Sender + "  ") { Foreground = foreCol, FontWeight = FontWeights.Bold });
+                        chatText.Foreground = foreCol;
+                    //foreCol = chatPlayerBrushes[Sender];                    
+                }                
+                chatText.Inlines.Add(new Run(Sender + "  ") { FontWeight = FontWeights.Bold });
             }
             chatText.Inlines.Add(new Run(Content));
         }
@@ -150,13 +185,11 @@ namespace TPWSE.ClientApplication.Pages
             if (chatPlayerBrushes.ContainsKey(PlayerName))
                 return;
             var chatText = new TextBlock();
-            chatPlayerBrushes.Add(PlayerName, Brushes.Purple);
+            chatPlayerBrushes.Add(PlayerName, Brushes.MediumPurple);
             double bThickness = 3;
             chatText.Inlines.Add(new Run(PlayerName));
             chatText.Inlines.Add(new Run(isQuazarPlayer ? " TPW-SE App" : " In-Game") { Foreground = chatPlayerBrushes[PlayerName], FontWeight = FontWeights.Regular });
-            if (PlayerName == PlayerInfo.PlayerName)
-                chatText.Foreground = chatPlayerBrushes[PlayerName];
-            else
+            if (PlayerName != PlayerInfo.PlayerName)
             {
                 chatText.Cursor = Cursors.Hand;
                 chatText.ToolTip = "Click on this player's name to send them a Buddy request";
@@ -213,6 +246,36 @@ namespace TPWSE.ClientApplication.Pages
                 }
                 AddChatLog("$ERROR", "Couldn't move your character since the parameters weren't 2 numbers separated by a comma. (/move <number>,<number>)");
                 return;
+            }
+            if (MessageText.StartsWith("/follow"))
+            {
+                if (MessageText.Length > 8)
+                {
+                    MessageText = MessageText.Remove(0, 8);
+                    try
+                    {
+                        if (chatClient.OnlinePlayers.Any(x => x.PlayerName == MessageText))
+                        {
+                            FollowingClient = MessageText;
+                            FollowMode = true;
+                            AddChatLog("$INFO", $"Following {FollowingClient}, everytime they move, your character will move to their location.");                            
+                            return;
+                        }
+                    }
+                    catch
+                    {
+
+                    }
+                }
+                FollowMode = false;
+                if (FollowMode)
+                {
+                    AddChatLog("$INFO", "Follow-Mode is now off.");
+                    return;
+                }
+                AddChatLog("$ERROR", "Couldn't follow that person. Make sure to spell their name right - with capitalization, please. (/follow <name>)");
+                return;
+
             }
             if (MessageText.StartsWith("/tell"))
             {

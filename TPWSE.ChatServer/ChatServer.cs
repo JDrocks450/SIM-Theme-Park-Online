@@ -143,7 +143,7 @@ namespace SimTheme_Park_Online
                 // Client wants to join the park
                 case TPWConstants.TPWChatServerCommand.CreatePark:
                     {
-                        TPWUnicodeString CityName = (TPWUnicodeString)ParsedData[3].Data;
+                        //TPWUnicodeString CityName = (TPWUnicodeString)ParsedData[3].Data;
                         DWORD parkID = ParsedData[4].Data.ToDWORD();
                         // Does the room exist?
                         if (RoomManager.TryGetRoom(parkID, out var Room))
@@ -161,7 +161,6 @@ namespace SimTheme_Park_Online
                                 _interface = TPWSEPlayerInterfaceTypes.QuazarClient;
                             // Attempt admission to the room
                             bool result = Room.Admit(ID, info, out TPWConstants.TPWChatServerResponseCodes? denialCode, _interface);
-                            result = true;
                             JoiningPlayers.Remove(ID);
                             if (!result)
                             { // Client was not allowed in this room. Return with reasoning for the client.
@@ -320,14 +319,11 @@ namespace SimTheme_Park_Online
                         }                       
 
                         TPWUnicodeString message = (TPWUnicodeString)ParsedData[1].Data,
-                               name = Player.PlayerName;                        
+                               name = Player.PlayerName;
 
-                        var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.Chat, name, message);
-                        packet.MessageType = 0x012E;                        
-                        packet.PacketQueue = 0x00;
-                        Broadcast(packet);
+                        Say(name, message);
 
-                        packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.CHAT_RECEIVED, message);
+                        var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.CHAT_RECEIVED, message);
                         packet.MessageType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
@@ -335,7 +331,7 @@ namespace SimTheme_Park_Online
                         
                         if (message == "TEST1")
                         {
-                            Broadcast(new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.BOSS_CHAT_ENTERED_PARK)
+                            Broadcast(new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.BOSS_CHAT_CONNECTED, name)
                             {
                                 PacketQueue = 0x12E
                             });
@@ -441,7 +437,7 @@ namespace SimTheme_Park_Online
                         bool result = PlayerInfo.AddBuddy(OtherPlayerInfo.PlayerID);
 
                         var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.AddBuddy,
-                            (DWORD)(result ? (uint)0 : 1));
+                            OtherPlayerInfo.PlayerName, (result ? (DWORD)0 : 1));
                         packet.MessageType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
@@ -449,10 +445,10 @@ namespace SimTheme_Park_Online
 
                         if (result)
                         {
-                            packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.AddBuddy,
+                            packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.IGNORE_RECEIVED,
                                 PlayerInfo.PlayerName);
                             packet.MessageType = 0x012E;
-                            Send(connectID, packet);
+                            Send(ID, packet);
 
                             Tell(Room, "System", PlayerInfo.PlayerName, $"{username} saw you added him as a Buddy");
                             QConsole.WriteLine("ChatServer", $"{PlayerInfo.PlayerName} added {username} as a buddy");
@@ -475,14 +471,14 @@ namespace SimTheme_Park_Online
                         }
                         TPWUnicodeString username = (TPWUnicodeString)ParsedData[1].Data;
                         if (!Room.TryGetPlayerInfoByName(username, out var PlayerInfo) ||
-                            !Room.TryGetOnlineStateByID(PlayerInfo.PlayerID, out var PlayerState))
+                            !Room.TryGetOnlineStateByID(PlayerInfo.PlayerID, out var OtherPlayerState))
                         {
                             QConsole.WriteLine("ChatServer", "Couldn't locate player state/info due to an internal error.");
                             Disconnect(ID);
                             break;
                         }
-                        var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.LocatePlayer,
-                            (DWORD)PlayerState.CurrentPosition.X, (DWORD)PlayerState.CurrentPosition.Y);                            
+                        var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerResponseCodes.BOSS_CHAT_GOTO,
+                            PlayerInfo.PlayerName, "North Pole".ToUZ(), "Bisquick's Testing Zone".ToUZ());                            
                         packet.MessageType = 0x012D;
                         packet.Param3 = Data.Param3;
                         packet.PacketQueue = Data.PacketQueue;
@@ -503,12 +499,21 @@ namespace SimTheme_Park_Online
                             QConsole.WriteLine("ChatServer", "Found the park the guy is in, but couldn't load player data? That's a bug.");
                             break;
                         }
+
                         TPWUnicodeString type = (TPWUnicodeString)ParsedData[1].Data,
                                name = Player.PlayerName;                        
 
                         Send(ID, get12Dpacket((uint)TPWConstants.TPWChatServerCommand.Emote, (DWORD)0));
 
-                        TellAll(Player.PlayerName, $"I'm {type}");
+                        var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.Emote,
+                            name, type);
+                        packet.MessageType = 0x012E;
+                        packet.Param3 = Data.Param3;
+                        packet.PacketQueue = 0x0;
+                        Broadcast(packet);
+
+                        if (false)
+                            TellAll(Player.PlayerName, $"I'm {type}");
                     }
                     break;
                 default:
@@ -564,7 +569,7 @@ namespace SimTheme_Park_Online
         }
 
         public void TellAll(TPWUnicodeString From, TPWUnicodeString Text)
-        {
+        {            
             var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.Tell, From, Text);
             packet.MessageType = 0x012E;
             packet.PacketQueue = 0x00;
@@ -589,5 +594,13 @@ namespace SimTheme_Park_Online
         }
 
         public void ServerTell(TPWUnicodeString Text) => TellAll("System", Text);
+        public void ServerSay(TPWUnicodeString Text) => Say("System", Text);        
+        private void Say(TPWUnicodeString name, TPWUnicodeString message)
+        {
+            var packet = new TPWChatPacket((uint)TPWConstants.TPWChatServerCommand.Chat, name, message);
+            packet.MessageType = 0x012E;
+            packet.PacketQueue = 0x00;
+            Broadcast(packet);
+        }
     }
 }

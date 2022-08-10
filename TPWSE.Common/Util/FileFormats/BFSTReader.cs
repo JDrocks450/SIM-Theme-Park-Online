@@ -17,7 +17,7 @@ namespace SimTheme_Park_Online.Util.FileFormats
         /// <param name="data">The bytes that make up the file this is from</param>
         /// <param name="conversionTable">The URI of the file: MBtoUni.dat</param>
         /// <returns></returns>
-        public static List<string> GetStrings(byte[] data, Uri conversionTable)
+        public static List<string> GetStrings(byte[] data, Uri conversionTable, bool ShowIndices = false)
         {
             var strings = new List<string>();
             var characters = new BFMUReader();
@@ -53,9 +53,10 @@ namespace SimTheme_Park_Online.Util.FileFormats
                      * n bytes - characters
                      * each character comes from the BFMU file "MBToUni.dat"
                      */
-
+                    int index = 0;
                     foreach (uint offset in offsets)
                     {
+                        index++;
                         binaryReader.BaseStream.Seek(offset + 12, SeekOrigin.Begin);
                         byte byte0;
                         do
@@ -74,7 +75,7 @@ namespace SimTheme_Park_Online.Util.FileFormats
                             str += characters.GetChar(b);
                         }
                         binaryReader.ReadInt32();
-                        strings.Add(str);
+                        strings.Add($"{(ShowIndices ? $"[{index}] - " : "")} {str}");
                     }
                 }
             }

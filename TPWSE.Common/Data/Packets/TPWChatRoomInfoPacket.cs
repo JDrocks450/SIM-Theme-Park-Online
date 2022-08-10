@@ -10,12 +10,22 @@ namespace SimTheme_Park_Online.Data.Packets
 {
     public sealed class TPWChatRoomInfoPacket : TPWChatPacket
     {
+        /// <summary>
+        /// 
+        /// </summary>
+        /// <param name="ChatResponseCode"></param>
+        /// <param name="ParkName"></param>
+        /// <param name="StrParam">THEME</param>
+        /// <param name="ParkID"></param>
+        /// <param name="NumberOfPlayers"></param>
+        /// <param name="PacketLength"></param>
+        /// <param name="Param"></param>
         public TPWChatRoomInfoPacket(TPWChatServerCommand ChatResponseCode, TPWUnicodeString ParkName,
-                                     TPWUnicodeString StrParam, DWORD ParkID, DWORD NumberOfPlayers, DWORD PacketLength,
+                                     TPWUnicodeString Theme, DWORD ParkID, DWORD NumberOfPlayers, DWORD PacketLength,
                                      DWORD Param)
             : base((uint)ChatResponseCode,
                    ParkName,
-                   StrParam,
+                   Theme,
                    ParkID,
                    NumberOfPlayers,
                    PacketLength,

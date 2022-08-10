@@ -18,6 +18,7 @@
     <ProjectReference Include="..\TPWSE.ChatServer\TPWSE.ChatServer.csproj" />
     <ProjectReference Include="..\TPWSE.CityServer\TPWSE.CityServer.csproj" />
     <ProjectReference Include="..\TPWSE.Common\TPWSE.Common.csproj" />
+    <ProjectReference Include="..\TPWSE.FTP\TPWSE.FTP.csproj" />
   </ItemGroup>
 
   <ItemGroup>

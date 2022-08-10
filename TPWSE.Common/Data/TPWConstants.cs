@@ -12,7 +12,7 @@ namespace SimTheme_Park_Online.Data
         public static readonly byte[] Bc_Header = new byte[2] { (byte)'B', (byte)'c' };
         public static readonly byte[] Bs_Header = new byte[2] { (byte)'B', (byte)'s' };
         public const uint TPWSE_QuazarClientMagicNumber = 01001;
-        public const ushort TPWSendLimit = 400;
+        public const ushort TPWSendLimit = 256;
 
         /// <summary>
         /// Constants for transmissions on the <see cref="CityServer"/>

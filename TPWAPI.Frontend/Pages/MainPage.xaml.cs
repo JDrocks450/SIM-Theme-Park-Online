@@ -185,23 +185,31 @@ namespace TPWAPI.Frontend.Pages
                     Title = "Locate MBtoUni.dat in your game folder"
                 };
                 if (dialog.ShowDialog() ?? false) {
-                    var strings = SimTheme_Park_Online.Util.FileFormats.BFSTReader.GetStrings(bytes, new Uri(dialog.FileName));
-                    int take = 5, page = 1;
-                    for (int i = 0; i < strings.Count; i+=take) {
-                        string text = string.Join('\n', strings.Skip(i).Take(take));
-                        MessageBox.Show(text, $"Showing {take} items per page, {strings.Count} items, " +
-                            $"Page {page} of {Math.Ceiling(strings.Count / (decimal)take)}");
-                        page++;
-                    }
+                    PresentSTRWindow(bytes, new Uri(dialog.FileName));
                 }
             }
+        }
+
+        private void PresentSTRWindow(byte[] STRFileData, Uri MBtoUniPath)
+        {
+            var strings = SimTheme_Park_Online.Util.FileFormats.BFSTReader.GetStrings(STRFileData, MBtoUniPath, true);
+            var window = new Window()
+            {
+                WindowStyle = WindowStyle.ToolWindow,
+                Title = $"Showing {strings.Count} Strings",
+                Content = new ListBox()
+                {
+                    ItemsSource = strings
+                }
+            };
+            window.Show();
         }
 
         private void ServerTellItem_Click(object sender, RoutedEventArgs e)
         {
             TextEdit editor = new TextEdit();
             editor.ShowDialog();
-            ServerManagement.Current.ChatServer.ServerTell(editor.InputtedText);
+            ServerManagement.Current.ChatServer.ServerSay(editor.InputtedText);
         }
     }
 }
