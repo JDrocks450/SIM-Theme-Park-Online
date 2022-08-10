@@ -1,4 +1,7 @@
 # SIM Theme Park Online Restoration
+
+![image](https://user-images.githubusercontent.com/16988651/183787176-372a4f0e-1925-432e-b8d3-a335eab18c33.png)
+
 An Online Server Resurrection Project for SIM Theme Park Online Protocol 1.0
 
 ## Does it work?
