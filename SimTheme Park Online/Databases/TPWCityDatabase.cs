@@ -31,7 +31,7 @@ namespace SimTheme_Park_Online.Databases
         public override bool AddData(uint Key, TPWCityInfo City) => base.AddData(Key, City);
         public bool AddCity(TPWCityInfo City) => this.AddData(City.CityID, City);
 
-        public override uint CreateKey() => Util.UniqueNumber.Generate(DataCollection.Keys);
+        public override uint CreateKey() => QuazarAPI.Util.UniqueNumber.Generate(DataCollection.Keys);
         public override T CreateValue<T>(string ValueName)
         {
             return default;

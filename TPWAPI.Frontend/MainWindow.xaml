@@ -13,12 +13,6 @@
                 <GradientStop Color="#FF7CD5FF" Offset="0"/>
             </LinearGradientBrush>
         </Grid.Background>
-        <controls:SnowFallPanel Opacity=".5" x:Name="SnowFallPanel" Visibility="Collapsed"/>
-        <Frame>
-            <Frame.Content>
-                <pages:OnlineWorldPage/>
-            </Frame.Content>
-        </Frame>
         <Image Opacity=".5" Source="/Resources/Textures/Logo.png" VerticalAlignment="Top" HorizontalAlignment="Right" Width="100" Margin="20" RenderOptions.BitmapScalingMode="NearestNeighbor"/>
         <Frame Name="WindowContent" NavigationUIVisibility="Hidden">
             <Frame.Content>

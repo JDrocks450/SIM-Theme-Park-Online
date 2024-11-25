@@ -10,7 +10,7 @@
     <Grid>
         <threed:ThreeDWorldView x:Name="WorldView"/>
         <StackPanel VerticalAlignment="Top" HorizontalAlignment="Stretch" Orientation="Horizontal" Margin="0,10">
-            <Button Margin="10" Height="35" Width="100" Background="#FF008279" Foreground="#FF0DDACC">
+            <Button x:Name="BackButton" Margin="10" Height="35" Width="100" Background="#FF008279" Foreground="#FF0DDACC" Click="Button_Click">
                 <TextBlock>Go Back</TextBlock>
             </Button>
             <Rectangle Width="1" Fill="Gray" Margin="0,10"/>
@@ -20,7 +20,7 @@
                 </TextBlock>
             </Button>
             <Button Margin="10,0" Height="35" Width="100" Background="#FF008279" Foreground="#FF0DDACC">
-                <TextBlock><Run Text="View Cities"/></TextBlock>
+                <TextBlock x:Name="ViewCitiesButton"><Run Text="View Cities"/></TextBlock>
             </Button>
         </StackPanel>
     </Grid>

@@ -9,7 +9,7 @@ namespace SimTheme_Park_Online.Util.FileFormats
     public class BFSTReader
     {
         public string[] Extensions => new[] { ".str" };
-        public string AssetName => "BFST (Bullfrog String)";
+        public string AssetName => "BFST (Bullfrog String Table)";
 
         /// <summary>
         /// Gets the strings of a BFST file

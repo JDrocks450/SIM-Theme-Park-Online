@@ -3,7 +3,6 @@
 
 using Cassandra;
 using QuazarAPI;
-using QuazarAPI.Networking.Data;
 using QuazarAPI.Networking.Standard;
 using SimTheme_Park_Online.Data;
 using SimTheme_Park_Online.Data.Primitive;
@@ -21,7 +20,7 @@ using System.Text;
 
 namespace SimTheme_Park_Online
 {
-    public class CityServer : QuazarServer
+    public class CityServer : TPWSEServer
     {
         public class TPWCityWaypoint
         {
@@ -60,10 +59,12 @@ namespace SimTheme_Park_Online
             IDatabase<uint, TPWParkInfo> ParksDatabase) : base("CityServer", port, SIMThemeParkWaypoints.CityServer)
         {
             cityDatabase = CityDatabase;
-            parksDatabase = ParksDatabase;                               
+            parksDatabase = ParksDatabase;
+
+            OnIncomingPacket += onIncomingPacket;
         }
 
-        protected override void OnIncomingPacket(uint ID, TPWPacket Data)
+        void onIncomingPacket(uint ID, TPWPacket Data)
         {
 #if !STPVER2
             if (Data.PacketQueue == 13)
@@ -239,11 +240,6 @@ namespace SimTheme_Park_Online
         {
             QConsole.WriteLine(Name, "Stopping...");
             StopListening();
-        }
-
-        protected override void OnOutgoingPacket(uint ID, TPWPacket Data)
-        {
-            
         }
     }
 }

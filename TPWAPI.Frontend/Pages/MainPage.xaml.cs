@@ -164,7 +164,7 @@ namespace TPWAPI.Frontend.Pages
 
         private void WorldViewButton_Click(object sender, RoutedEventArgs e)
         {
-            Visibility = Visibility.Collapsed;
+            (Application.Current.MainWindow as MainWindow).SwitchScreen(new OnlineWorldPage());
         }
 
         private void STRFileMenuItem_Click(object sender, RoutedEventArgs e)

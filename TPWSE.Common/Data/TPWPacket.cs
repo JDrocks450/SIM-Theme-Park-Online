@@ -1,5 +1,6 @@
 ﻿using MiscUtil.Conversion;
 using QuazarAPI;
+using QuazarAPI.Networking.Data;
 using SimTheme_Park_Online.Data.Primitive;
 using SimTheme_Park_Online.Data.Templating;
 using System;
@@ -13,7 +14,7 @@ using System.Threading.Tasks;
 namespace SimTheme_Park_Online
 {
     [Serializable]
-    public class TPWPacket : IDisposable
+    public class TPWPacket : PacketBase
     {
         /* PACKET FORMAT FOUND:
          * REMEMBER THESE ARE INDICES OF BYTES IN ARRAY!
@@ -27,11 +28,7 @@ namespace SimTheme_Park_Online
         * 1 0 WORD: 0x012E, 9 SUCCESS, 2 SERV ERROR, 1 AUTH ERROR
         */
 
-        public bool IsHeaderless { get; set; } = false;
-
-        public DateTime Received, Sent;
-        public string ReceivedTime => Received == default ? "Not Received" : Received.ToString();
-        public string SentTime => Sent == default ? "Not Sent" : Sent.ToString();
+        public bool IsHeaderless { get; set; } = false;        
 
         /// <summary>
         /// The header of the packet, two bytes, ASCII
@@ -42,6 +39,7 @@ namespace SimTheme_Park_Online
         /// The length of the header, readonly
         /// </summary>
         public ushort HeaderLength => IsHeaderless ? (ushort)0 : (ushort)Header.Length;
+        public override uint GetHeaderSize() => 20;
         public uint DataLength => HeaderLength + BodyLength;
         /// <summary>
         /// WORD -- Indicates the type of the message
@@ -59,7 +57,7 @@ namespace SimTheme_Park_Online
         /// [DWORD] The length of the body of this packet, needed for TPW packets, this is calculated for you.
         /// <para>See: <see cref="Body"/></para>
         /// </summary>
-        public UInt32 BodyLength => (UInt32)(Body?.Length ?? 0 + Footer?.Length ?? 0);
+        public override UInt32 BodyLength => (UInt32)(Body?.Length ?? 0 + Footer?.Length ?? 0);
         /// <summary>
         /// [DWORD]
         /// </summary>
@@ -70,18 +68,13 @@ namespace SimTheme_Park_Online
         public UInt32 PacketQueue { get; set; } = 0x000A;
 
         public byte[] Header => GetHeader();
-        private MemoryStream _bodyBuffer = new MemoryStream();
-        public byte[] Body
+        public override bool TryGetHeaderData(in byte[] Buffer, out uint ReadSize)
         {
-            get => _bodyBuffer.ToArray();
-            set
-            {
-                AllocateBody((uint)value.Length);
-                EmplaceBody(value);
-            }
+            ReadSize = 0;
+            if (Buffer.Length < 20) return false;
+            ReadSize = 20;
+            return true;
         }
-        public long BodyPosition => _bodyBuffer.Position;
-        public bool IsBodyEOF => _bodyBuffer.Position == BodyLength;
         public byte[] Footer { get; set; }        
 
         //[JsonIgnore]
@@ -90,28 +83,7 @@ namespace SimTheme_Park_Online
         /// </summary>
         public string FileName { get; set; }
         
-        private TPWDataTemplate _dataTemplate;
-        private bool disposedValue;
-
-        internal List<TPWPacket> splitPackets = new List<TPWPacket>();
-        public bool HasChildPackets => splitPackets.Count > 0;
-        public int ChildPacketAmount => splitPackets.Count;
-        /// <summary>
-        /// Adds a packet to this one as a child. 
-        /// <para>This is used to allow packets to be split by the API without needing to use custom types.
-        /// The API will automatically detect and send these child packets with the primary packet.
-        /// </para>
-        /// </summary>
-        /// <param name="Packets"></param>
-        public void AppendChildPackets(params TPWPacket[] Packets)
-        {
-            splitPackets.AddRange(Packets.Where(x => x != null));
-            if (splitPackets.Remove(this))
-            {
-                QConsole.WriteLine("TPWPacket API", "The primary packet was found as a child packet of itself." +
-                    " However this happened, don't let it happen again.");
-            }
-        }
+        private TPWDataTemplate _dataTemplate;                     
 
         /// <summary>
         /// Represents whether a <see cref="TPWDataTemplate"/> is added to this packet or not.
@@ -138,15 +110,7 @@ namespace SimTheme_Park_Online
         ~TPWPacket()
         {
             Dispose();
-        }
-
-        private uint GetChildPacketBodyLength()
-        {
-            uint bodyLen = 0;
-            foreach (var packet in splitPackets)
-                bodyLen += packet.BodyLength;
-            return bodyLen;
-        }
+        }        
 
         private byte[] GetHeader()
         {
@@ -162,7 +126,7 @@ namespace SimTheme_Park_Online
             return buffer;
         }
 
-        public byte[] GetBytes()
+        public override byte[] GetBytes()
         {
             byte[] buffer = new byte[DataLength];
             if (!IsHeaderless)
@@ -176,6 +140,9 @@ namespace SimTheme_Park_Online
             }
             return buffer;
         }
+
+        public override T ParsePacket<T>(byte[] bytes, out int endIndex) => Parse(bytes, out endIndex) as T;
+        public override IEnumerable<T> ParseAllPackets<T>(ref byte[] Data) => ParseAll(ref Data).Select(x => x as T);
 
         public static TPWPacket Parse(in byte[] buffer, out int EndIndex)
         {
@@ -202,65 +169,11 @@ namespace SimTheme_Park_Online
 
             return packet;
         }
-
-        public void AllocateBody(uint BodySize) { 
-            _bodyBuffer = new MemoryStream(new byte[BodySize]);
-            SetPosition(0);
-        }
-        public void SetPosition(int Position) => _bodyBuffer.Position = Position;
-        public void EmplaceBody(params byte[] Bytes) => _bodyBuffer.Write(Bytes);        
-        public void EmplaceBody(uint DWORD, Endianness Endian = Endianness.BigEndian) {
-            if (Endian == Endianness.BigEndian)
-                EmplaceBody(EndianBitConverter.Big.GetBytes(DWORD));
-            else EmplaceBody(EndianBitConverter.Little.GetBytes(DWORD));
-        }
         public void EmplaceBody(ITPWBOSSSerializable Serializable, bool FullFormat = true) => EmplaceBody(Serializable.GetBytes(FullFormat));
-        public void EmplaceBodyAt(int Position, byte[] Buffer)
-        {
-            SetPosition(Position);
-            EmplaceBody(Buffer);
-        }
-        public void EmplaceBodyAt(int Position, uint DWORD, Endianness Endian = Endianness.BigEndian)
-        {
-            SetPosition(Position);
-            EmplaceBody(DWORD, Endian);
-        }      
-        public void EmplaceBodyAt(int Position, byte Byte)
-        {
-            SetPosition(Position);
-            EmplaceBody(Byte);
-        }      
         public void EmplaceBodyAt(int Position, ITPWBOSSSerializable Type, bool FullFormat = true)
         {
             SetPosition(Position);
             EmplaceBody(Type, FullFormat);
-        }
-
-        /// <summary>
-        /// The byte, cast to an int
-        /// </summary>
-        /// <returns></returns>
-        public int ReadBodyByte()
-        {
-            return (byte)_bodyBuffer.ReadByte();
-        }
-        public byte[] ReadBodyByteArray(int Length)
-        {
-            byte[] array = new byte[Length];
-            _bodyBuffer.Read(array, 0, Length);
-            return array;
-        }
-        public ushort ReadBodyUshort(Endianness Endian = Endianness.BigEndian)
-        {
-            if (Endian == Endianness.BigEndian)
-                return EndianBitConverter.Big.ToUInt16(ReadBodyByteArray(2), 0);
-            else return EndianBitConverter.Little.ToUInt16(ReadBodyByteArray(2), 0);
-        }
-        public uint ReadBodyDword(Endianness Endian = Endianness.BigEndian)
-        {             
-            if (Endian == Endianness.BigEndian)
-                return EndianBitConverter.Big.ToUInt32(ReadBodyByteArray(4),0);
-            else return EndianBitConverter.Little.ToUInt32(ReadBodyByteArray(4),0);
         }
         public TPWZeroTerminatedString ReadBodyTerminatedString(byte Terminator = 00)
         {            
@@ -326,57 +239,6 @@ namespace SimTheme_Park_Online
                 amount++;
             }
             return packets;
-        }
-
-        public void MergeBody(TPWPacket packet, int index)
-        {
-            MergeBody(packet.Body, index);
-        }
-        public void MergeBody(byte[] source, int index = 0)
-        {
-            byte[] buffer = Body;
-            int inputLeng = buffer.Length;
-            Array.Resize(ref buffer, Body.Length + (source.Length - index));
-            source.Skip(index).ToArray().CopyTo(buffer, inputLeng);
-            Body = buffer;
-        }
-
-        public int Write(in Stream Buffer)
-        {
-            byte[] buffer = GetBytes();
-            Buffer.Write(buffer);
-            return buffer.Length;
-        }
-
-        protected virtual void Dispose(bool disposing)
-        {
-            if (!disposedValue)
-            {
-                if (disposing)
-                {
-                    _bodyBuffer.Dispose();
-                }
-
-                // TODO: free unmanaged resources (unmanaged objects) and override finalizer
-                // TODO: set large fields to null
-                disposedValue = true;
-            }
-        }
-
-        public void Advance(int amount = 1) => SetPosition((int)BodyPosition + amount);
-
-        // // TODO: override finalizer only if 'Dispose(bool disposing)' has code to free unmanaged resources
-        // ~TPWPacket()
-        // {
-        //     // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-        //     Dispose(disposing: false);
-        // }
-
-        public void Dispose()
-        {
-            // Do not change this code. Put cleanup code in 'Dispose(bool disposing)' method
-            Dispose(disposing: true);
-            GC.SuppressFinalize(this);
-        }        
+        }               
     }
 }

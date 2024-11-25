@@ -54,7 +54,7 @@ namespace TPWSE.ClientServices.Clients
             Data = Error;
         }
     }
-    public class ChatClient : QuazarClient
+    public class ChatClient : QuazarClient<TPWPacket>
     {
         /// <summary>
         /// This is updated everytime <see cref="DownloadChatRoomInfo(DWORD[])"/> is called.

@@ -57,11 +57,9 @@
                 </Style>
             </TabControl.Resources>
             <TabItem Header="Console">
-                <Border>
-                    <TextBox x:Name="ConsoleOutput">
-                        Hello World
-                    </TextBox>
-                </Border>
+                <TextBox x:Name="ConsoleOutput">
+                    Hello World
+                </TextBox>
             </TabItem>
             <TabItem Header="Hide">
 

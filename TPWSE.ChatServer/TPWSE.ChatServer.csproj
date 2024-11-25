@@ -51,6 +51,10 @@
     <Compile Include="Data\TPWChatServerRoomInfoStructure.cs" />
   </ItemGroup>
   <ItemGroup>
+    <ProjectReference Include="..\..\TCPQuaZar\TCPQuaZar\TCPQuaZar.csproj">
+      <Project>{a9ac133d-39cf-4b43-a496-b45ebe6590fa}</Project>
+      <Name>TCPQuaZar</Name>
+    </ProjectReference>
     <ProjectReference Include="..\TPWSE.Common\TPWSE.Common.csproj">
       <Project>{94c638b9-79ab-4926-9455-e9fc1395084e}</Project>
       <Name>TPWSE.Common</Name>

@@ -17,7 +17,9 @@ Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TPWSE.ClientServices", "TPW
 EndProject
 Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TPWSE.ClientApplication", "TPWSEClientApplication\TPWSE.ClientApplication.csproj", "{192969F1-8576-4DD8-8E84-0941CA371930}"
 EndProject
-Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TPWSE.FTP", "TPWSE.FTP\TPWSE.FTP.csproj", "{68331FD9-C4E9-4E47-93C7-662BFF59C412}"
+Project("{9A19103F-16F7-4668-BE54-9A1E7A4F7556}") = "TPWSE.FTP", "TPWSE.FTP\TPWSE.FTP.csproj", "{68331FD9-C4E9-4E47-93C7-662BFF59C412}"
+EndProject
+Project("{FAE04EC0-301F-11D3-BF4B-00C04F79EFBC}") = "TCPQuaZar", "..\TCPQuaZar\TCPQuaZar\TCPQuaZar.csproj", "{A9AC133D-39CF-4B43-A496-B45EBE6590FA}"
 EndProject
 Global
 	GlobalSection(SolutionConfigurationPlatforms) = preSolution
@@ -57,6 +59,10 @@ Global
 		{68331FD9-C4E9-4E47-93C7-662BFF59C412}.Debug|Any CPU.Build.0 = Debug|Any CPU
 		{68331FD9-C4E9-4E47-93C7-662BFF59C412}.Release|Any CPU.ActiveCfg = Release|Any CPU
 		{68331FD9-C4E9-4E47-93C7-662BFF59C412}.Release|Any CPU.Build.0 = Release|Any CPU
+		{A9AC133D-39CF-4B43-A496-B45EBE6590FA}.Debug|Any CPU.ActiveCfg = Debug|Any CPU
+		{A9AC133D-39CF-4B43-A496-B45EBE6590FA}.Debug|Any CPU.Build.0 = Debug|Any CPU
+		{A9AC133D-39CF-4B43-A496-B45EBE6590FA}.Release|Any CPU.ActiveCfg = Release|Any CPU
+		{A9AC133D-39CF-4B43-A496-B45EBE6590FA}.Release|Any CPU.Build.0 = Release|Any CPU
 	EndGlobalSection
 	GlobalSection(SolutionProperties) = preSolution
 		HideSolutionNode = FALSE

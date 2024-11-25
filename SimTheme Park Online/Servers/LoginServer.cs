@@ -12,16 +12,18 @@ using System.Security;
 
 namespace SimTheme_Park_Online
 {
-    public class LoginServer : QuazarServer
+    public class LoginServer : TPWSEServer
     {
         private readonly IDatabase<uint, TPWPlayerInfo> playerDatabase;
 
         public LoginServer(int port, IDatabase<uint, TPWPlayerInfo> PlayerDatabase) : base("LoginServer", port, SIMThemeParkWaypoints.LoginServer, 8)
         {
             playerDatabase = PlayerDatabase;
+
+            OnIncomingPacket += LoginServer_OnIncomingPacket;
         }
 
-        protected override void OnIncomingPacket(uint ID, TPWPacket Data)
+        void LoginServer_OnIncomingPacket(uint ID, TPWPacket Data)
         {
             if (AuthenticateUser(Data, out TPWPlayerInfo Player))
             {
@@ -98,11 +100,6 @@ namespace SimTheme_Park_Online
         {
             QConsole.WriteLine(Name, "Stopping...");
             StopListening();
-        }
-
-        protected override void OnOutgoingPacket(uint ID, TPWPacket Data)
-        {
-            
         }
     }
 }

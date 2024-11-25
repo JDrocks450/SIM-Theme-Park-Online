@@ -5,7 +5,7 @@ using System;
 
 namespace TPWSE.FTP
 {
-    public class FTPServer : QuazarServer
+    public class FTPServer : TPWSEServer
     {
         public FTPServer(int port = 21, uint Backlog = 1) : base("FileTransferServer", port, SIMThemeParkWaypoints.FTPServer, Backlog)
         {
@@ -22,16 +22,6 @@ namespace TPWSE.FTP
         {
             QConsole.WriteLine(Name, "Stopping...");
             StopListening();
-        }
-
-        protected override void OnIncomingPacket(uint ID, TPWPacket Data)
-        {
-            
-        }
-
-        protected override void OnOutgoingPacket(uint ID, TPWPacket Data)
-        {
-            
         }
     }
 }

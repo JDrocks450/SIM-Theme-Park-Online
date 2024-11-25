@@ -130,10 +130,9 @@
   <ItemGroup>
     <Compile Include="Database\IDatabaseInterface.cs" />
     <Compile Include="Database\IDatabaseObject.cs" />
+    <Compile Include="Data\Packets\Datagram.cs" />
     <Compile Include="Data\TPWChatRoomInfo.cs" />
     <Compile Include="Parsers\TPWChatPacketParser.cs" />
-    <Compile Include="Quazar\Data\QEventArgs.cs" />
-    <Compile Include="Quazar\Data\QuazarClient.cs" />
     <Compile Include="Data\Packets\TPWChatPacket.cs" />
     <Compile Include="Data\Packets\TPWChatRoomInfoPacket.cs" />
     <Compile Include="Data\Structures\Lists\TPWCityInfoStructure.cs" />
@@ -160,27 +159,24 @@
     <Compile Include="Primitive\UnicodeString.cs" />
     <Compile Include="Primitive\ZeroTerminatedString.cs" />
     <Compile Include="Properties\AssemblyInfo.cs" />
-    <Compile Include="Quazar\ConnectionHelper.cs" />
-    <Compile Include="Quazar\Datagram.cs" />
-    <Compile Include="Quazar\Data\ClientInfoStruct.cs" />
-    <Compile Include="Quazar\Data\QuazarServer.cs" />
-    <Compile Include="Quazar\QConsole.cs" />
-    <Compile Include="Quazar\Waypoints.cs" />
     <Compile Include="TPWServerConfig.cs" />
-    <Compile Include="Util\BigEndianBitConverter.cs" />
+    <Compile Include="TPWSEServer.cs" />
     <Compile Include="Util\DoubleConverter.cs" />
-    <Compile Include="Util\EndianBitConverter.cs" />
-    <Compile Include="Util\Endianness.cs" />
     <Compile Include="Util\FileFormats\BFMUReader.cs" />
     <Compile Include="Util\FileFormats\BFSTReader.cs" />
     <Compile Include="Util\HexConverter.cs" />
-    <Compile Include="Util\LittleEndianBitConverter.cs" />
     <Compile Include="Util\SphericalCoordinateConverter.cs" />
-    <Compile Include="Util\UniqueNumber.cs" />
+    <Compile Include="Waypoints.cs" />
   </ItemGroup>
   <ItemGroup>
     <None Include="app.config" />
     <None Include="packages.config" />
+  </ItemGroup>
+  <ItemGroup>
+    <ProjectReference Include="..\..\TCPQuaZar\TCPQuaZar\TCPQuaZar.csproj">
+      <Project>{a9ac133d-39cf-4b43-a496-b45ebe6590fa}</Project>
+      <Name>TCPQuaZar</Name>
+    </ProjectReference>
   </ItemGroup>
   <Import Project="$(MSBuildToolsPath)\Microsoft.CSharp.targets" />
 </Project>

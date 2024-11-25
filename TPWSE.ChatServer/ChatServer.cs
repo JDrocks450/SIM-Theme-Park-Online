@@ -15,7 +15,7 @@ using TPWSE.ChatServer.Multiplayer;
 
 namespace SimTheme_Park_Online
 {
-    public class ChatServer : QuazarServer
+    public class ChatServer : TPWSEServer
     {
         private const int CHAT_RECV_AMOUNT = 1024;
 
@@ -49,6 +49,8 @@ namespace SimTheme_Park_Online
             foreach (var chatellite in chatellites)
                 RoomManager.CreateRoom(chatellite.ParkID);
             QConsole.WriteLine("ChatServer", "Online init success...");
+
+            OnIncomingPacket += onIncomingPacket;
         }
 
         private TPWChatPacket GetAFKPacket()
@@ -59,7 +61,7 @@ namespace SimTheme_Park_Online
             return packet;
         }
 
-        protected override void OnIncomingPacket(uint ID, TPWPacket Data)
+        void onIncomingPacket(uint ID, TPWPacket Data)
         {
             //Helper function to create 0x012D packets since they are all formulaic
             TPWPacket get12Dpacket(uint Code, params ITPWBOSSSerializable[] items)
@@ -542,7 +544,7 @@ namespace SimTheme_Park_Online
 
         protected override void OnManualSend(uint ID, ref TPWPacket Data)
         {
-            OnIncomingPacket(ID, Data);
+            onIncomingPacket(ID, Data);
             //base.OnManualSend(ID, ref Data);
         }
 
@@ -561,11 +563,6 @@ namespace SimTheme_Park_Online
         {
             QConsole.WriteLine(Name, "Stopping...");
             StopListening();
-        }
-
-        protected override void OnOutgoingPacket(uint ID, TPWPacket Data)
-        {
-            //Data.PacketQueue = PacketQueue;
         }
 
         public void TellAll(TPWUnicodeString From, TPWUnicodeString Text)
