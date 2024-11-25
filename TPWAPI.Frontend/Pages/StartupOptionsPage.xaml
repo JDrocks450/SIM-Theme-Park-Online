@@ -30,6 +30,7 @@
                             <CheckBox x:Name="NewsCheck" Foreground="{Binding Foreground, ElementName=Host}" IsChecked="True" FontFamily="Comic Sans MS">News Server</CheckBox>
                             <CheckBox x:Name="CityCheck" Foreground="{Binding Foreground, ElementName=Host}" IsChecked="True" FontFamily="Comic Sans MS">City Server</CheckBox>
                             <CheckBox x:Name="ChatCheck" Foreground="{Binding Foreground, ElementName=Host}" IsChecked="True" FontFamily="Comic Sans MS">Chat Server</CheckBox>
+                            <CheckBox x:Name="FTPCheck" Foreground="{Binding Foreground, ElementName=Host}" IsChecked="True" FontFamily="Comic Sans MS">FTP Server</CheckBox>
                         </StackPanel>
                         <Button x:Name="PortButton" Background="#FF076C9B" BorderThickness="0" Foreground="#FF74CCFF" FontFamily="Comic Sans MS" Click="PortButton_Click" Padding="20,1,20,1" Content="Change Ports" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="24" Margin="0,0,31,10"/>
 
@@ -55,6 +56,8 @@
                     <TextBox x:Name="CityPort"></TextBox>
                     <TextBlock Style="{StaticResource TPWUX_TitleStyle}" FontSize="14" FontWeight="Normal" Text="Chat Server" Margin="10,0,0,0"/>
                     <TextBox x:Name="ChatPort" Margin="10,0,0,0"></TextBox>
+                    <TextBlock Style="{StaticResource TPWUX_TitleStyle}" FontSize="14" FontWeight="Normal" Text="FTP Server" Margin="10,0,0,0"/>
+                    <TextBox x:Name="FTPPort" Margin="10,0,0,0"></TextBox>
                 </WrapPanel>
                 <Button x:Name="PortOKButton" Background="#FF076C9B" BorderThickness="0" Foreground="#FF74CCFF" FontFamily="Comic Sans MS" Click="PortOKButton_Click" Padding="20,1,20,1" Content="OK" VerticalAlignment="Bottom" HorizontalAlignment="Right" Height="25" Margin="121,0,0,0" Width="80"/>
             </Grid>

@@ -16,7 +16,7 @@ namespace TPWSE.ClientServices.Clients
     /// <summary>
     /// A standardized client of the TPW-SE CityServer
     /// </summary>
-    public sealed class CityClient : QuazarClient
+    public sealed class CityClient : QuazarClient<TPWPacket>
     {
         public enum StatusCodes
         {

@@ -5,41 +5,48 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TPWAPI.Frontend.Pages"
         mc:Ignorable="d"
-        Title="AboutDialog" Height="300" Width="425">
-    <Grid>
-        <Grid.RowDefinitions>
-            <RowDefinition/>
-            <RowDefinition/>
-            <RowDefinition/>
-        </Grid.RowDefinitions>
-        <Grid.ColumnDefinitions>
-            <ColumnDefinition Width="70"/>
-            <ColumnDefinition/>
-        </Grid.ColumnDefinitions>
-        <Grid.Resources>
-            <Style TargetType="Image">
-                <Setter Property="RenderOptions.BitmapScalingMode" Value="NearestNeighbor"/>
-                <Setter Property="Width" Value="50"/>
-            </Style>
-        </Grid.Resources>
-        <Image Source="/Resources/Textures/Logo.png"/>
-        <Image Source="/Resources/Textures/wingLogo_full.png" Grid.Row="1" RenderOptions.BitmapScalingMode="Fant"/>
-        <Image Source="/Resources/Textures/Buzzy.png" Grid.Row="2"/>
-        <GroupBox Grid.Column="1" Header="TPW-SE">
-            <TextBlock TextWrapping="Wrap">
+        Title="About TPW-SE" Height="300" Width="425" WindowStartupLocation="CenterOwner" WindowStyle="ToolWindow" Background="{DynamicResource {x:Static SystemColors.ControlBrushKey}}">
+    <DockPanel VerticalAlignment="Stretch">
+        <TextBlock DockPanel.Dock="Top" Margin="10,20,10,0" FontSize="18" FontFamily="Segoe UI Black" FontWeight="Normal" FontStyle="Normal">Theme Park World: Server Emulation</TextBlock>
+        <Separator DockPanel.Dock="Top" Margin="10,5"/>
+        <Grid Margin="10,0,10,10" DockPanel.Dock="Top">
+            <Grid.RowDefinitions>
+                <RowDefinition/>
+                <RowDefinition/>
+            </Grid.RowDefinitions>
+            <Grid.ColumnDefinitions>
+                <ColumnDefinition Width="70"/>
+                <ColumnDefinition/>
+            </Grid.ColumnDefinitions>
+            <Grid.Resources>
+                <Style TargetType="Image">
+                    <Setter Property="RenderOptions.BitmapScalingMode" Value="NearestNeighbor"/>
+                    <Setter Property="Width" Value="50"/>
+                </Style>
+            </Grid.Resources>
+            <Image Source="/Resources/Textures/Logo.png"/>
+            <Image Source="/Resources/Textures/wingLogo_full.png" Grid.Row="1" RenderOptions.BitmapScalingMode="Fant"/>
+            <GroupBox Grid.Column="1" Header="TPW-SE">
+                <TextBlock TextWrapping="Wrap">
                 <Run>
                     TPW-SE UX and Quazar Server by Jeremy Glazebrook are components of a project aiming at restoring the online functionality
                     of the game Theme Park World by Bullfrog.
                 </Run>
-            </TextBlock>
-        </GroupBox>
-        <GroupBox Grid.Column="1" Grid.Row="1" Header="Quazar">
-            <TextBlock TextWrapping="Wrap">
+                </TextBlock>
+            </GroupBox>
+            <GroupBox Grid.Column="1" Grid.Row="1" Header="Quazar">
+                <TextBlock TextWrapping="Wrap">
                 <Run>
                     Quazar Server by Jeremy Glazebrook is a project to reimplement the architecture of an OTP
                     server. It has been adapted for use in TPW-SE and is known as Quazar.TPW
                 </Run>
-            </TextBlock>
-        </GroupBox>
-    </Grid>
+                </TextBlock>
+            </GroupBox>
+        </Grid>
+        <StackPanel DockPanel.Dock="Bottom" Orientation="Horizontal" HorizontalAlignment="Right" Margin="0,0,10,0">
+            <Button Margin="0,10" Width="53">OK</Button>
+        </StackPanel>
+        <Separator DockPanel.Dock="Bottom" Margin="10,0"/>
+        <Grid/>
+    </DockPanel>
 </Window>

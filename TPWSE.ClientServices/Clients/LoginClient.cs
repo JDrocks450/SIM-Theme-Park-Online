@@ -16,7 +16,7 @@ namespace TPWSE.ClientServices.Clients
     /// <summary>
     /// Represents a standardized client of the TPW-SE LoginServer that can be used to authenticate a user using a username and password
     /// </summary>
-    public class LoginClient : QuazarClient
+    public class LoginClient : QuazarClient<TPWPacket>
     {
         public LoginClient(IPAddress Connection, int Port) : base("LoginClient", Connection, Port)
         {

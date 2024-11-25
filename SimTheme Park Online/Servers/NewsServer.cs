@@ -10,14 +10,14 @@ using System.Text;
 
 namespace SimTheme_Park_Online
 {
-    public class NewsServer : QuazarServer
+    public class NewsServer : TPWSEServer
     {
         public NewsServer(int port) : base("NewsServer", port, SIMThemeParkWaypoints.NewsServer)
         {
-            
+            OnIncomingPacket += NewsServer_OnIncomingPacket;
         }
 
-        protected override void OnIncomingPacket(uint ID, TPWPacket Data)
+        void NewsServer_OnIncomingPacket(uint ID, TPWPacket Data)
         {
             if (Data.PacketQueue == 0x0C)
             {
@@ -31,8 +31,9 @@ namespace SimTheme_Park_Online
                 QConsole.WriteLine(Name, "Sending NewsPackets...\n");
                 Send(ID,
                     GenerateServerInfoPacket(),
-                    GenerateGameInfoPacket(ServerManagement.Current.Profile.GameNewsString),
-                    GenerateSystemInfoPacket(ServerManagement.Current.Profile.SystemNewsString));
+                    GenerateGameInfoPacket(""),//ServerManagement.Current.Profile.GameNewsString),
+                    GenerateSystemInfoPacket("")//ServerManagement.Current.Profile.SystemNewsString)
+                );
             }
         }
 
@@ -90,11 +91,6 @@ namespace SimTheme_Park_Online
         {
             QConsole.WriteLine(Name, "Stopping...");
             StopListening();
-        }
-
-        protected override void OnOutgoingPacket(uint ID, TPWPacket Data)
-        {
-            
         }
     }
 }

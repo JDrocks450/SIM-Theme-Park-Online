@@ -5,7 +5,7 @@
         xmlns:mc="http://schemas.openxmlformats.org/markup-compatibility/2006"
         xmlns:local="clr-namespace:TPWSE.ClientApplication" xmlns:pages="clr-namespace:TPWSE.ClientApplication.Pages"
         mc:Ignorable="d"
-        Title="MainWindow" Height="768" Width="1024" Background="#FF1D1D1D">
+        Title="MainWindow" Height="768" Width="1024" Background="#102050">
     <Grid>
         <TextBlock Foreground="White" VerticalAlignment="Top" HorizontalAlignment="Left">Do not steal, TPW-SE is created and maintained by Jeremy Glazebrook</TextBlock>
         <Frame NavigationUIVisibility="Hidden" x:Name="Content">

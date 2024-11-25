@@ -18,13 +18,28 @@ namespace TPWSE.ClientServices.Clients
 {
     public class TPWChatEventArgs : QEventArgs<TPWUnicodeString>
     {
+        public bool IsChatMessage => !IsPrivateMessage && !IsShoutMessage;
         public bool IsPrivateMessage { get; set; }
+        public bool IsShoutMessage { get; set; }
         public readonly TPWUnicodeString Sender, Message;
-        public TPWChatEventArgs(TPWUnicodeString Sender, TPWUnicodeString Message, bool PrivateMessage = false)
+        public TPWChatEventArgs(TPWUnicodeString Sender, TPWUnicodeString Message, bool PrivateMessage = false, bool Shouting = false)
         {
             this.Sender = Sender;
             this.Message = Data = Message;
             IsPrivateMessage = PrivateMessage;
+            IsShoutMessage = Shouting;
+        }
+    }
+    public class TPWChatMoveEventArgs : QEventArgs<TPWPosition>
+    {
+        public TPWPosition NewLocation { get; set; }
+        public bool IsTeleporting { get; set; }
+        public readonly TPWUnicodeString Player;
+        public TPWChatMoveEventArgs(TPWUnicodeString Sender, TPWPosition Position, bool Teleporting = false)
+        {
+            Player = Sender;
+            NewLocation = Position;
+            IsTeleporting = Teleporting;
         }
     }
     public class TPWConnectionErrorEventArgs : QEventArgs<Exception>
@@ -39,7 +54,7 @@ namespace TPWSE.ClientServices.Clients
             Data = Error;
         }
     }
-    public class ChatClient : QuazarClient
+    public class ChatClient : QuazarClient<TPWPacket>
     {
         /// <summary>
         /// This is updated everytime <see cref="DownloadChatRoomInfo(DWORD[])"/> is called.
@@ -74,6 +89,7 @@ namespace TPWSE.ClientServices.Clients
         public event EventHandler<TPWChatEventArgs> OnOnlineChatReceived;
         public event EventHandler<QEventArgs<TPWPlayerInfo>> OnPlayerJoin;
         public event EventHandler<TPWConnectionErrorEventArgs> OnErrorThrown;
+        public event EventHandler<TPWChatMoveEventArgs> OnPlayerMoved;
 
         public ChatClient(IPAddress Address, int Port) : base("ChatClient", Address, Port)
         {
@@ -225,26 +241,43 @@ namespace TPWSE.ClientServices.Clients
                                 OnlinePlayers.Add(playerInfo);
                             if (!_quazarClients.ContainsKey(playerInfo.PlayerID))
                                 _quazarClients.Add(playerInfo.PlayerID, isQuazar);
-                            OnPlayerJoin?.DynamicInvoke(sender, new QEventArgs<TPWPlayerInfo>() { Data = playerInfo });
+                            OnPlayerJoin?.Invoke(sender, new QEventArgs<TPWPlayerInfo>() { Data = playerInfo });
                             break;
                         case (uint)TPWConstants.TPWChatServerCommand.Chat:
                             {
                                 TPWUnicodeString Sender = (TPWUnicodeString)Items[1].Data;
                                 TPWUnicodeString Message = (TPWUnicodeString)Items[2].Data;
-                                OnOnlineChatReceived?.DynamicInvoke(sender, new TPWChatEventArgs(Sender, Message));
+                                OnOnlineChatReceived?.Invoke(sender, new TPWChatEventArgs(Sender, Message));
                             }
                             break;
                         case (uint)TPWConstants.TPWChatServerCommand.SystemAnnouncement:
                             {
                                 TPWUnicodeString Message = (TPWUnicodeString)Items[1].Data;
-                                OnOnlineChatReceived?.DynamicInvoke(sender, new TPWChatEventArgs("$INFO", Message));
+                                OnOnlineChatReceived?.Invoke(sender, new TPWChatEventArgs("$INFO", Message));
                             }
                             break;
                         case (uint)TPWConstants.TPWChatServerCommand.Tell:
                             {
                                 TPWUnicodeString Sender = (TPWUnicodeString)Items[1].Data;
                                 TPWUnicodeString Message = (TPWUnicodeString)Items[2].Data;
-                                OnOnlineChatReceived?.DynamicInvoke(sender, new TPWChatEventArgs(Sender, Message, true));
+                                OnOnlineChatReceived?.Invoke(sender, new TPWChatEventArgs(Sender, Message, true));
+                            }
+                            break;
+                        case (uint)TPWConstants.TPWChatServerCommand.Shout:
+                            {
+                                TPWUnicodeString Sender = (TPWUnicodeString)Items[1].Data;
+                                TPWUnicodeString Message = (TPWUnicodeString)Items[2].Data;
+                                OnOnlineChatReceived?.Invoke(sender, new TPWChatEventArgs(Sender, Message, false, true));
+                            }
+                            break;
+                        case (uint)TPWConstants.TPWChatServerResponseCodes.BOSS_CHAT_MOVE:
+                            {
+                                TPWUnicodeString Sender = (TPWUnicodeString)Items[1].Data;
+                                DWORD X = Items[2].Data.ToDWORD();
+                                DWORD Z = Items[3].Data.ToDWORD();
+                                DWORD Teleport = Items[4].Data.ToDWORD();
+                                OnPlayerMoved?.Invoke(Sender, new TPWChatMoveEventArgs(Sender,
+                                    new TPWPosition(X, Z), Teleport == 0 ? false : true));
                             }
                             break;
                         default:
@@ -256,7 +289,6 @@ namespace TPWSE.ClientServices.Clients
             catch(Exception exception)
             {
                 OnErrorThrown?.Invoke(sender, new TPWConnectionErrorEventArgs(exception, packet, Items));
-                File.WriteAllBytes("chatclient_errorpacket_dump.dat", packet.GetBytes());
             }
         }
 

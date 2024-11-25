@@ -61,7 +61,7 @@ namespace TPWAPI.Frontend.Controls.ThreeD
             TheCamera = new PerspectiveCamera();
             TheCamera.FieldOfView = 60;
             MainViewport.Camera = TheCamera;
-            PositionCamera();
+            PositionCamera();            
 
             // Define lights.
             DefineLights();
@@ -75,6 +75,11 @@ namespace TPWAPI.Frontend.Controls.ThreeD
 
             // Display the main visual to the viewportt.
             MainViewport.Children.Add(model_visual);
+        }
+
+        private void PopulateStars()
+        {
+
         }
 
         // Define the lights.

@@ -10,6 +10,7 @@ namespace QuazarAPI.Networking.Standard
         LoginServer = 1000,
         NewsServer = 1001,
         CityServer = 1002,
-        ChatServer = 1003
+        ChatServer = 1003,
+        FTPServer = 1004
     }
 }

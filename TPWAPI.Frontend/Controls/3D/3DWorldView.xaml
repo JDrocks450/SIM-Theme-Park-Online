@@ -6,6 +6,12 @@
              xmlns:local="clr-namespace:TPWAPI.Frontend.Controls.ThreeD"
              mc:Ignorable="d" 
              d:DesignHeight="450" d:DesignWidth="800">
+    <UserControl.Background>
+        <LinearGradientBrush EndPoint="0.5,1" StartPoint="0.5,0">
+            <GradientStop Color="#FF003863"/>
+            <GradientStop Color="Black" Offset="1"/>
+        </LinearGradientBrush>
+    </UserControl.Background>
     <Viewport3D Name="MainViewport">
         
     </Viewport3D>

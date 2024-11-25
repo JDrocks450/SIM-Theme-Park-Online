@@ -7,6 +7,7 @@ using System.IO;
 using System.Text;
 using System.Text.Json;
 using System.Threading;
+using TPWSE.FTP;
 
 namespace SimTheme_Park_Online
 {
@@ -31,6 +32,13 @@ namespace SimTheme_Park_Online
         /// Each server component runs on its own thread
         /// </summary>
         public Thread LoginThread, NewsThread, CityThread, ChatThread;
+
+        /// <summary>
+        /// The FTP server instance for this session.
+        /// </summary>
+        public FTPServer FTPServer;
+        private Thread FTPThread;
+
         /// <summary>
         /// The login server instance for this session.
         /// </summary>
@@ -40,11 +48,11 @@ namespace SimTheme_Park_Online
         /// </summary>
         public NewsServer NewsServer;
         /// <summary>
-        /// The city server instance for this session
+        /// The city server instance for this session.
         /// </summary>
         public CityServer CityServer;
         /// <summary>
-        /// The chat server instance for this session
+        /// The chat server instance for this session.
         /// </summary>
         public ChatServer ChatServer;
 
@@ -98,10 +106,12 @@ namespace SimTheme_Park_Online
             LoginThread = new Thread((ThreadStart)delegate { LoginServer.Start(); });
             NewsServer = new NewsServer(Config.NEWS_PORT);
             NewsThread = new Thread((ThreadStart)delegate { NewsServer.Start(); });
-            CityServer = new CityServer(Config.CITY_PORT, CityDatabase, ParkDatabase) { SendAmount = 188 };
+            CityServer = new CityServer(Config.CITY_PORT, CityDatabase, ParkDatabase) { };
             CityThread = new Thread((ThreadStart)delegate { CityServer.Start(); });
             ChatServer = new ChatServer(Config.CHAT_PORT, PlayerDatabase, ParkDatabase);
             ChatThread = new Thread((ThreadStart)delegate { ChatServer.Start(); });
+            FTPServer = new FTPServer(Config.FTP_PORT);
+            FTPThread = new Thread((ThreadStart)delegate { FTPServer.Start(); });
         }
 
         /// <summary>
@@ -143,7 +153,9 @@ namespace SimTheme_Park_Online
             if (Config.CITY_ENABLE)
                 CityThread.Start();
             if (Config.CHAT_ENABLE)
-                ChatServer.Start();
+                ChatThread.Start();
+            if (Config.FTP_ENABLE)
+                FTPThread.Start();
         }
         /// <summary>
         /// Stops all the components
@@ -158,6 +170,8 @@ namespace SimTheme_Park_Online
                 CityServer.Stop();
             if (Config.CHAT_ENABLE)
                 ChatServer.Stop();
+            if (Config.FTP_ENABLE)
+                FTPServer.Stop();
         }
     }
 }

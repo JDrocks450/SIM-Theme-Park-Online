@@ -25,8 +25,7 @@ namespace TPWAPI.Frontend
     {
         public MainWindow()
         {
-            InitializeComponent();
-            SnowFallPanel.Visibility = Visibility.Visible;            
+            InitializeComponent();           
         }
 
         public void SwitchScreen(Page page)

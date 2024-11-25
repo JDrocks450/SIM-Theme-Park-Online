@@ -126,7 +126,7 @@ namespace SimTheme_Park_Online.Data
             Votes,
             ThemeID,
             0x00,
-            0x00,
+            0x01,
             DownloadedRides,
             DateCreated,
             CityID,

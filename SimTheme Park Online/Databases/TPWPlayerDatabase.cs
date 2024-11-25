@@ -15,7 +15,7 @@ namespace SimTheme_Park_Online.Databases
 
         }
 
-        public override uint CreateKey() => Util.UniqueNumber.Generate(DataCollection.Keys);
+        public override uint CreateKey() => QuazarAPI.Util.UniqueNumber.Generate(DataCollection.Keys);
         public override T CreateValue<T>(string ValueName)
         {
             //if (ValueName == "CustomerID")
