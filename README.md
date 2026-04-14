@@ -1,11 +1,18 @@
-# SIM Theme Park Online Restoration
+<p align="center"> 
+  <img src="https://github.com/user-attachments/assets/21311a7f-5d06-47f4-9bbc-96ad5b5ae91c" height="100"> 
+</center>
+
+# SIM Theme Park Online v1.0 Server Emulator
 
 ![image](https://user-images.githubusercontent.com/16988651/183787176-372a4f0e-1925-432e-b8d3-a335eab18c33.png)
 
-An Online Server Resurrection Project for SIM Theme Park Online Protocol 1.0
+A project aimed to making a compatible server for the original game client, primarily for documentation/preservation purposes.
 
-## Does it work?
-Kind of. Generally, I have made a nice UI for hosting a local server, so running it shouldn't be too problematic for most users. 
+## Additional Resources
+**TCRF Article** - Documentation on these defunct online functions [can be found here](https://tcrf.net/Sim_Theme_Park_(Windows,_Mac_OS_Classic)/SIM_Theme_Park_Online)
+
+## Project Status
+Functional (with missing features)! This project features a nice UI for hosting a local server, so running it shouldn't be too problematic for most users. 
 Setting up the game to use TPW-SE is fairly straight-forward as well. 
 
 *Note that due to game-related issues, the game has only been seen to connect to locally hosted servers, not remote ones.*
