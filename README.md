@@ -1,5 +1,5 @@
 <p align="center"> 
-  <img src="https://github.com/user-attachments/assets/21311a7f-5d06-47f4-9bbc-96ad5b5ae91c" height="100"> 
+  <img src="https://github.com/user-attachments/assets/675ef66b-8590-44e2-b4f0-94627bbbf35e" height="250"> 
 </center>
 
 # SIM Theme Park Online v1.0 Server Emulator
