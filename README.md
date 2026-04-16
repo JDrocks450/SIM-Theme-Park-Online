@@ -9,7 +9,9 @@
 A project aimed to making a compatible server for the original game client, primarily for documentation/preservation purposes.
 
 ## Additional Resources
-**TCRF Article** - Documentation on these defunct online functions [can be found here](https://tcrf.net/Sim_Theme_Park_(Windows,_Mac_OS_Classic)/SIM_Theme_Park_Online)
+**TCRF Article** - Documentation on these defunct online functions can be found here: [See more on The Cutting Room Floor](https://tcrf.net/Sim_Theme_Park_(Windows,_Mac_OS_Classic)/SIM_Theme_Park_Online)
+
+**SIM Theme Park Instruction Booklet** - Become familiar with the original game's online functions by viewing the instruction booklet. [See more on The Internet Archive](https://archive.org/details/sim-theme-park-manual)
 
 ## Project Status
 Functional (with missing features)! This project features a nice UI for hosting a local server, so running it shouldn't be too problematic for most users. 
